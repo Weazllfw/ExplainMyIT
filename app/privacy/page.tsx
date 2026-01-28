@@ -21,8 +21,7 @@ export default function PrivacyPage() {
           </div>
         </section>
         
-        <article className="container-section max-w-3xl mx-auto prose prose-lg prose-slate prose-headings:font-bold"
-
+        <article className="container-section max-w-3xl mx-auto prose prose-lg prose-slate prose-headings:font-bold">
           <h2>What We Collect</h2>
           <p>
             When you sign up for early access to Explain My IT, we collect:
