@@ -34,7 +34,7 @@
 
 ## 📊 New Data Captured
 
-### Automatic (No User Input Required)
+### Automatic (No User Input Required )
 
 | Attribute | What It Tracks | Example Value |
 |-----------|----------------|---------------|
