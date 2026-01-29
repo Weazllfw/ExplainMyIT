@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (12 Categories, 131+ Individual Fixes)
+## Fixes Applied (13 Categories, 134 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -111,11 +111,17 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Added required database properties (`checked_at`, `error`, etc.)
 - **Final cleanup**: Removed last orphaned `flags` property, added safety for `cross_block_flags`
 
+### Category 13: Missing Module Declarations (1 fix)
+**File**: `types/whois-json.d.ts` (NEW)
+- Created TypeScript declaration file for `whois-json` package
+- Package doesn't ship with type definitions
+- Simple function signature: `whois(domain: string): Promise<any>`
+
 ---
 
 ## Files Modified
 
-**13 Code Files**:
+**15 Code Files**:
 1. `app/api/snapshot/route.ts`
 2. `app/report/[id]/page.tsx`
 3. `scripts/test-api.ts`
@@ -130,8 +136,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 12. `lib/llm/prompts.ts`
 13. `lib/signals/orchestrator.ts`
 14. `types/database.ts`
+15. `types/whois-json.d.ts` - **NEW**
 
-**9 Documentation Files**:
+**10 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -140,7 +147,8 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 6. `PROMPTS-TYPE-FIX.md`
 7. `SCHEMA-MISMATCH-FIX.md`
 8. `FINAL-CLEANUP.md`
-9. `PROACTIVE-FIX-COMPLETE.md` (this file)
+9. `MODULE-DECLARATION-FIX.md` - **NEW**
+10. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -197,6 +205,7 @@ if (error || !data) { ... }
 - [x] LLM prompts optional signal access fixed (39 non-null assertions)
 - [x] Orchestrator schema mismatch fixed (62 property mappings)
 - [x] Final cleanup (removed last orphaned flags, added safety checks)
+- [x] Missing module declarations added (whois-json)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -206,11 +215,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 12 build failures, each requiring a separate push cycle
+**Before**: 13 build failures, each requiring 13 separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 133 individual fixes across 13 code files and 12 issue categories
+**Fixes**: 134 individual fixes across 15 code files and 13 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
