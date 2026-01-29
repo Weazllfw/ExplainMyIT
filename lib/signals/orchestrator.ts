@@ -89,7 +89,6 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
     collected_at: startTime.toISOString(),
     collection_duration_ms: durationMs,
     dns: {
-      success: dnsResult.success,
       confidence: dnsResult.confidence,
       domain_age_days: dnsResult.raw_signals.domain_age_years ? dnsResult.raw_signals.domain_age_years * 365 : null,
       registrar: dnsResult.raw_signals.registrar,
