@@ -17,7 +17,7 @@
 
 import { NextResponse } from 'next/server';
 import { validateSnapshotRequest } from '@/lib/utils/validation';
-import { checkRateLimit, recordSnapshotRun } from '@/lib/db/rate-limits';
+import { checkRateLimit, recordSnapshotRun, hashIdentifier } from '@/lib/db/rate-limits';
 import { createSnapshot, updateSnapshot } from '@/lib/db/snapshots';
 import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
@@ -47,6 +47,9 @@ export async function POST(request: Request) {
     const { domain, email } = validation.data;
 
     console.log(`📨 Snapshot request received: ${domain} (${email})`);
+
+    // Hash email for storage (privacy)
+    const emailHash = hashIdentifier(email);
 
     // Check rate limits
     const rateLimit = await checkRateLimit({
