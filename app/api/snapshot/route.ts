@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     await updateSnapshot(snapshot.id, {
       status: 'completed',
       signals_json: signals,
-      report_json: report,
+      report_json: report as any, // Store LLM report directly (JSONB is flexible)
       generation_duration_seconds: Math.round(duration),
       access_token_hash: accessTokenHash,
       access_expires_at: accessExpiresAt.toISOString(),
