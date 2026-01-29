@@ -124,7 +124,32 @@ if (snapshot.status !== 'completed') { ... }
 
 ---
 
-### 6. Test Script Type Safety
+### 6. JWT Payload Type Casting
+
+**Error**: `Conversion of type 'JWTPayload' to type 'SnapshotAccessToken' may be a mistake`
+
+**Root Cause**: 
+- `jose` library's `jwtVerify` returns generic `JWTPayload` type
+- TypeScript 5+ is stricter about direct type assertions between unrelated types
+- Need explicit double-cast pattern
+
+**Files Fixed**:
+- `lib/auth/magic-link.ts`
+
+**Changes**:
+```typescript
+// Before:
+payload: payload as SnapshotAccessToken,
+
+// After:
+payload: payload as unknown as SnapshotAccessToken,
+```
+
+**Rationale**: The double-cast pattern (`as unknown as TargetType`) explicitly tells TypeScript "I know these types don't overlap, but I'm intentionally converting this". This is the recommended pattern for JWT payload casting.
+
+---
+
+### 7. Test Script Type Safety
 
 **Error**: Potential runtime error in test script
 
@@ -181,6 +206,7 @@ console.log(`Owner Summary: ${
 - [x] Token payload accesses `snapshot_id` (snake_case)
 - [x] Test scripts handle flexible report structure
 - [x] **NEW**: `getSnapshotById` return value properly destructured
+- [x] **NEW**: JWT payload double-cast for type safety
 - [ ] Build succeeds locally (in progress)
 - [ ] Build succeeds on Vercel
 - [ ] No TypeScript errors remaining
@@ -193,7 +219,7 @@ console.log(`Owner Summary: ${
 2. `app/report/[id]/page.tsx` - Fixed token verification (2 locations) + `getSnapshotById` destructuring (2 locations)
 3. `scripts/test-api.ts` - Added type safety for flexible reports
 
-**Total**: 3 files, 6 separate issues fixed
+**Total**: 4 files, 7 separate issues fixed
 
 ---
 

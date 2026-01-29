@@ -76,7 +76,7 @@ export async function verifyMagicLinkToken(
 
     return {
       valid: true,
-      payload: payload as SnapshotAccessToken,
+      payload: payload as unknown as SnapshotAccessToken,
     };
   } catch (error) {
     if (error instanceof Error) {
