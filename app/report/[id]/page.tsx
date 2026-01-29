@@ -36,8 +36,8 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
   }
 
   // Verify token
-  const tokenPayload = await verifyMagicLinkToken(token);
-  if (!tokenPayload || tokenPayload.snapshotId !== id) {
+  const tokenResult = await verifyMagicLinkToken(token);
+  if (!tokenResult.valid || !tokenResult.payload || tokenResult.payload.snapshot_id !== id) {
     redirect(`/error?message=${encodeURIComponent('Invalid or expired link')}`);
   }
 
@@ -130,8 +130,8 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
     };
   }
 
-  const tokenPayload = await verifyMagicLinkToken(token);
-  if (!tokenPayload || tokenPayload.snapshotId !== id) {
+  const tokenResult = await verifyMagicLinkToken(token);
+  if (!tokenResult.valid || !tokenResult.payload || tokenResult.payload.snapshot_id !== id) {
     return {
       title: 'Invalid Link - Explain My IT',
       description: 'This link is invalid or has expired',
