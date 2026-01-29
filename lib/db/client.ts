@@ -6,7 +6,6 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
 
 // Environment variables validation
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,7 +25,7 @@ if (!supabaseAnonKey) {
  * Uses anon key, respects RLS policies
  * Use in client components and API routes where user context matters
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false, // We handle sessions differently for anonymous users
   },
@@ -38,7 +37,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
  * CAUTION: Only use in API routes, never expose to client
  */
 export const supabaseAdmin = supabaseServiceKey
-  ? createClient<Database>(supabaseUrl, supabaseServiceKey, {
+  ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
