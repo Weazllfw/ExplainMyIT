@@ -23,7 +23,7 @@ import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
 import { generateMagicLink } from '@/lib/auth/magic-link';
 import { sendSnapshotEmail } from '@/lib/email/snapshot-email';
-import type { SnapshotSignals, SnapshotReport } from '@/types/database';
+import type { SnapshotSignals } from '@/types/database';
 
 export async function POST(request: Request) {
   const startTime = Date.now();
@@ -110,16 +110,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const report: SnapshotReport = {
-      owner_summary: reportResult.report.owner_summary,
-      top_findings: reportResult.report.top_findings,
-      block_narratives: reportResult.report.block_narratives,
-      assumptions: reportResult.report.assumptions,
-      questions: reportResult.report.questions,
-      email_subject: reportResult.report.email_subject,
-      email_body: reportResult.report.email_body,
-      generated_at: new Date().toISOString(),
-    };
+    // Store the LLM report directly (JSONB allows flexible structure)
+    const report = reportResult.report;
 
     // Generate magic link token
     const magicLink = await generateMagicLink(snapshot.id, email, domain, baseUrl);
