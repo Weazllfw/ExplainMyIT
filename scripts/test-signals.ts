@@ -344,18 +344,19 @@ async function testOrchestrator() {
     console.log(`  Collected: ${signals.collected_at}`);
     
     console.log('\n  Module Success:');
-    console.log(`    DNS: ${signals.dns.success ? '✅' : '❌'} (${signals.dns.confidence})`);
-    console.log(`    Email: ${signals.email.success ? '✅' : '❌'} (${signals.email.confidence})`);
-    console.log(`    TLS: ${signals.tls.success ? '✅' : '❌'} (${signals.tls.confidence})`);
-    console.log(`    Tech Stack: ${signals.techstack.success ? '✅' : '❌'} (${signals.techstack.confidence})`);
-    console.log(`    Exposure: ${signals.exposure.success ? '✅' : '❌'} (${signals.exposure.confidence})`);
-    console.log(`    HIBP: ${signals.hibp.success ? '✅' : '❌'} (${signals.hibp.confidence})`);
+    console.log(`    DNS: ${signals.dns?.error ? '❌' : '✅'} (${signals.dns?.confidence || 'N/A'})`);
+    console.log(`    Email: ${signals.email?.error ? '❌' : '✅'} (${signals.email?.confidence || 'N/A'})`);
+    console.log(`    TLS: ${signals.tls?.error ? '❌' : '✅'} (${signals.tls?.confidence || 'N/A'})`);
+    console.log(`    Tech Stack: ${signals.techstack?.error ? '❌' : '✅'} (${signals.techstack?.confidence || 'N/A'})`);
+    console.log(`    Exposure: ${signals.exposure?.error ? '❌' : '✅'} (${signals.exposure?.confidence || 'N/A'})`);
+    console.log(`    HIBP: ${signals.hibp?.error ? '❌' : '✅'} (${signals.hibp?.confidence || 'N/A'})`);
     
     console.log('\n  Cross-Block Flags:');
-    console.log(`    High Risk Overall: ${signals.cross_block_flags.high_risk_overall ? '⚠️  YES' : '✅ No'}`);
-    console.log(`    Insurance Relevant: ${signals.cross_block_flags.insurance_relevant ? '⚠️  YES' : 'No'}`);
-    console.log(`    Quick Wins Available: ${signals.cross_block_flags.quick_wins_available ? '💡 YES' : 'No'}`);
-    console.log(`    Professional Setup: ${signals.cross_block_flags.professional_setup ? '✅ YES' : 'No'}`);
+    if (signals.cross_block_flags && signals.cross_block_flags.length > 0) {
+      console.log(`    Active Flags: ${signals.cross_block_flags.join(', ')}`);
+    } else {
+      console.log(`    Active Flags: None`);
+    }
     
     console.log('\n  ✅ Signal orchestration successful!');
     console.log('  ✅ All signals ready for LLM processing');

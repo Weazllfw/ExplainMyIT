@@ -25,8 +25,8 @@ async function testLLMGeneration() {
     
     console.log(`✅ Signal collection complete (${signals.collection_duration_ms}ms)`);
     console.log(`   Successful modules: ${
-      [signals.dns.success, signals.email.success, signals.tls.success, 
-       signals.techstack.success, signals.exposure.success, signals.hibp.success]
+      [!signals.dns?.error, !signals.email?.error, !signals.tls?.error, 
+       !signals.techstack?.error, !signals.exposure?.error, !signals.hibp?.error]
       .filter(Boolean).length
     }/6`);
     
