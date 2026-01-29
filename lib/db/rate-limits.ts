@@ -53,10 +53,9 @@ export async function checkRateLimit(params: {
     };
   }
   
-  const { data: existingLimit, error } = await query.single();
+  const { data: existingLimit, error } = await query.maybeSingle();
   
-  if (error && error.code !== 'PGRST116') {
-    // PGRST116 = no rows returned, which is fine
+  if (error) {
     return { allowed: false, error: error.message };
   }
   
@@ -118,7 +117,7 @@ export async function recordSnapshotRun(params: {
     };
   }
   
-  const { data: existingLimit } = await query.single();
+  const { data: existingLimit } = await query.maybeSingle();
   
   if (existingLimit) {
     // Update existing record
