@@ -63,14 +63,16 @@ export async function saveHibpCache(
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
   
   // Upsert (insert or update if exists)
+  const cacheData = {
+    domain_hash: domainHash,
+    results_json: results,
+    cached_at: now.toISOString(),
+    expires_at: expiresAt.toISOString(),
+  };
+  
   const { error } = await supabase
     .from('hibp_cache')
-    .upsert({
-      domain_hash: domainHash,
-      results_json: results as any,
-      cached_at: now.toISOString(),
-      expires_at: expiresAt.toISOString(),
-    });
+    .upsert(cacheData as any);
   
   if (error) {
     return { success: false, error: error.message };
