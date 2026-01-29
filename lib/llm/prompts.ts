@@ -33,7 +33,6 @@ ${JSON.stringify(
           nameservers: signals.dns!.nameservers,
           has_dnssec: signals.dns!.has_dnssec,
         },
-        flags: signals.dns!.flags,
       },
       email: {
         block_name: 'Email & Identity Posture',
@@ -178,7 +177,7 @@ ${JSON.stringify(
           breaches_found: signals.hibp!.breaches_found,
         },
       },
-      cross_block_flags: signals.cross_block_flags,
+      cross_block_flags: signals.cross_block_flags || [],
     },
     null,
     2
