@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (10 Categories, 32 Individual Fixes)
+## Fixes Applied (11 Categories, 71 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -95,11 +95,18 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Updated function call in test script
 - Fixes missing `domain` property on `SnapshotSignals` type
 
+### Category 11: LLM Prompts Optional Signal Access (39 fixes)
+**File**: `lib/llm/prompts.ts`
+- Added non-null assertions (`!`) to all signal property accesses
+- `buildBlockNarrativesPrompt()` - 21 assertions (dns, email, tls, techstack, exposure, hibp)
+- `buildSynthesisPrompt()` - 18 assertions
+- Fixes `'signals.dns' is possibly 'undefined'` and similar errors for all signal blocks
+
 ---
 
 ## Files Modified
 
-**11 Code Files**:
+**12 Code Files**:
 1. `app/api/snapshot/route.ts`
 2. `app/report/[id]/page.tsx`
 3. `scripts/test-api.ts`
@@ -111,8 +118,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 9. `lib/db/users.ts`
 10. `lib/db/client.ts`
 11. `lib/llm/generator.ts`
+12. `lib/llm/prompts.ts`
 
-**6 Documentation Files**:
+**7 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -172,6 +180,7 @@ if (error || !data) { ... }
 - [x] All JWT payloads use double-cast
 - [x] All Supabase client types set to `any` (3 variables)
 - [x] LLM generator function signature fixed (domain parameter added)
+- [x] LLM prompts optional signal access fixed (39 non-null assertions)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -181,11 +190,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 9+ build failures, each requiring 9+ separate push cycles
+**Before**: 10+ build failures, each requiring 10+ separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 32 individual fixes across 11 code files and 10 issue categories
+**Fixes**: 71 individual fixes across 12 code files and 11 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
