@@ -65,7 +65,7 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
     
     if (cached.results) {
       console.log(`HIBP cache hit for ${normalizedDomain}`);
-      return cached.results as HibpBlockResult;
+      return cached.results as unknown as HibpBlockResult;
     }
     
     // Fetch from API
