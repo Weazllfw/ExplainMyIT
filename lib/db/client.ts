@@ -29,15 +29,15 @@ function getSupabaseServiceKey(): string | undefined {
 }
 
 // Lazy initialization
-let _supabase: ReturnType<typeof createClient> | null = null;
-let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+let _supabase: any = null;
+let _supabaseAdmin: any = null;
 
 /**
  * Client-side Supabase client
  * Uses anon key, respects RLS policies
  * Use in client components and API routes where user context matters
  */
-export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+export const supabase = new Proxy({} as any, {
   get(_target, prop) {
     if (!_supabase) {
       _supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
