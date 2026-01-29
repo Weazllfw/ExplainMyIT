@@ -127,15 +127,13 @@ export async function recordSnapshotRun(params: {
     const existingLimit: RateLimit = data;
     
     // Update existing record
-    const updateData = {
-      last_run_at: new Date().toISOString(),
-      run_count: existingLimit.run_count + 1,
-      tier_limit_type: tierLimitType,
-    };
-    
     const { error } = await supabase
       .from('rate_limits')
-      .update(updateData as any)
+      .update({
+        last_run_at: new Date().toISOString(),
+        run_count: existingLimit.run_count + 1,
+        tier_limit_type: tierLimitType,
+      })
       .eq('id', existingLimit.id);
     
     if (error) {
@@ -143,18 +141,16 @@ export async function recordSnapshotRun(params: {
     }
   } else {
     // Create new record
-    const rateLimitData = {
-      user_id: userId || null,
-      email_hash: emailHash || null,
-      domain_hash: domainHash,
-      last_run_at: new Date().toISOString(),
-      run_count: 1,
-      tier_limit_type: tierLimitType,
-    };
-    
     const { error } = await supabase
       .from('rate_limits')
-      .insert(rateLimitData as any);
+      .insert({
+        user_id: userId || null,
+        email_hash: emailHash || null,
+        domain_hash: domainHash,
+        last_run_at: new Date().toISOString(),
+        run_count: 1,
+        tier_limit_type: tierLimitType,
+      });
     
     if (error) {
       return { success: false, error: error.message };
