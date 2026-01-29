@@ -42,8 +42,8 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
   }
 
   // Get snapshot from database
-  const snapshot = await getSnapshotById(id);
-  if (!snapshot) {
+  const { snapshot, error } = await getSnapshotById(id);
+  if (error || !snapshot) {
     notFound();
   }
 
@@ -138,8 +138,8 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
     };
   }
 
-  const snapshot = await getSnapshotById(id);
-  if (!snapshot) {
+  const { snapshot, error } = await getSnapshotById(id);
+  if (error || !snapshot) {
     return {
       title: 'Report Not Found - Explain My IT',
       description: 'The requested report could not be found',
