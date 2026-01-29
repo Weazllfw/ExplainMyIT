@@ -74,7 +74,7 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
   console.log(`   ${summary.join(' | ')}`);
   
   // Compute cross-block flags
-  const crossBlockFlags = computeCrossBlockFlags({
+  const crossBlockFlagsObj = computeCrossBlockFlags({
     dns: dnsResult,
     email: emailResult,
     tls: tlsResult,
@@ -82,6 +82,11 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
     exposure: exposureResult,
     hibp: hibpResult,
   });
+  
+  // Convert CrossBlockFlags object to string array
+  const crossBlockFlags: string[] = Object.entries(crossBlockFlagsObj)
+    .filter(([_, value]) => value === true)
+    .map(([key, _]) => key);
   
   // Convert to SnapshotSignals format for database
   const signals: SnapshotSignals = {
