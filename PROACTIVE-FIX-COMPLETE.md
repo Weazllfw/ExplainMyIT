@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (14 Categories, 140 Individual Fixes)
+## Fixes Applied (15 Categories, 141 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -129,6 +129,11 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - `HibpDerivedFlags` - Added index signature
 - Fixes compatibility with `Record<string, boolean>` type requirement
 
+### Category 15: Cache Type Cast (1 fix)
+**File**: `lib/signals/hibp.ts`
+- Applied double-cast pattern for cache retrieval: `as unknown as HibpBlockResult`
+- Fixes type mismatch between `HibpResults` (cache) and `HibpBlockResult` (return type)
+
 ---
 
 ## Files Modified
@@ -150,7 +155,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**11 Documentation Files**:
+**12 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -160,8 +165,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 7. `SCHEMA-MISMATCH-FIX.md`
 8. `FINAL-CLEANUP.md`
 9. `MODULE-DECLARATION-FIX.md`
-10. `INDEX-SIGNATURE-FIX.md` - **NEW**
-11. `PROACTIVE-FIX-COMPLETE.md` (this file)
+10. `INDEX-SIGNATURE-FIX.md`
+11. `CACHE-TYPE-CAST-FIX.md` - **NEW**
+12. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -218,8 +224,9 @@ if (error || !data) { ... }
 - [x] LLM prompts optional signal access fixed (39 non-null assertions)
 - [x] Orchestrator schema mismatch fixed (62 property mappings)
 - [x] Final cleanup (removed last orphaned flags, added safety checks)
-- [x] Missing module declarations added (whois-json)
+- [x] Missing module declarations added (whois-json with options support)
 - [x] Index signatures added to all DerivedFlags interfaces
+- [x] Cache type cast fixed (HIBP module)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -229,11 +236,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 14 build failures, each requiring 14 separate push cycles
+**Before**: 15 build failures, each requiring 15 separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 140 individual fixes across 16 code files and 14 issue categories
+**Fixes**: 141 individual fixes across 17 code files and 15 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
