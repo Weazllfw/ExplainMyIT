@@ -33,8 +33,11 @@ export async function getHibpCache(
     return { results: null, error: null };
   }
   
+  // TypeScript type narrowing: data is HibpCache at this point
+  const cacheEntry: HibpCache = data;
+  
   // Check if expired
-  const expiresAt = new Date(data.expires_at);
+  const expiresAt = new Date(cacheEntry.expires_at);
   const now = new Date();
   
   if (now > expiresAt) {
@@ -43,7 +46,7 @@ export async function getHibpCache(
     return { results: null, error: null };
   }
   
-  return { results: data.results_json, error: null };
+  return { results: cacheEntry.results_json, error: null };
 }
 
 /**
@@ -120,7 +123,10 @@ export async function hasHibpCache(
     return { cached: false, expiresAt: null, error: null };
   }
   
-  const expiresAt = new Date(data.expires_at);
+  // TypeScript type narrowing: data has expires_at at this point
+  const cacheData: { expires_at: string } = data;
+  
+  const expiresAt = new Date(cacheData.expires_at);
   const now = new Date();
   
   // Check if expired
