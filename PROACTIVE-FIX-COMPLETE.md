@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (15 Categories, 141 Individual Fixes)
+## Fixes Applied (15 Categories, 143 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -129,10 +129,12 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - `HibpDerivedFlags` - Added index signature
 - Fixes compatibility with `Record<string, boolean>` type requirement
 
-### Category 15: Cache Type Cast (1 fix)
+### Category 15: Cache Structure Alignment (3 fixes)
 **File**: `lib/signals/hibp.ts`
-- Applied double-cast pattern for cache retrieval: `as unknown as HibpBlockResult`
-- Fixes type mismatch between `HibpResults` (cache) and `HibpBlockResult` (return type)
+- Added `HibpResults` import from database types
+- Reconstructed `HibpBlockResult` properly from cached `HibpResults` data
+- Converted `HibpBlockResult` to `HibpResults` format before saving to cache
+- Fixes bidirectional type mismatch between cache storage and function return
 
 ---
 
@@ -166,7 +168,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 8. `FINAL-CLEANUP.md`
 9. `MODULE-DECLARATION-FIX.md`
 10. `INDEX-SIGNATURE-FIX.md`
-11. `CACHE-TYPE-CAST-FIX.md` - **NEW**
+11. `CACHE-STRUCTURE-FIX.md` - **NEW** (replaces CACHE-TYPE-CAST-FIX.md)
 12. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
@@ -226,7 +228,7 @@ if (error || !data) { ... }
 - [x] Final cleanup (removed last orphaned flags, added safety checks)
 - [x] Missing module declarations added (whois-json with options support)
 - [x] Index signatures added to all DerivedFlags interfaces
-- [x] Cache type cast fixed (HIBP module)
+- [x] Cache structure alignment fixed (HIBP module - bidirectional conversion)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -236,11 +238,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 15 build failures, each requiring 15 separate push cycles
+**Before**: 16 build failures, each requiring 16 separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 141 individual fixes across 17 code files and 15 issue categories
+**Fixes**: 143 individual fixes across 17 code files and 15 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
