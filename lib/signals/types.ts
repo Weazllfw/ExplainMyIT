@@ -36,6 +36,7 @@ export interface DnsRawSignals {
 }
 
 export interface DnsDerivedFlags {
+  [key: string]: boolean;
   domain_age_low: boolean;          // < 1 year
   dns_provider_third_party: boolean; // Using external DNS (Cloudflare, etc.)
   single_point_dns_dependency: boolean; // All NS from same provider
@@ -56,6 +57,7 @@ export interface EmailRawSignals {
 }
 
 export interface EmailDerivedFlags {
+  [key: string]: boolean;
   email_spoofing_possible: boolean;
   email_protection_partial: boolean;
   email_protection_strong: boolean;
@@ -76,6 +78,7 @@ export interface TlsRawSignals {
 }
 
 export interface TlsDerivedFlags {
+  [key: string]: boolean;
   ssl_expiring_soon: boolean;       // < 30 days
   legacy_tls_supported: boolean;    // TLS 1.0 or 1.1
   no_https_redirect: boolean;
@@ -96,6 +99,7 @@ export interface TechStackRawSignals {
 }
 
 export interface TechStackDerivedFlags {
+  [key: string]: boolean;
   cms_common_target: boolean;        // WordPress, Joomla
   cdn_present: boolean;
   hosting_identified: boolean;
@@ -115,6 +119,7 @@ export interface ExposureRawSignals {
 }
 
 export interface ExposureDerivedFlags {
+  [key: string]: boolean;
   cloud_hosted: boolean;
   infrastructure_identifiable: boolean;
 }
@@ -138,6 +143,7 @@ export interface HibpRawSignals {
 }
 
 export interface HibpDerivedFlags {
+  [key: string]: boolean;
   recent_breach: boolean;            // Within last 12 months
   multiple_breaches: boolean;        // 2 or more
   credential_breach: boolean;        // Password or email exposed
