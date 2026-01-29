@@ -102,19 +102,20 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - `buildSynthesisPrompt()` - 18 assertions
 - Fixes `'signals.dns' is possibly 'undefined'` and similar errors for all signal blocks
 
-### Category 12: Orchestrator Schema Mismatch (60+ fixes)
-**Files**: `lib/signals/orchestrator.ts`, `lib/llm/prompts.ts`
+### Category 12: Orchestrator Schema Mismatch (62 fixes)
+**Files**: `lib/signals/orchestrator.ts`, `lib/llm/prompts.ts`, `types/database.ts`
 - **Orchestrator**: Rewrote all 6 signal block mappings to match database schema (30+ property mappings)
-- **Prompts**: Updated all property references in prompt builders (30+ property names)
+- **Prompts**: Updated all property references in prompt builders (32 property changes)
 - Fixed property name mismatches (e.g., `domain_age_years` → `domain_age_days`)
 - Removed internal properties (`flags`, `error_message`, `success`) not in database schema
 - Added required database properties (`checked_at`, `error`, etc.)
+- **Final cleanup**: Removed last orphaned `flags` property, added safety for `cross_block_flags`
 
 ---
 
 ## Files Modified
 
-**12 Code Files**:
+**13 Code Files**:
 1. `app/api/snapshot/route.ts`
 2. `app/report/[id]/page.tsx`
 3. `scripts/test-api.ts`
@@ -127,14 +128,19 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 10. `lib/db/client.ts`
 11. `lib/llm/generator.ts`
 12. `lib/llm/prompts.ts`
+13. `lib/signals/orchestrator.ts`
+14. `types/database.ts`
 
-**7 Documentation Files**:
+**9 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
 4. `CLIENT-TYPE-FIX.md`
 5. `LLM-FUNCTION-FIX.md`
-6. `PROACTIVE-FIX-COMPLETE.md` (this file)
+6. `PROMPTS-TYPE-FIX.md`
+7. `SCHEMA-MISMATCH-FIX.md`
+8. `FINAL-CLEANUP.md`
+9. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -189,6 +195,8 @@ if (error || !data) { ... }
 - [x] All Supabase client types set to `any` (3 variables)
 - [x] LLM generator function signature fixed (domain parameter added)
 - [x] LLM prompts optional signal access fixed (39 non-null assertions)
+- [x] Orchestrator schema mismatch fixed (62 property mappings)
+- [x] Final cleanup (removed last orphaned flags, added safety checks)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -198,11 +206,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 11+ build failures, each requiring 11+ separate push cycles
+**Before**: 12 build failures, each requiring a separate push cycle
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 131+ individual fixes across 12 code files and 12 issue categories
+**Fixes**: 133 individual fixes across 13 code files and 12 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
