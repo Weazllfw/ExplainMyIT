@@ -1,4 +1,4 @@
-import { client, allPostsQuery, postBySlugQuery, postSlugsQuery } from '@/sanity/client';
+import { client, isSanityConfigured, allPostsQuery, postBySlugQuery, postSlugsQuery } from '@/sanity/client';
 import type { BlogPost } from '@/types/blog';
 import type { SanityBlogPost } from '@/types/sanity';
 
@@ -43,6 +43,11 @@ function calculateReadingTime(body: any[]): number {
  * Uses ISR with 1-hour revalidation for optimal SEO + performance
  */
 export async function getAllPosts(): Promise<BlogPost[]> {
+  if (!isSanityConfigured || !client) {
+    console.warn('Sanity not configured - returning empty posts array');
+    return [];
+  }
+
   try {
     const posts = await client.fetch<SanityBlogPost[]>(allPostsQuery, {}, {
       next: { revalidate: 3600 }, // Revalidate every hour
@@ -60,6 +65,10 @@ export async function getAllPosts(): Promise<BlogPost[]> {
  * Uses ISR with 1-hour revalidation
  */
 export async function getPost(slug: string): Promise<BlogPost> {
+  if (!isSanityConfigured || !client) {
+    throw new Error('Sanity not configured - cannot fetch post');
+  }
+
   try {
     const post = await client.fetch<SanityBlogPost>(
       postBySlugQuery,
@@ -83,6 +92,11 @@ export async function getPost(slug: string): Promise<BlogPost> {
  * Uses ISR with 1-hour revalidation
  */
 export async function getPostSlugs(): Promise<string[]> {
+  if (!isSanityConfigured || !client) {
+    console.warn('Sanity not configured - returning empty slugs array');
+    return [];
+  }
+
   try {
     const slugs = await client.fetch<string[]>(postSlugsQuery, {}, {
       next: { revalidate: 3600 },

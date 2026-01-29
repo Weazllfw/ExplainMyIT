@@ -1,12 +1,22 @@
 import { createClient } from 'next-sanity';
 
-export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: '2024-01-28',
-  useCdn: process.env.NODE_ENV === 'production', // CDN for production, fresh data for development
-  token: process.env.SANITY_API_TOKEN, // Only needed for write operations
-});
+// Check if Sanity is configured
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+
+// Only create client if Sanity is configured
+export const client = projectId 
+  ? createClient({
+      projectId,
+      dataset,
+      apiVersion: '2024-01-28',
+      useCdn: process.env.NODE_ENV === 'production',
+      token: process.env.SANITY_API_TOKEN,
+    })
+  : null;
+
+// Helper to check if Sanity is configured
+export const isSanityConfigured = !!projectId;
 
 /**
  * GROQ queries for blog posts
