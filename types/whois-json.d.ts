@@ -4,6 +4,12 @@
  */
 
 declare module 'whois-json' {
-  function whois(domain: string): Promise<any>;
+  interface WhoisOptions {
+    timeout?: number;
+    follow?: number;
+    [key: string]: any;
+  }
+  
+  function whois(domain: string, options?: WhoisOptions): Promise<any>;
   export default whois;
 }

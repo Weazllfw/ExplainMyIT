@@ -115,7 +115,8 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 **File**: `types/whois-json.d.ts` (NEW)
 - Created TypeScript declaration file for `whois-json` package
 - Package doesn't ship with type definitions
-- Simple function signature: `whois(domain: string): Promise<any>`
+- Function signature: `whois(domain: string, options?: WhoisOptions): Promise<any>`
+- Includes `WhoisOptions` interface for timeout and other config options
 
 ### Category 14: Missing Index Signatures (6 fixes)
 **File**: `lib/signals/types.ts`
