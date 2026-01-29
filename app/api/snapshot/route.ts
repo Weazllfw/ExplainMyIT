@@ -22,7 +22,6 @@ import { createSnapshot, updateSnapshot } from '@/lib/db/snapshots';
 import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
 import { generateMagicLink } from '@/lib/auth/magic-link';
-import { hashIdentifier } from '@/lib/db/rate-limits';
 import { sendSnapshotEmail } from '@/lib/email/snapshot-email';
 import type { SnapshotSignals, SnapshotReport } from '@/types/database';
 
@@ -50,19 +49,18 @@ export async function POST(request: Request) {
     console.log(`📨 Snapshot request received: ${domain} (${email})`);
 
     // Check rate limits
-    const emailHash = hashIdentifier(email);
-    const domainHash = hashIdentifier(domain);
-
-    const rateLimit = await checkRateLimit(emailHash, domainHash, 'free');
+    const rateLimit = await checkRateLimit({
+      domain,
+      email,
+      tierLimitType: 'free',
+    });
 
     if (!rateLimit.allowed) {
       console.log(`❌ Rate limit exceeded for ${email}`);
       return NextResponse.json(
         {
           success: false,
-          error: 'Rate limit exceeded',
-          message: rateLimit.message,
-          retry_after: rateLimit.retry_after,
+          error: rateLimit.error || 'Rate limit exceeded. Try again in 30 days.',
         },
         { status: 429 }
       );
@@ -140,7 +138,11 @@ export async function POST(request: Request) {
     });
 
     // Record snapshot run for rate limiting
-    await recordSnapshotRun(emailHash, domainHash, 'free');
+    await recordSnapshotRun({
+      domain,
+      email,
+      tierLimitType: 'free',
+    });
 
     console.log(`✅ Snapshot completed: ${snapshot.id} (${duration.toFixed(2)}s)`);
 
