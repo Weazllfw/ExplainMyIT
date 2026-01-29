@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (18 Categories, 147 Individual Fixes)
+## Fixes Applied (19 Categories, 150 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -154,6 +154,13 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Filters to include only flags with `true` values
 - Fixes type mismatch between internal representation and database schema
 
+### Category 19: Script Import Errors (3 fixes)
+**File**: `scripts/setup-db.ts`
+- Updated import from `supabaseAdmin` to `getSupabaseAdmin`
+- Changed usage 1: schema version check
+- Changed usage 2: table verification loop
+- Fixes import error for non-existent export
+
 ---
 
 ## Files Modified
@@ -175,7 +182,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**15 Documentation Files**:
+**16 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -189,8 +196,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 11. `CACHE-STRUCTURE-FIX.md`
 12. `ORCHESTRATOR-SUCCESS-REMOVAL.md`
 13. `IMPLICIT-ANY-FIX.md`
-14. `CROSS-BLOCK-FLAGS-CONVERSION.md` - **NEW**
-15. `PROACTIVE-FIX-COMPLETE.md` (this file)
+14. `CROSS-BLOCK-FLAGS-CONVERSION.md`
+15. `SCRIPT-IMPORT-FIX.md` - **NEW**
+16. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -253,6 +261,7 @@ if (error || !data) { ... }
 - [x] Orchestrator success property removed (not in database schema)
 - [x] Implicit any parameters fixed (arrow function type annotations)
 - [x] Cross-block flags conversion (object to string array)
+- [x] Script import errors fixed (setup-db.ts)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -262,11 +271,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 19 build failures, each requiring 19 separate push cycles
+**Before**: 20 build failures, each requiring 20 separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 147 individual fixes across 17 code files and 18 issue categories
+**Fixes**: 150 individual fixes across 18 code files and 19 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 

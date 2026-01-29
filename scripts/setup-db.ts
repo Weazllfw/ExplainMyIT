@@ -13,7 +13,7 @@
  *   4. Runs basic health checks
  */
 
-import { supabase, supabaseAdmin, healthCheck, testConnection } from '../lib/db/client';
+import { supabase, getSupabaseAdmin, healthCheck, testConnection } from '../lib/db/client';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -61,7 +61,7 @@ async function main() {
   // Step 3: Check if schema is already applied
   console.log('Step 3: Checking if schema is applied...');
   
-  const { data: schemaVersion, error: versionError } = await supabaseAdmin!
+  const { data: schemaVersion, error: versionError } = await getSupabaseAdmin()
     .from('schema_version')
     .select('*')
     .order('version', { ascending: false })
@@ -78,7 +78,7 @@ async function main() {
     console.log('Verifying tables...');
     
     for (const table of tables) {
-      const { error } = await supabaseAdmin!
+      const { error } = await getSupabaseAdmin()
         .from(table as any)
         .select('count')
         .limit(1);
