@@ -28,12 +28,13 @@ import type { SnapshotSignals } from '@/types/database';
  * Duration: ~3-5 seconds for all 3 calls
  */
 export async function generateReport(
+  domain: string,
   signals: SnapshotSignals,
   reportUrl: string
 ): Promise<{ success: boolean; report?: LLMReport; error?: string }> {
   const startTime = Date.now();
   
-  console.log(`🤖 Starting LLM report generation for ${signals.domain}`);
+  console.log(`🤖 Starting LLM report generation for ${domain}`);
   
   try {
     // CALL 1: Block Narratives (all 6 blocks in one request)

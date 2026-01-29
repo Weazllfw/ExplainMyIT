@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (9 Categories, 26 Individual Fixes)
+## Fixes Applied (10 Categories, 32 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -88,27 +88,37 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Changed `supabase` Proxy type from `ReturnType<typeof createClient>` to `any`
 - Resolves type mismatch between anon and service key client instances
 
+### Category 10: LLM Generator Function Signature (3 fixes)
+**Files**: `lib/llm/generator.ts`, `app/api/snapshot/route.ts`, `scripts/test-llm.ts`
+- Added `domain` parameter to `generateReport()` function
+- Updated function call in snapshot API route
+- Updated function call in test script
+- Fixes missing `domain` property on `SnapshotSignals` type
+
 ---
 
 ## Files Modified
 
-**9 Code Files**:
+**11 Code Files**:
 1. `app/api/snapshot/route.ts`
 2. `app/report/[id]/page.tsx`
 3. `scripts/test-api.ts`
-4. `lib/auth/magic-link.ts`
-5. `lib/db/cache.ts`
-6. `lib/db/snapshots.ts`
-7. `lib/db/rate-limits.ts`
-8. `lib/db/users.ts`
-9. `lib/db/client.ts`
+4. `scripts/test-llm.ts`
+5. `lib/auth/magic-link.ts`
+6. `lib/db/cache.ts`
+7. `lib/db/snapshots.ts`
+8. `lib/db/rate-limits.ts`
+9. `lib/db/users.ts`
+10. `lib/db/client.ts`
+11. `lib/llm/generator.ts`
 
-**5 Documentation Files**:
+**6 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
 4. `CLIENT-TYPE-FIX.md`
-5. `PROACTIVE-FIX-COMPLETE.md` (this file)
+5. `LLM-FUNCTION-FIX.md`
+6. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -161,6 +171,7 @@ if (error || !data) { ... }
 - [x] All database operations cast correctly (16 operations across 4 files)
 - [x] All JWT payloads use double-cast
 - [x] All Supabase client types set to `any` (3 variables)
+- [x] LLM generator function signature fixed (domain parameter added)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -170,11 +181,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 8+ build failures, each requiring a separate fix and push cycle
+**Before**: 9+ build failures, each requiring 9+ separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 29 individual fixes across 9 code files and 9 issue categories
+**Fixes**: 32 individual fixes across 11 code files and 10 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
