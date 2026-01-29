@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const reportUrl = `${baseUrl}/report/${snapshot.id}`;
 
-    const reportResult = await generateReport(signals, reportUrl);
+    const reportResult = await generateReport(domain, signals, reportUrl);
 
     if (!reportResult.success || !reportResult.report) {
       console.error(`❌ LLM generation failed: ${reportResult.error}`);

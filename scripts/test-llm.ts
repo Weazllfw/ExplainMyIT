@@ -34,7 +34,7 @@ async function testLLMGeneration() {
     console.log(`\n🤖 Step 2: Generating LLM report...\n`);
     const reportUrl = 'https://explainmyit.com/report/test-12345';
     
-    const result = await generateReport(signals, reportUrl);
+    const result = await generateReport(testDomain, signals, reportUrl);
     
     if (!result.success || !result.report) {
       console.error('❌ LLM generation failed:', result.error);
