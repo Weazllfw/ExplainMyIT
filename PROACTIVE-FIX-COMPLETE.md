@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (11 Categories, 71 Individual Fixes)
+## Fixes Applied (12 Categories, 131+ Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -101,6 +101,14 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - `buildBlockNarrativesPrompt()` - 21 assertions (dns, email, tls, techstack, exposure, hibp)
 - `buildSynthesisPrompt()` - 18 assertions
 - Fixes `'signals.dns' is possibly 'undefined'` and similar errors for all signal blocks
+
+### Category 12: Orchestrator Schema Mismatch (60+ fixes)
+**Files**: `lib/signals/orchestrator.ts`, `lib/llm/prompts.ts`
+- **Orchestrator**: Rewrote all 6 signal block mappings to match database schema (30+ property mappings)
+- **Prompts**: Updated all property references in prompt builders (30+ property names)
+- Fixed property name mismatches (e.g., `domain_age_years` → `domain_age_days`)
+- Removed internal properties (`flags`, `error_message`, `success`) not in database schema
+- Added required database properties (`checked_at`, `error`, etc.)
 
 ---
 
@@ -190,11 +198,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 10+ build failures, each requiring 10+ separate push cycles
+**Before**: 11+ build failures, each requiring 11+ separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 71 individual fixes across 12 code files and 11 issue categories
+**Fixes**: 131+ individual fixes across 12 code files and 12 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 

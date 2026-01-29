@@ -75,12 +75,16 @@ export interface SchemaVersion {
 // ============================================================================
 
 export interface SnapshotSignals {
+  domain?: string;
+  collected_at?: string;
+  collection_duration_ms?: number;
   dns?: DnsSignals;
   email?: EmailSignals;
   tls?: TlsSignals;
   techstack?: TechStackSignals;
   exposure?: ExposureSignals;
   hibp?: HibpSignals;
+  cross_block_flags?: string[];
   // Tier 2 can add: m365, google, azure, aws, etc.
 }
 
