@@ -15,6 +15,7 @@ import type {
   HibpDerivedFlags,
   Confidence
 } from './types';
+import type { HibpResults } from '@/types/database';
 
 const HIBP_API_BASE = 'https://haveibeenpwned.com/api/v3';
 const HIBP_API_KEY = process.env.HIBP_API_KEY;
@@ -65,7 +66,44 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
     
     if (cached.results) {
       console.log(`HIBP cache hit for ${normalizedDomain}`);
-      return cached.results as unknown as HibpBlockResult;
+      
+      // Reconstruct block result from cached data
+      const cachedBreaches = cached.results.breaches;
+      
+      // Extract relevant breach data
+      const breachData = cachedBreaches.map(b => ({
+        name: b.Name,
+        title: b.Title,
+        breach_date: b.BreachDate,
+        added_date: b.AddedDate,
+        data_classes: b.DataClasses,
+      }));
+      
+      // Find most recent breach
+      const mostRecentBreachDate = cachedBreaches.length > 0
+        ? cachedBreaches.reduce((latest, b) => {
+            const date = new Date(b.BreachDate);
+            return date > latest ? date : latest;
+          }, new Date(cachedBreaches[0].BreachDate)).toISOString().split('T')[0]
+        : null;
+      
+      const rawSignals: HibpRawSignals = {
+        breaches: breachData,
+        total_breach_count: cachedBreaches.length,
+        most_recent_breach_date: mostRecentBreachDate,
+      };
+      
+      const derivedFlags = computeHibpFlags(rawSignals);
+      const confidence: Confidence = 'high';
+      
+      return {
+        block_name: 'hibp',
+        success: true,
+        confidence,
+        raw_signals: rawSignals,
+        derived_flags: derivedFlags,
+        collected_at: cached.results.fetched_at,
+      };
     }
     
     // Fetch from API
@@ -109,8 +147,12 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
       collected_at: startTime,
     };
     
-    // Cache the result (save entire block result for consistency)
-    await saveHibpCache(normalizedDomain, result);
+    // Cache the result (convert to HibpResults format for storage)
+    const cacheData: HibpResults = {
+      breaches: breaches, // Store raw API breaches for cache
+      fetched_at: startTime,
+    };
+    await saveHibpCache(normalizedDomain, cacheData);
     
     return result;
     
