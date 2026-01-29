@@ -15,38 +15,44 @@ import { hashIdentifier } from './rate-limits';
 export async function getHibpCache(
   domain: string
 ): Promise<{ results: HibpResults | null; error: string | null }> {
-  const supabase = getSupabaseAdmin();
-  const domainHash = hashIdentifier(domain);
+  try {
+    const supabase = getSupabaseAdmin();
+    const domainHash = hashIdentifier(domain);
   
-  const { data, error } = await supabase
-    .from('hibp_cache')
-    .select('*')
-    .eq('domain_hash', domainHash)
-    .maybeSingle();
-  
-  if (error) {
-    return { results: null, error: error.message };
-  }
-  
-  // Not found is OK, means not cached
-  if (!data) {
+    const { data, error } = await supabase
+      .from('hibp_cache')
+      .select('*')
+      .eq('domain_hash', domainHash)
+      .maybeSingle();
+    
+    if (error) {
+      return { results: null, error: error.message };
+    }
+    
+    // Not found is OK, means not cached
+    if (!data) {
+      return { results: null, error: null };
+    }
+    
+    // TypeScript type narrowing: data is HibpCache at this point
+    const cacheEntry: HibpCache = data;
+    
+    // Check if expired
+    const expiresAt = new Date(cacheEntry.expires_at);
+    const now = new Date();
+    
+    if (now > expiresAt) {
+      // Cache expired, delete it and return null
+      await deleteHibpCache(domain);
+      return { results: null, error: null };
+    }
+    
+    return { results: cacheEntry.results_json, error: null };
+  } catch (error) {
+    // Supabase not configured (e.g., in tests) - skip caching
+    console.warn('HIBP cache unavailable');
     return { results: null, error: null };
   }
-  
-  // TypeScript type narrowing: data is HibpCache at this point
-  const cacheEntry: HibpCache = data;
-  
-  // Check if expired
-  const expiresAt = new Date(cacheEntry.expires_at);
-  const now = new Date();
-  
-  if (now > expiresAt) {
-    // Cache expired, delete it and return null
-    await deleteHibpCache(domain);
-    return { results: null, error: null };
-  }
-  
-  return { results: cacheEntry.results_json, error: null };
 }
 
 /**
@@ -56,27 +62,33 @@ export async function saveHibpCache(
   domain: string,
   results: HibpResults
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = getSupabaseAdmin();
-  const domainHash = hashIdentifier(domain);
+  try {
+    const supabase = getSupabaseAdmin();
+    const domainHash = hashIdentifier(domain);
   
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
-  
-  // Upsert (insert or update if exists)
-  const { error } = await supabase
-    .from('hibp_cache')
-    .upsert({
-      domain_hash: domainHash,
-      results_json: results,
-      cached_at: now.toISOString(),
-      expires_at: expiresAt.toISOString(),
-    });
-  
-  if (error) {
-    return { success: false, error: error.message };
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    
+    // Upsert (insert or update if exists)
+    const { error } = await supabase
+      .from('hibp_cache')
+      .upsert({
+        domain_hash: domainHash,
+        results_json: results,
+        cached_at: now.toISOString(),
+        expires_at: expiresAt.toISOString(),
+      });
+    
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    
+    return { success: true, error: null };
+  } catch (error) {
+    // Supabase not configured - skip caching
+    console.warn('HIBP cache save skipped:', error);
+    return { success: false, error: 'Cache unavailable' };
   }
-  
-  return { success: true, error: null };
 }
 
 /**
