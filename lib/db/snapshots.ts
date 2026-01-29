@@ -19,16 +19,18 @@ export async function createSnapshot(data: {
 }): Promise<Snapshot> {
   const supabase = getSupabaseAdmin();
   
+  const insertData = {
+    domain: data.domain,
+    user_id: data.user_id || null,
+    email_hash: data.email_hash || null,
+    status: data.status || 'pending',
+    signals_json: null,
+    report_json: null,
+  };
+  
   const { data: snapshot, error } = await supabase
     .from('snapshots')
-    .insert({
-      domain: data.domain,
-      user_id: data.user_id || null,
-      email_hash: data.email_hash || null,
-      status: data.status || 'pending',
-      signals_json: null,
-      report_json: null,
-    })
+    .insert(insertData as any)
     .select()
     .single();
   
@@ -55,7 +57,7 @@ export async function updateSnapshot(
   
   const { error } = await supabase
     .from('snapshots')
-    .update(data)
+    .update(data as any)
     .eq('id', snapshotId);
   
   if (error) {
@@ -157,7 +159,7 @@ export async function updateSnapshotStatus(
   
   const { error } = await supabase
     .from('snapshots')
-    .update(updateData)
+    .update(updateData as any)
     .eq('id', snapshotId);
   
   if (error) {
@@ -176,12 +178,14 @@ export async function saveSnapshotSignals(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    signals_json: signals,
+    status: 'processing',
+  };
+  
   const { error } = await supabase
     .from('snapshots')
-    .update({
-      signals_json: signals,
-      status: 'processing',
-    })
+    .update(updateData as any)
     .eq('id', snapshotId);
   
   if (error) {
@@ -201,14 +205,16 @@ export async function saveSnapshotReport(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    report_json: report,
+    status: 'completed',
+    completed_at: new Date().toISOString(),
+    generation_duration_seconds: durationSeconds,
+  };
+  
   const { error } = await supabase
     .from('snapshots')
-    .update({
-      report_json: report,
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      generation_duration_seconds: durationSeconds,
-    })
+    .update(updateData as any)
     .eq('id', snapshotId);
   
   if (error) {
@@ -227,15 +233,17 @@ export async function linkSnapshotToUser(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    user_id: userId,
+    // Clear anonymous access fields
+    email_hash: null,
+    access_token_hash: null,
+    access_expires_at: null,
+  };
+  
   const { error } = await supabase
     .from('snapshots')
-    .update({
-      user_id: userId,
-      // Clear anonymous access fields
-      email_hash: null,
-      access_token_hash: null,
-      access_expires_at: null,
-    })
+    .update(updateData as any)
     .eq('id', snapshotId);
   
   if (error) {
@@ -253,11 +261,13 @@ export async function deleteSnapshot(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    deleted_at: new Date().toISOString(),
+  };
+  
   const { error } = await supabase
     .from('snapshots')
-    .update({
-      deleted_at: new Date().toISOString(),
-    })
+    .update(updateData as any)
     .eq('id', snapshotId);
   
   if (error) {

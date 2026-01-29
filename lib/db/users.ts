@@ -27,11 +27,13 @@ export async function upsertUserFromAuth(data: {
   
   if (existingUser) {
     // Update last_login_at
+    const updateData = {
+      last_login_at: new Date().toISOString(),
+    };
+    
     const { data: updatedUser, error } = await supabase
       .from('users')
-      .update({
-        last_login_at: new Date().toISOString(),
-      })
+      .update(updateData as any)
       .eq('id', existingUser.id)
       .select()
       .single();
@@ -44,17 +46,19 @@ export async function upsertUserFromAuth(data: {
   }
   
   // Create new user
+  const insertData = {
+    auth_user_id: data.authUserId,
+    email: data.email,
+    email_verified: false, // Will be updated by Supabase Auth callback
+    full_name: data.fullName || null,
+    subscription_tier: 'free',
+    is_active: true,
+    last_login_at: new Date().toISOString(),
+  };
+  
   const { data: newUser, error } = await supabase
     .from('users')
-    .insert({
-      auth_user_id: data.authUserId,
-      email: data.email,
-      email_verified: false, // Will be updated by Supabase Auth callback
-      full_name: data.fullName || null,
-      subscription_tier: 'free',
-      is_active: true,
-      last_login_at: new Date().toISOString(),
-    })
+    .insert(insertData as any)
     .select()
     .single();
   
@@ -140,11 +144,13 @@ export async function updateEmailVerified(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    email_verified: verified,
+  };
+  
   const { error } = await supabase
     .from('users')
-    .update({
-      email_verified: verified,
-    })
+    .update(updateData as any)
     .eq('id', userId);
   
   if (error) {
@@ -172,7 +178,7 @@ export async function updateUserProfile(
   
   const { data: user, error } = await supabase
     .from('users')
-    .update(updateData)
+    .update(updateData as any)
     .eq('id', userId)
     .select()
     .single();
@@ -194,11 +200,13 @@ export async function updateSubscriptionTier(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    subscription_tier: tier,
+  };
+  
   const { error } = await supabase
     .from('users')
-    .update({
-      subscription_tier: tier,
-    })
+    .update(updateData as any)
     .eq('id', userId);
   
   if (error) {
@@ -216,12 +224,14 @@ export async function deleteUser(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const updateData = {
+    deleted_at: new Date().toISOString(),
+    is_active: false,
+  };
+  
   const { error } = await supabase
     .from('users')
-    .update({
-      deleted_at: new Date().toISOString(),
-      is_active: false,
-    })
+    .update(updateData as any)
     .eq('id', userId);
   
   if (error) {
