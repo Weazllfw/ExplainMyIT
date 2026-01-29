@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (19 Categories, 150 Individual Fixes)
+## Fixes Applied (20 Categories, 164 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -161,6 +161,14 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Changed usage 2: table verification loop
 - Fixes import error for non-existent export
 
+### Category 20: Test Script Schema Mismatches (14 fixes)
+**Files**: `scripts/test-api.ts`, `scripts/test-llm.ts`, `scripts/test-signals.ts`
+- **test-api.ts**: 6 signal display lines - removed `.success`, added optional chaining
+- **test-llm.ts**: 1 success count calculation - check for `!error` instead of `.success`
+- **test-signals.ts**: 6 module success lines + 1 cross-block flags display
+- All test scripts now match database schema (no `.success`, proper optional chaining)
+- Fixed cross-block flags display (now `string[]` instead of object)
+
 ---
 
 ## Files Modified
@@ -182,7 +190,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**16 Documentation Files**:
+**17 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -197,8 +205,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 12. `ORCHESTRATOR-SUCCESS-REMOVAL.md`
 13. `IMPLICIT-ANY-FIX.md`
 14. `CROSS-BLOCK-FLAGS-CONVERSION.md`
-15. `SCRIPT-IMPORT-FIX.md` - **NEW**
-16. `PROACTIVE-FIX-COMPLETE.md` (this file)
+15. `SCRIPT-IMPORT-FIX.md`
+16. `TEST-SCRIPTS-FIX.md` - **NEW**
+17. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -262,7 +271,8 @@ if (error || !data) { ... }
 - [x] Implicit any parameters fixed (arrow function type annotations)
 - [x] Cross-block flags conversion (object to string array)
 - [x] Script import errors fixed (setup-db.ts)
-- [x] All test scripts handle flexible types
+- [x] Test script schema mismatches fixed (3 test files, removed `.success`, added optional chaining)
+- [x] All test scripts now match database schema
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
 - [ ] Vercel build verification (next push)
@@ -271,11 +281,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 20 build failures, each requiring 20 separate push cycles
+**Before**: 21+ build failures, each requiring a separate push cycle
 
-**After**: All type issues fixed proactively in one comprehensive pass
+**After**: All type issues fixed proactively in comprehensive passes
 
-**Fixes**: 150 individual fixes across 18 code files and 19 issue categories
+**Fixes**: 164 individual fixes across 21 code files and 20 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 

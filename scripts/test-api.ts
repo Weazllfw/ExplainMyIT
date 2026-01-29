@@ -76,12 +76,12 @@ async function testSnapshotAPI() {
     if (snapshot.signals_json) {
       const signals = snapshot.signals_json;
       console.log(`   Signals collected:`);
-      console.log(`     DNS: ${signals.dns.success ? '✅' : '❌'} (${signals.dns.confidence})`);
-      console.log(`     Email: ${signals.email.success ? '✅' : '❌'} (${signals.email.confidence})`);
-      console.log(`     TLS: ${signals.tls.success ? '✅' : '❌'} (${signals.tls.confidence})`);
-      console.log(`     Tech Stack: ${signals.techstack.success ? '✅' : '❌'} (${signals.techstack.confidence})`);
-      console.log(`     Exposure: ${signals.exposure.success ? '✅' : '❌'} (${signals.exposure.confidence})`);
-      console.log(`     HIBP: ${signals.hibp.success ? '✅' : '❌'} (${signals.hibp.confidence})\n`);
+      console.log(`     DNS: ${signals.dns?.error ? '❌' : '✅'} (${signals.dns?.confidence || 'N/A'})`);
+      console.log(`     Email: ${signals.email?.error ? '❌' : '✅'} (${signals.email?.confidence || 'N/A'})`);
+      console.log(`     TLS: ${signals.tls?.error ? '❌' : '✅'} (${signals.tls?.confidence || 'N/A'})`);
+      console.log(`     Tech Stack: ${signals.techstack?.error ? '❌' : '✅'} (${signals.techstack?.confidence || 'N/A'})`);
+      console.log(`     Exposure: ${signals.exposure?.error ? '❌' : '✅'} (${signals.exposure?.confidence || 'N/A'})`);
+      console.log(`     HIBP: ${signals.hibp?.error ? '❌' : '✅'} (${signals.hibp?.confidence || 'N/A'})\n`);
     }
     
     // Check report
