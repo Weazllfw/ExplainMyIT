@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (16 Categories, 144 Individual Fixes)
+## Fixes Applied (17 Categories, 146 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -142,6 +142,12 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Database schema doesn't include `success` in signal interfaces
 - Success/failure determined by presence/absence of `error` field
 
+### Category 17: Implicit Any Parameters (2 fixes)
+**File**: `lib/signals/orchestrator.ts`
+- Added explicit type annotation for arrow function parameter in HIBP mapping
+- Corrected property name from `b.Name` to `b.name` to match interface
+- Fixes strict type checking violation
+
 ---
 
 ## Files Modified
@@ -163,7 +169,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**13 Documentation Files**:
+**14 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -175,8 +181,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 9. `MODULE-DECLARATION-FIX.md`
 10. `INDEX-SIGNATURE-FIX.md`
 11. `CACHE-STRUCTURE-FIX.md`
-12. `ORCHESTRATOR-SUCCESS-REMOVAL.md` - **NEW**
-13. `PROACTIVE-FIX-COMPLETE.md` (this file)
+12. `ORCHESTRATOR-SUCCESS-REMOVAL.md`
+13. `IMPLICIT-ANY-FIX.md` - **NEW**
+14. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -237,6 +244,7 @@ if (error || !data) { ... }
 - [x] Index signatures added to all DerivedFlags interfaces
 - [x] Cache structure alignment fixed (HIBP module - bidirectional conversion)
 - [x] Orchestrator success property removed (not in database schema)
+- [x] Implicit any parameters fixed (arrow function type annotations)
 - [x] All test scripts handle flexible types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
@@ -246,11 +254,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 17 build failures, each requiring 17 separate push cycles
+**Before**: 18 build failures, each requiring 18 separate push cycles
 
 **After**: All type issues fixed proactively in one comprehensive pass
 
-**Fixes**: 144 individual fixes across 17 code files and 16 issue categories
+**Fixes**: 146 individual fixes across 17 code files and 17 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 

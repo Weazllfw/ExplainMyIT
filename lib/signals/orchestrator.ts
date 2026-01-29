@@ -152,7 +152,7 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
     },
     hibp: {
       breaches_found: hibpResult.raw_signals.total_breach_count || 0,
-      breach_names: hibpResult.raw_signals.breaches?.map(b => b.Name) || [],
+      breach_names: hibpResult.raw_signals.breaches?.map((b: { name: string }) => b.name) || [],
       most_recent_breach_date: hibpResult.raw_signals.most_recent_breach_date,
       total_accounts_breached: null,
       data_classes_compromised: [],
