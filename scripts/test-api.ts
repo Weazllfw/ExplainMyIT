@@ -86,13 +86,13 @@ async function testSnapshotAPI() {
     
     // Check report
     if (snapshot.report_json) {
-      const report = snapshot.report_json;
+      const report = snapshot.report_json as any;
       console.log(`   Report generated:`);
-      console.log(`     Owner Summary: ${report.owner_summary.substring(0, 60)}...`);
-      console.log(`     Top Findings: ${report.top_findings.length}`);
-      console.log(`     Assumptions: ${report.assumptions.length}`);
-      console.log(`     Questions: ${report.questions.length}`);
-      console.log(`     Email Subject: ${report.email_subject}\n`);
+      console.log(`     Owner Summary: ${typeof report.owner_summary === 'string' ? report.owner_summary.substring(0, 60) : JSON.stringify(report.owner_summary).substring(0, 60)}...`);
+      console.log(`     Top Findings: ${report.top_findings?.length || 0}`);
+      console.log(`     Assumptions: ${report.assumptions?.length || 0}`);
+      console.log(`     Questions: ${report.questions?.length || 0}`);
+      console.log(`     Email Subject: ${report.email_subject || 'N/A'}\n`);
     }
     
     // Step 3: Verify magic link
