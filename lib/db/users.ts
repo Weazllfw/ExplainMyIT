@@ -44,17 +44,19 @@ export async function upsertUserFromAuth(data: {
   }
   
   // Create new user
+  const userData = {
+    auth_user_id: data.authUserId,
+    email: data.email,
+    email_verified: false, // Will be updated by Supabase Auth callback
+    full_name: data.fullName || null,
+    subscription_tier: 'free' as const,
+    is_active: true,
+    last_login_at: new Date().toISOString(),
+  };
+  
   const { data: newUser, error } = await supabase
     .from('users')
-    .insert({
-      auth_user_id: data.authUserId,
-      email: data.email,
-      email_verified: false, // Will be updated by Supabase Auth callback
-      full_name: data.fullName || null,
-      subscription_tier: 'free',
-      is_active: true,
-      last_login_at: new Date().toISOString(),
-    })
+    .insert(userData as any)
     .select()
     .single();
   

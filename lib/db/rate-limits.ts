@@ -135,16 +135,18 @@ export async function recordSnapshotRun(params: {
     }
   } else {
     // Create new record
+    const rateLimitData = {
+      user_id: userId || null,
+      email_hash: emailHash || null,
+      domain_hash: domainHash,
+      last_run_at: new Date().toISOString(),
+      run_count: 1,
+      tier_limit_type: tierLimitType,
+    };
+    
     const { error } = await supabase
       .from('rate_limits')
-      .insert({
-        user_id: userId || null,
-        email_hash: emailHash || null,
-        domain_hash: domainHash,
-        last_run_at: new Date().toISOString(),
-        run_count: 1,
-        tier_limit_type: tierLimitType,
-      });
+      .insert(rateLimitData as any);
     
     if (error) {
       return { success: false, error: error.message };

@@ -19,18 +19,20 @@ export async function createSnapshot(data: {
 }): Promise<{ snapshot: Snapshot | null; error: string | null }> {
   const supabase = getSupabaseAdmin();
   
+  const snapshotData = {
+    domain: data.domain,
+    user_id: data.userId || null,
+    email_hash: data.emailHash || null,
+    access_token_hash: data.accessTokenHash || null,
+    access_expires_at: data.accessExpiresAt?.toISOString() || null,
+    status: 'pending' as const,
+    signals_json: null,
+    report_json: null,
+  };
+  
   const { data: snapshot, error } = await supabase
     .from('snapshots')
-    .insert({
-      domain: data.domain,
-      user_id: data.userId || null,
-      email_hash: data.emailHash || null,
-      access_token_hash: data.accessTokenHash || null,
-      access_expires_at: data.accessExpiresAt?.toISOString() || null,
-      status: 'pending',
-      signals_json: null,
-      report_json: null,
-    })
+    .insert(snapshotData as any)
     .select()
     .single();
   
