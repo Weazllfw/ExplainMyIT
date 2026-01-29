@@ -1,0 +1,369 @@
+Explain My IT — Tier 1 (Free)
+Public Snapshot — Locked Specification
+Tier intent
+
+Tier 1 exists to:
+
+demonstrate value immediately
+
+surface real, defensible owner-level risks
+
+build trust through honesty
+
+create a natural upgrade path to recurring reports
+
+It is not a teaser toy.
+It is a legitimate snapshot with clear boundaries.
+
+1. Scope (Hard Boundary)
+
+Included
+
+Publicly observable signals only
+
+One-time snapshot per domain
+
+Results shown in dashboard + emailed summary
+
+Owner-readable explanations
+
+Explicitly excluded
+
+Internal access
+
+Credentials
+
+Continuous monitoring
+
+Remediation
+
+Deep vulnerability scanning
+
+Aggressive port scanning
+
+This scope must be stated clearly in the UI.
+
+2. External APIs (Final Decision)
+✅ Included
+
+Have I Been Pwned (HIBP)
+Domain-level breach exposure checks
+→ This is worth the money and high trust.
+
+❌ Excluded (for now)
+
+Shodan (too expensive, overkill for Tier 1)
+
+VirusTotal (too noisy)
+
+BuiltWith paid tiers
+
+Any exploit databases
+
+You can add Shodan later behind paid tiers if and only if it adds owner value, not raw data.
+
+3. Tier 1 Signal Blocks (Final List)
+
+These are the only blocks Tier 1 runs.
+
+Each block:
+
+produces facts
+
+computes simple flags
+
+feeds the LLM
+
+renders a dashboard card
+
+Block A — Domain & DNS Overview
+
+Raw signals
+
+Domain age
+
+Registrar
+
+Nameservers
+
+A / AAAA records
+
+MX records
+
+DNS hosting provider (inferred)
+
+Derived flags
+
+domain_age_low (e.g. < 1 year)
+
+dns_provider_third_party
+
+single_point_dns_dependency
+
+Owner narrative focus
+
+“Who controls your domain”
+
+“How long this domain has existed”
+
+“Whether DNS management is centralized or fragmented”
+
+Block B — Email & Identity Posture (High-Value)
+
+Raw signals
+
+MX provider (Google / Microsoft / other)
+
+SPF record presence & strictness
+
+DKIM presence
+
+DMARC policy (none / monitor / enforce)
+
+Derived flags
+
+email_spoofing_possible
+
+email_protection_partial
+
+email_protection_strong
+
+Owner narrative focus
+
+“Can someone impersonate your company by email?”
+
+“Does your setup meet modern expectations?”
+
+“This is commonly checked by insurers and vendors.”
+
+This is one of your strongest Tier 1 sections.
+
+Block C — Website & TLS / SSL
+
+Raw signals
+
+HTTPS enforced
+
+Certificate issuer
+
+Certificate expiry
+
+TLS versions supported
+
+Derived flags
+
+ssl_expiring_soon
+
+legacy_tls_supported
+
+no_https_redirect
+
+Owner narrative focus
+
+“Is your website connection modern and trusted?”
+
+“Are visitors exposed to browser warnings?”
+
+“This affects trust, not just security.”
+
+Block D — Website Technology & Hosting
+
+Raw signals
+
+CMS / framework (WordPress, Shopify, custom, etc.)
+
+CDN presence
+
+Hosting provider inference
+
+Server headers
+
+Derived flags
+
+cms_common_target
+
+custom_stack
+
+hosting_dependency
+
+Owner narrative focus
+
+“What your website is built on”
+
+“Who is responsible for updates”
+
+“Whether this is common, aging, or bespoke”
+
+No version numbers. No plugin lists.
+
+Block E — Public Exposure (Constrained)
+
+Raw signals
+
+Presence of common public services:
+
+80 / 443
+
+22 (SSH)
+
+3389 (RDP)
+
+21 (FTP)
+
+25 (SMTP)
+
+Single IP only
+
+Very shallow scan
+
+Derived flags
+
+remote_access_exposed
+
+admin_service_public
+
+public_service_unusual_for_smb
+
+Owner narrative focus
+
+“What services are reachable from the internet”
+
+“Whether this is common or noteworthy”
+
+“This is about exposure, not confirmation of compromise”
+
+Careful, calm wording.
+
+Block F — Brand & Reputation Signals (HIBP)
+
+Raw signals
+
+Domain present in known breach corpuses (HIBP)
+
+Derived flags
+
+domain_seen_in_breach_data
+
+Owner narrative focus
+
+“Your domain has appeared in known breach data”
+
+“This does not mean you were hacked”
+
+“It means exposure exists and should be understood”
+
+Tone discipline is critical here.
+
+4. Cross-Block Derived Insights (Tier 1)
+
+These are computed + narrated, not raw.
+
+Deterministic insight flags (computed pre-LLM)
+
+Examples:
+
+Email impersonation risk = DMARC missing + permissive SPF
+
+External attack surface elevated = admin service + no email protection
+
+Trust risk = website issues + brand exposure
+
+Assumption risk = reliance on third parties without clear ownership
+
+These flags are passed to the LLM.
+
+LLM-generated insight categories (Tier 1 only)
+
+The LLM produces:
+
+Owner Summary
+
+4–6 sentences
+
+Calm, factual
+
+“Here’s what this setup implies”
+
+Top Findings (3 max)
+
+Ranked by business relevance
+
+Not technical severity
+
+Assumptions Being Made
+
+e.g. “The business is assuming X is configured correctly”
+
+This is a signature Explain My IT concept
+
+Questions to Ask Your IT / MSP
+
+3–5 owner-safe questions
+
+No instructions
+
+No remediation steps. No fixes.
+
+5. Dashboard Structure (Tier 1)
+Sections (fixed order)
+
+Owner Summary
+
+Top Findings
+
+Assumptions Being Made
+
+Questions to Ask
+
+Detail Cards (one per block)
+
+Detail Card format
+
+Title
+
+2–4 sentence explanation
+
+“Why this matters”
+
+Confidence level (High / Medium / Low)
+
+No raw tables. Ever.
+
+6. LLM Prompt Guardrails (Locked)
+
+Include these rules explicitly:
+
+Write for business owners, not IT staff
+
+Explain risk in business terms
+
+Name exposed services, not exploits
+
+Do not include CVE IDs
+
+Do not include remediation steps
+
+Do not recommend vendors
+
+Avoid fear language
+
+Use uncertainty where appropriate
+
+This protects positioning and liability.
+
+7. Tier 1 Output Promise (What the User Should Feel)
+
+After reading Tier 1, the owner should think:
+
+“I understand my public IT exposure better than before,
+and I know what questions to ask — without feeling panicked.”
+
+If they feel:
+
+scared → too aggressive
+
+confused → too technical
+
+underwhelmed → too shallow
+
+You adjust narrative, not data.
