@@ -95,7 +95,36 @@ if (!tokenResult.valid || !tokenResult.payload || tokenResult.payload.snapshot_i
 
 ---
 
-### 5. Test Script Type Safety
+### 5. Database Function Return Type Handling
+
+**Error**: `Property 'status' does not exist on type '{ snapshot: Snapshot | null; error: string | null; }'`
+
+**Root Cause**: 
+- `getSnapshotById` returns: `{ snapshot: Snapshot | null; error: string | null }`
+- Code was treating it as: `Snapshot | null`
+- Missing destructuring of the return object
+
+**Files Fixed**:
+- `app/report/[id]/page.tsx` (2 locations - main function and metadata function)
+
+**Changes**:
+```typescript
+// Before:
+const snapshot = await getSnapshotById(id);
+if (!snapshot) { ... }
+if (snapshot.status !== 'completed') { ... }
+
+// After:
+const { snapshot, error } = await getSnapshotById(id);
+if (error || !snapshot) { ... }
+if (snapshot.status !== 'completed') { ... }
+```
+
+**Note**: `scripts/test-api.ts` already had correct destructuring pattern.
+
+---
+
+### 6. Test Script Type Safety
 
 **Error**: Potential runtime error in test script
 
@@ -151,7 +180,8 @@ console.log(`Owner Summary: ${
 - [x] Token verification checks `valid` flag and `payload` object
 - [x] Token payload accesses `snapshot_id` (snake_case)
 - [x] Test scripts handle flexible report structure
-- [ ] Build succeeds locally
+- [x] **NEW**: `getSnapshotById` return value properly destructured
+- [ ] Build succeeds locally (in progress)
 - [ ] Build succeeds on Vercel
 - [ ] No TypeScript errors remaining
 
@@ -160,10 +190,10 @@ console.log(`Owner Summary: ${
 ## Files Modified
 
 1. `app/api/snapshot/route.ts` - Fixed rate limiting calls, emailHash, report storage
-2. `app/report/[id]/page.tsx` - Fixed token verification (2 locations)
+2. `app/report/[id]/page.tsx` - Fixed token verification (2 locations) + `getSnapshotById` destructuring (2 locations)
 3. `scripts/test-api.ts` - Added type safety for flexible reports
 
-**Total**: 3 files, 5 separate issues fixed
+**Total**: 3 files, 6 separate issues fixed
 
 ---
 
