@@ -127,13 +127,15 @@ export async function recordSnapshotRun(params: {
     const existingLimit: RateLimit = data;
     
     // Update existing record
+    const updateData = {
+      last_run_at: new Date().toISOString(),
+      run_count: existingLimit.run_count + 1,
+      tier_limit_type: tierLimitType,
+    };
+    
     const { error } = await supabase
       .from('rate_limits')
-      .update({
-        last_run_at: new Date().toISOString(),
-        run_count: existingLimit.run_count + 1,
-        tier_limit_type: tierLimitType,
-      })
+      .update(updateData as any)
       .eq('id', existingLimit.id);
     
     if (error) {
