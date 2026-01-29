@@ -53,16 +53,19 @@ export async function checkRateLimit(params: {
     };
   }
   
-  const { data: existingLimit, error } = await query.maybeSingle();
+  const { data, error } = await query.maybeSingle();
   
   if (error) {
     return { allowed: false, error: error.message };
   }
   
   // No existing limit - user can proceed
-  if (!existingLimit) {
+  if (!data) {
     return { allowed: true, error: null };
   }
+  
+  // TypeScript type narrowing: data is RateLimit at this point
+  const existingLimit: RateLimit = data;
   
   // Check rate limit based on tier
   const limitPeriodDays = getRateLimitPeriod(tierLimitType);
@@ -117,9 +120,12 @@ export async function recordSnapshotRun(params: {
     };
   }
   
-  const { data: existingLimit } = await query.maybeSingle();
+  const { data } = await query.maybeSingle();
   
-  if (existingLimit) {
+  if (data) {
+    // TypeScript type narrowing: data is RateLimit at this point
+    const existingLimit: RateLimit = data;
+    
     // Update existing record
     const { error } = await supabase
       .from('rate_limits')
