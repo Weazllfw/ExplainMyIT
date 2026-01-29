@@ -22,14 +22,15 @@ export async function getHibpCache(
     .from('hibp_cache')
     .select('*')
     .eq('domain_hash', domainHash)
-    .single();
+    .maybeSingle();
   
   if (error) {
-    // Not found is OK, means not cached
-    if (error.code === 'PGRST116') {
-      return { results: null, error: null };
-    }
     return { results: null, error: error.message };
+  }
+  
+  // Not found is OK, means not cached
+  if (!data) {
+    return { results: null, error: null };
   }
   
   // Check if expired
@@ -109,13 +110,14 @@ export async function hasHibpCache(
     .from('hibp_cache')
     .select('expires_at')
     .eq('domain_hash', domainHash)
-    .single();
+    .maybeSingle();
   
   if (error) {
-    if (error.code === 'PGRST116') {
-      return { cached: false, expiresAt: null, error: null };
-    }
     return { cached: false, expiresAt: null, error: error.message };
+  }
+  
+  if (!data) {
+    return { cached: false, expiresAt: null, error: null };
   }
   
   const expiresAt = new Date(data.expires_at);
