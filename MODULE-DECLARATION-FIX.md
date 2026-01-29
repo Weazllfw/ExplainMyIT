@@ -32,10 +32,21 @@ Created a custom type declaration file for the package:
 
 ```typescript
 declare module 'whois-json' {
-  function whois(domain: string): Promise<any>;
+  interface WhoisOptions {
+    timeout?: number;
+    follow?: number;
+    [key: string]: any;
+  }
+  
+  function whois(domain: string, options?: WhoisOptions): Promise<any>;
   export default whois;
 }
 ```
+
+### Updates
+
+**Initial Fix**: Simple function signature with single `domain` parameter  
+**Updated Fix**: Added optional `options` parameter with `WhoisOptions` interface to support timeout and other configuration
 
 ---
 
@@ -43,7 +54,8 @@ declare module 'whois-json' {
 
 1. **Module Declaration**: The `declare module` syntax tells TypeScript about the shape of the external module
 2. **Location**: Files in the `types/` directory are automatically included in TypeScript compilation
-3. **Simple Signature**: The package has a simple API - just a default export function that takes a domain string and returns a Promise
+3. **Optional Parameters**: The `options?: WhoisOptions` allows the function to be called with or without options
+4. **Flexible Options Interface**: The index signature `[key: string]: any` allows any additional properties
 
 ---
 
