@@ -9,25 +9,23 @@ import type { Snapshot, SnapshotSignals, SnapshotReport } from '@/types/database
 
 /**
  * Create a new snapshot record (initial pending state)
+ * Throws on error for simpler API route handling
  */
 export async function createSnapshot(data: {
   domain: string;
-  userId?: string;
-  emailHash?: string;
-  accessTokenHash?: string;
-  accessExpiresAt?: Date;
-}): Promise<{ snapshot: Snapshot | null; error: string | null }> {
+  user_id?: string;
+  email_hash?: string;
+  status?: Snapshot['status'];
+}): Promise<Snapshot> {
   const supabase = getSupabaseAdmin();
   
   const { data: snapshot, error } = await supabase
     .from('snapshots')
     .insert({
       domain: data.domain,
-      user_id: data.userId || null,
-      email_hash: data.emailHash || null,
-      access_token_hash: data.accessTokenHash || null,
-      access_expires_at: data.accessExpiresAt?.toISOString() || null,
-      status: 'pending',
+      user_id: data.user_id || null,
+      email_hash: data.email_hash || null,
+      status: data.status || 'pending',
       signals_json: null,
       report_json: null,
     })
@@ -35,10 +33,34 @@ export async function createSnapshot(data: {
     .single();
   
   if (error) {
-    return { snapshot: null, error: error.message };
+    throw new Error(`Failed to create snapshot: ${error.message}`);
   }
   
-  return { snapshot, error: null };
+  if (!snapshot) {
+    throw new Error('Failed to create snapshot: No data returned');
+  }
+  
+  return snapshot;
+}
+
+/**
+ * Update snapshot with partial data
+ * Throws on error for simpler API route handling
+ */
+export async function updateSnapshot(
+  snapshotId: string,
+  data: Partial<Snapshot>
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  
+  const { error } = await supabase
+    .from('snapshots')
+    .update(data)
+    .eq('id', snapshotId);
+  
+  if (error) {
+    throw new Error(`Failed to update snapshot: ${error.message}`);
+  }
 }
 
 /**

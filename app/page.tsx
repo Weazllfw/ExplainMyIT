@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WaitlistForm from '@/components/WaitlistForm';
+import SnapshotRequestForm from '@/components/SnapshotRequestForm';
 
 export default function Home() {
   return (
@@ -24,71 +25,93 @@ export default function Home() {
                     No jargon. No tech talk. Just clarity.
                   </p>
                   <p className="font-medium text-gray-700">
-                    A simple dashboard and recurring reports that explain what your IT setup actually means.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <a 
-                    href="#waitlist" 
-                    className="btn-primary text-center"
-                    data-umami-event="cta-click-hero"
-                  >
-                    Get Early Access to the Dashboard
-                  </a>
-                  <p className="text-sm text-gray-500 self-center">
-                    Free Snapshot Coming Soon
+                    Get a free snapshot of your IT setup in plain English. No credit card required.
                   </p>
                 </div>
               </div>
               
-              {/* Right Column - Dashboard Preview */}
-              <div className="hidden lg:block">
-                <div className="bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
-                  <div className="space-y-4">
-                    <div className="border-b border-gray-200 pb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded">
-                          Owner Dashboard
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Public Snapshot
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-2">
-                        What your IT setup actually means
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Company: example.com • Scope: Public Only • Date: May 2024
-                      </p>
-                    </div>
-                    
-                    {/* Report preview content */}
-                    <div className="space-y-3">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-100 rounded w-full"></div>
-                      <div className="h-3 bg-gray-100 rounded w-5/6"></div>
-                      <div className="h-3 bg-gray-100 rounded w-4/6"></div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 pt-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-500 rounded-full"></div>
-                        <div className="space-y-1">
-                          <div className="h-2 bg-gray-200 rounded w-16"></div>
-                          <div className="h-2 bg-gray-100 rounded w-12"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-slate-500 rounded-full"></div>
-                        <div className="space-y-1">
-                          <div className="h-2 bg-gray-200 rounded w-16"></div>
-                          <div className="h-2 bg-gray-100 rounded w-12"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              {/* Right Column - Snapshot Request Form */}
+              <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8 border border-gray-200">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    Get Your Free IT Snapshot
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    See what your IT setup actually means, explained in plain English
+                  </p>
                 </div>
+                <SnapshotRequestForm />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefits Bar */}
+        <section className="bg-white border-y border-gray-200">
+          <div className="container-section py-8">
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">⚡ 60 seconds</div>
+                <div className="text-sm text-gray-600">Results delivered to your email</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">🔒 100% Free</div>
+                <div className="text-sm text-gray-600">No credit card. No strings.</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">📧 Plain English</div>
+                <div className="text-sm text-gray-600">Written for business owners, not IT pros</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* What You'll Get Section */}
+        <section className="container-section bg-gradient-to-br from-gray-50 to-slate-50">
+          <h2 className="section-title">What's In Your Free Snapshot</h2>
+          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <div className="text-3xl mb-3">📊</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Owner Summary</h3>
+              <p className="text-gray-600">
+                A 4-6 sentence high-level overview of what your IT setup means for your business
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <div className="text-3xl mb-3">🎯</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Top Findings</h3>
+              <p className="text-gray-600">
+                The 3 most important things we found, ranked by business impact (not technical severity)
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <div className="text-3xl mb-3">⚠️</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Assumptions Being Made</h3>
+              <p className="text-gray-600">
+                What your current setup is assuming works correctly (so you can verify it actually does)
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <div className="text-3xl mb-3">💡</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Questions to Ask</h3>
+              <p className="text-gray-600">
+                Specific questions you can ask your IT team or MSP to clarify your setup
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 mb-4">Plus detailed findings across 6 key areas:</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {['🌐 Domain & Infrastructure', '📧 Email Security', '🔒 Website Security', 
+                '⚙️ Technology Stack', '🔍 Public Exposure', '🛡️ Breach History'].map((item) => (
+                <span key={item} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700">
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </section>
@@ -279,16 +302,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Waitlist Form */}
-        <section id="waitlist" className="container-section bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-gray-200">
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-gray-900">
-                Get Notified When We Launch!
-              </h2>
-              <p className="text-center text-gray-600 mb-8">
-                Be among the first to receive plain-English IT clarity.
-              </p>
+        {/* CTA Section - Dashboard Early Access */}
+        <section id="waitlist" className="container-section bg-gradient-to-br from-blue-600 to-blue-700">
+          <div className="max-w-3xl mx-auto text-center text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Want Recurring Reports & a Dashboard?
+            </h2>
+            <p className="text-lg text-blue-100 mb-8">
+              The free snapshot is just the beginning. Get early access to our full dashboard with recurring reports, change tracking, and more.
+            </p>
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Join the Early Access Waitlist
+              </h3>
               <WaitlistForm />
               <div className="text-center mt-6 space-y-2">
                 <p className="text-sm text-gray-500">

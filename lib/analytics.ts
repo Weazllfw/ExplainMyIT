@@ -98,6 +98,69 @@ export const Analytics = {
       errorType,
     });
   },
+
+  // Tier 1: Snapshot events
+  snapshotFormStarted: () => {
+    trackEvent('snapshot-form-started');
+  },
+
+  snapshotRequested: (domain: string) => {
+    trackEvent('snapshot-requested', {
+      domain,
+    });
+  },
+
+  snapshotRequestFailed: (errorType: string) => {
+    trackEvent('snapshot-request-failed', {
+      errorType,
+    });
+  },
+
+  // Tier 1: Report view events
+  reportViewed: (snapshotId: string, domain: string) => {
+    trackEvent('report-viewed', {
+      snapshotId,
+      domain,
+    });
+  },
+
+  blockExpanded: (blockName: string) => {
+    trackEvent('block-expanded', {
+      blockName,
+    });
+  },
+
+  blockCollapsed: (blockName: string) => {
+    trackEvent('block-collapsed', {
+      blockName,
+    });
+  },
+
+  reportCtaClicked: (ctaType: 'create-account' | 'run-another') => {
+    trackEvent('report-cta-clicked', {
+      ctaType,
+    });
+  },
+
+  // Tier 1: Email events (server-side, via webhook)
+  emailDelivered: (snapshotId: string) => {
+    trackEvent('email-delivered', {
+      snapshotId,
+    });
+  },
+
+  emailOpened: (snapshotId: string) => {
+    trackEvent('email-opened', {
+      snapshotId,
+    });
+  },
+
+  emailClicked: (snapshotId: string, link: string) => {
+    trackEvent('email-clicked', {
+      snapshotId,
+      link,
+    });
+  },
 };
 
 /**

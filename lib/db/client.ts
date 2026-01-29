@@ -7,27 +7,46 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Environment variables validation
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
-
-if (!supabaseUrl) {
-  throw new Error('Missing env: NEXT_PUBLIC_SUPABASE_URL');
+// Environment variables (lazy initialization)
+function getSupabaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) {
+    throw new Error('Missing env: NEXT_PUBLIC_SUPABASE_URL');
+  }
+  return url;
 }
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing env: NEXT_PUBLIC_SUPABASE_ANON_KEY');
+function getSupabaseAnonKey(): string {
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) {
+    throw new Error('Missing env: NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+  return key;
 }
+
+function getSupabaseServiceKey(): string | undefined {
+  return process.env.SUPABASE_SERVICE_KEY;
+}
+
+// Lazy initialization
+let _supabase: ReturnType<typeof createClient> | null = null;
+let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
 
 /**
  * Client-side Supabase client
  * Uses anon key, respects RLS policies
  * Use in client components and API routes where user context matters
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false, // We handle sessions differently for anonymous users
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    if (!_supabase) {
+      _supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+        auth: {
+          persistSession: false,
+        },
+      });
+    }
+    return (_supabase as any)[prop];
   },
 });
 
@@ -36,24 +55,34 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
  * Bypasses RLS, use for background jobs and admin operations
  * CAUTION: Only use in API routes, never expose to client
  */
-export const supabaseAdmin = supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    })
-  : null;
+function initSupabaseAdmin() {
+  const serviceKey = getSupabaseServiceKey();
+  if (!serviceKey) {
+    return null;
+  }
+  
+  return createClient(getSupabaseUrl(), serviceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
 
 /**
  * Get Supabase admin client
  * Throws if service key not configured
  */
 export function getSupabaseAdmin() {
-  if (!supabaseAdmin) {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = initSupabaseAdmin();
+  }
+  
+  if (!_supabaseAdmin) {
     throw new Error('Supabase service key not configured. Set SUPABASE_SERVICE_KEY in .env.local');
   }
-  return supabaseAdmin;
+  
+  return _supabaseAdmin;
 }
 
 /**
