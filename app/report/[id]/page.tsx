@@ -5,6 +5,8 @@
  */
 
 import { notFound, redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 import { verifyMagicLinkToken } from '@/lib/auth/magic-link';
 import { getSnapshotById } from '@/lib/db/snapshots';
 import { ReportHeader } from '@/components/report/ReportHeader';
@@ -30,21 +32,72 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
   const { id } = params;
   const { token } = searchParams;
 
-  // Require token for access
-  if (!token) {
-    redirect(`/error?message=${encodeURIComponent('Access token required')}`);
-  }
-
-  // Verify token
-  const tokenResult = await verifyMagicLinkToken(token);
-  if (!tokenResult.valid || !tokenResult.payload || tokenResult.payload.snapshot_id !== id) {
-    redirect(`/error?message=${encodeURIComponent('Invalid or expired link')}`);
-  }
-
-  // Get snapshot from database
+  // Get snapshot first (we need it to check ownership)
   const { snapshot, error } = await getSnapshotById(id);
   if (error || !snapshot) {
     notFound();
+  }
+
+  // Check access: Two ways to view a report
+  // 1. User is logged in and owns the snapshot (user_id matches)
+  // 2. Valid magic link token provided
+
+  let hasAccess = false;
+  let accessMethod = 'none';
+
+  // Check if user is logged in and owns this snapshot
+  if (snapshot.user_id) {
+    try {
+      const cookieStore = cookies();
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return cookieStore.get(name)?.value;
+            },
+            set() {},
+            remove() {},
+          },
+        }
+      );
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get database user ID from auth user ID
+        const { data: dbUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (dbUser && dbUser.id === snapshot.user_id) {
+          hasAccess = true;
+          accessMethod = 'owner';
+          console.log('[Report] Access granted: User owns snapshot');
+        }
+      }
+    } catch (err) {
+      console.error('[Report] Error checking user ownership:', err);
+    }
+  }
+
+  // If not owner, check for magic link token
+  if (!hasAccess && token) {
+    const tokenResult = await verifyMagicLinkToken(token);
+    if (tokenResult.valid && tokenResult.payload && tokenResult.payload.snapshot_id === id) {
+      hasAccess = true;
+      accessMethod = 'magic_link';
+      console.log('[Report] Access granted: Valid magic link');
+    }
+  }
+
+  // Deny access if neither method works
+  if (!hasAccess) {
+    console.log('[Report] Access denied: No valid access method');
+    redirect(`/error?message=${encodeURIComponent('Access denied. Please use the link from your email or log in to view this report.')}`);
   }
 
   // Check if snapshot is completed
@@ -127,21 +180,6 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
   const { id } = params;
   const { token } = searchParams;
 
-  if (!token) {
-    return {
-      title: 'Access Required - Explain My IT',
-      description: 'Access token required to view this report',
-    };
-  }
-
-  const tokenResult = await verifyMagicLinkToken(token);
-  if (!tokenResult.valid || !tokenResult.payload || tokenResult.payload.snapshot_id !== id) {
-    return {
-      title: 'Invalid Link - Explain My IT',
-      description: 'This link is invalid or has expired',
-    };
-  }
-
   const { snapshot, error } = await getSnapshotById(id);
   if (error || !snapshot) {
     return {
@@ -150,9 +188,63 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
     };
   }
 
+  // Check if user owns this report or has valid token
+  let hasAccess = false;
+
+  // Check ownership
+  if (snapshot.user_id) {
+    try {
+      const cookieStore = cookies();
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return cookieStore.get(name)?.value;
+            },
+            set() {},
+            remove() {},
+          },
+        }
+      );
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: dbUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (dbUser && dbUser.id === snapshot.user_id) {
+          hasAccess = true;
+        }
+      }
+    } catch (err) {
+      // Ignore
+    }
+  }
+
+  // Check magic link
+  if (!hasAccess && token) {
+    const tokenResult = await verifyMagicLinkToken(token);
+    if (tokenResult.valid && tokenResult.payload && tokenResult.payload.snapshot_id === id) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return {
+      title: 'Access Required - Explain My IT',
+      description: 'Log in or use the link from your email to view this report',
+    };
+  }
+
   return {
     title: `IT Snapshot: ${snapshot.domain} - Explain My IT`,
     description: `View your IT reality check report for ${snapshot.domain}`,
-    robots: 'noindex, nofollow', // Don't index magic link pages
+    robots: 'noindex, nofollow', // Don't index report pages
   };
 }
