@@ -48,19 +48,29 @@ export default function DashboardClientWrapper({ showWelcome }: DashboardClientW
 
     // Load user's snapshots using browser client (not admin)
     try {
+      console.log('[Dashboard] Loading snapshots for user:', currentUser.id);
       const supabase = getSupabaseBrowserClient();
       const { snapshots: userSnapshots, error: snapshotsError } = await getUserSnapshots(
         currentUser.id,
         50,
         supabase // Pass browser client to avoid service key error
       );
+      
+      console.log('[Dashboard] Snapshots query result:', {
+        count: userSnapshots?.length || 0,
+        error: snapshotsError,
+        snapshots: userSnapshots
+      });
+      
       if (snapshotsError) {
+        console.error('[Dashboard] Error from getUserSnapshots:', snapshotsError);
         setError(snapshotsError);
       } else {
+        console.log(`[Dashboard] Successfully loaded ${userSnapshots?.length || 0} snapshot(s)`);
         setSnapshots(userSnapshots || []);
       }
     } catch (err) {
-      console.error('[Dashboard] Error loading snapshots:', err);
+      console.error('[Dashboard] Exception loading snapshots:', err);
       setError('Failed to load snapshots');
     } finally {
       setIsLoading(false);
