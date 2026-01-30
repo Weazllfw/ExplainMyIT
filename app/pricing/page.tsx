@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SubscribeButton from '@/components/pricing/SubscribeButton';
 
 export const metadata: Metadata = {
   title: 'Pricing — Explain My IT',
@@ -260,14 +261,24 @@ export default function PricingPage() {
                   </ul>
                 </div>
 
-                <button
-                  disabled
-                  className="block w-full text-center bg-brand-navy text-white px-8 py-4 rounded-[12px] text-[16px] font-semibold opacity-50 cursor-not-allowed shadow-sm"
-                >
-                  Coming Soon
-                </button>
+                <div className="space-y-3">
+                  <SubscribeButton
+                    priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY!}
+                    interval="monthly"
+                    className="block w-full text-center bg-brand-navy text-white px-8 py-4 rounded-[12px] text-[16px] font-semibold hover:bg-brand-navy/90 transition-all shadow-sm"
+                  >
+                    Subscribe Monthly — $19.99
+                  </SubscribeButton>
+                  <SubscribeButton
+                    priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL!}
+                    interval="annual"
+                    className="block w-full text-center bg-brand-cyan text-white px-8 py-4 rounded-[12px] text-[16px] font-semibold hover:bg-brand-cyan/90 transition-all shadow-sm"
+                  >
+                    Subscribe Annually — $199 <span className="text-[14px] opacity-90">(Save $40)</span>
+                  </SubscribeButton>
+                </div>
                 <p className="text-center text-[13px] text-brand-muted mt-3">
-                  Start with a free snapshot. Upgrade when you&apos;re ready.
+                  No credit card required for free account. Cancel anytime.
                 </p>
               </div>
             </div>
