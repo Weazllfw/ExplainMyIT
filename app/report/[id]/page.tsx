@@ -50,39 +50,46 @@ interface PageProps {
 
 // Dynamic metadata for better SEO and social sharing
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // Fetch snapshot to get domain name
-  const { getSnapshotById } = await import('@/lib/db/snapshots');
-  const { snapshot } = await getSnapshotById(params.id);
+  try {
+    // Fetch snapshot to get domain name
+    const { snapshot } = await getSnapshotById(params.id);
 
-  if (!snapshot) {
+    if (!snapshot) {
+      return {
+        title: 'Report Not Found | Explain My IT',
+      };
+    }
+
+    const domain = snapshot.domain;
+    const title = `IT Snapshot for ${domain} | Explain My IT`;
+    const description = `Free IT snapshot report for ${domain}. Covers DNS, email security, SSL certificates, tech stack, and public exposure analysis.`;
+
     return {
-      title: 'Report Not Found | Explain My IT',
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: 'website',
+        url: `https://explainmyit.com/report/${params.id}`,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+      },
+      robots: {
+        index: false, // Don't index individual reports for privacy
+        follow: false,
+      },
+    };
+  } catch (error) {
+    console.error('[Report] Metadata generation error:', error);
+    return {
+      title: 'IT Snapshot | Explain My IT',
+      description: 'Your IT reality snapshot report',
     };
   }
-
-  const domain = snapshot.domain;
-  const title = `IT Snapshot for ${domain} | Explain My IT`;
-  const description = `Free IT snapshot report for ${domain}. Covers DNS, email security, SSL certificates, tech stack, and public exposure analysis.`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-      url: `https://explainmyit.com/report/${params.id}`,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-    robots: {
-      index: false, // Don't index individual reports for privacy
-      follow: false,
-    },
-  };
 }
 
 export default async function ReportPage({ params, searchParams }: PageProps) {
