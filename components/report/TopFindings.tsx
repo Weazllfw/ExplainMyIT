@@ -25,6 +25,7 @@ export function TopFindings({ findings }: TopFindingsProps) {
 
 function FindingCard({ finding, index }: { finding: TopFinding; index: number }) {
   const confidenceBadge = getConfidenceBadge(finding.confidence);
+  const sourceIcon = getSourceIcon(finding.finding_code);
 
   return (
     <div className="border border-brand-border rounded-[14px] p-5 hover:shadow-brand-hover hover:border-brand-cyan/30 transition-all">
@@ -35,6 +36,11 @@ function FindingCard({ finding, index }: { finding: TopFinding; index: number })
               {index + 1}
             </span>
             <h3 className="text-[17px] font-bold text-brand-navy">{finding.title}</h3>
+            {sourceIcon && (
+              <span className="flex-shrink-0 text-xs text-brand-muted" title={`Source: ${getSourceName(finding.finding_code)}`}>
+                {sourceIcon}
+              </span>
+            )}
           </div>
           <p className="text-brand-slate text-[15px] leading-relaxed ml-11">{finding.description}</p>
         </div>
@@ -58,4 +64,24 @@ function getConfidenceBadge(confidence: 'high' | 'medium' | 'low') {
       {confidence === 'high' ? 'High' : confidence === 'medium' ? 'Medium' : 'Low'} confidence
     </span>
   );
+}
+
+function getSourceIcon(findingCode: string): string {
+  if (findingCode.startsWith('DNS')) return '🌐';
+  if (findingCode.startsWith('EMAIL')) return '📧';
+  if (findingCode.startsWith('TLS')) return '🔒';
+  if (findingCode.startsWith('TECH')) return '⚙️';
+  if (findingCode.startsWith('EXPOSURE')) return '🔍';
+  if (findingCode.startsWith('HIBP')) return '🛡️';
+  return '';
+}
+
+function getSourceName(findingCode: string): string {
+  if (findingCode.startsWith('DNS')) return 'DNS & Infrastructure';
+  if (findingCode.startsWith('EMAIL')) return 'Email Security';
+  if (findingCode.startsWith('TLS')) return 'SSL/TLS';
+  if (findingCode.startsWith('TECH')) return 'Technology Stack';
+  if (findingCode.startsWith('EXPOSURE')) return 'Public Exposure';
+  if (findingCode.startsWith('HIBP')) return 'Breach Database';
+  return 'General';
 }

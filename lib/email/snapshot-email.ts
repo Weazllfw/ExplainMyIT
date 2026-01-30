@@ -47,7 +47,12 @@ The report link will expire in 30 days.
 Explain My IT - Understanding your IT, one snapshot at a time
 https://explainmyit.com`;
 
-  // Convert to HTML (basic formatting)
+  // Parse email body sections
+  const sections = emailBody.split('\n\n');
+  const introSection = sections[0] || '';
+  const bodyContent = sections.slice(1).join('\n\n');
+  
+  // Convert to HTML with proper formatting
   const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -56,19 +61,91 @@ https://explainmyit.com`;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${emailSubject}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="white-space: pre-wrap;">${emailBody.replace(/\n/g, '<br>')}</div>
-  
-  <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-  
-  <p style="font-size: 12px; color: #666;">
-    This email was sent to ${email} because you requested a snapshot for ${domain}.
-    <br><br>
-    If you didn't request this, you can safely ignore this email. The report link will expire in 30 days.
-    <br><br>
-    <strong>Explain My IT</strong> - Understanding your IT, one snapshot at a time<br>
-    <a href="https://explainmyit.com" style="color: #0066cc;">explainmyit.com</a>
-  </p>
+<body style="margin: 0; padding: 0; background-color: #f5f7fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <!-- Main Container -->
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #1f3a5f 0%, #2c5282 100%); padding: 30px; text-align: center;">
+              <h1 style="margin: 0; color: white; font-size: 24px; font-weight: bold;">
+                📊 Your IT Snapshot is Ready
+              </h1>
+              <p style="margin: 8px 0 0 0; color: #7dd3fc; font-size: 14px;">
+                ${domain}
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Intro -->
+          <tr>
+            <td style="padding: 30px; background: #f8fafc;">
+              <p style="margin: 0; color: #1e293b; font-size: 16px; line-height: 1.6;">
+                ${introSection.replace(/\n/g, '<br>')}
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 30px;">
+              <div style="color: #475569; font-size: 15px; line-height: 1.7;">
+                ${bodyContent.replace(/\n\n/g, '</p><p style="margin: 16px 0;">').replace(/\n/g, '<br>')}
+              </div>
+            </td>
+          </tr>
+          
+          <!-- CTA Button -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px; text-align: center;">
+              <table role="presentation" style="margin: 0 auto;">
+                <tr>
+                  <td style="background: #1f3a5f; border-radius: 12px; padding: 16px 32px;">
+                    <a href="${magicLink}" style="color: white; text-decoration: none; font-weight: 600; font-size: 16px; display: block;">
+                      View Your Full Report →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 12px 0 0 0; font-size: 13px; color: #64748b;">
+                Or copy this link: <a href="${magicLink}" style="color: #0891b2; word-break: break-all;">${magicLink}</a>
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Info Box -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="background: #ecfeff; border-left: 4px solid #06b6d4; border-radius: 8px; padding: 16px; margin-top: 20px;">
+                <p style="margin: 0; color: #0e7490; font-size: 14px; line-height: 1.6;">
+                  <strong>💡 Want to track changes over time?</strong><br>
+                  Create a free account to save your snapshots and get automatic updates when your IT setup changes.
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 30px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 12px 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                This email was sent to <strong>${email}</strong> because you requested a snapshot for <strong>${domain}</strong>.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.5;">
+                If you didn't request this, you can safely ignore this email. The report link will expire in 30 days.
+              </p>
+              <p style="margin: 16px 0 0 0; font-size: 12px; color: #94a3b8;">
+                <strong>Explain My IT</strong> - Understanding your IT, one snapshot at a time<br>
+                <a href="https://explainmyit.com" style="color: #0891b2; text-decoration: none;">explainmyit.com</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
