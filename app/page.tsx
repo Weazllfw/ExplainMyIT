@@ -1,6 +1,6 @@
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import WaitlistForm from '@/components/WaitlistForm';
 import SnapshotRequestForm from '@/components/SnapshotRequestForm';
 
 export default function Home() {
@@ -346,27 +346,72 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section - Dashboard Early Access */}
-        <section id="waitlist" className="container-section bg-brand-navy">
+        {/* CTA Section - Create Account */}
+        <section className="container-section bg-brand-navy">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h2 className="text-[32px] md:text-[36px] font-bold mb-4">
-              Want Recurring Reports & a Dashboard?
+              Ready to Track Your IT Over Time?
             </h2>
-            <p className="text-[16px] text-brand-cyan/80 mb-8">
-              The free snapshot is just the beginning. Get early access to our full dashboard with recurring reports, change tracking, and more.
+            <p className="text-[16px] text-brand-cyan/80 mb-8 leading-relaxed">
+              Create a free account to save your snapshots, view them in your dashboard, and track changes as your IT evolves.
             </p>
             <div className="bg-white rounded-[20px] shadow-brand-hover p-8 md:p-10">
-              <h3 className="text-[24px] font-bold text-brand-navy mb-4">
-                Join the Early Access Waitlist
-              </h3>
-              <WaitlistForm />
-              <div className="text-center mt-6 space-y-2">
-                <p className="text-sm text-brand-muted">
-                  No spam. Just IT clarity.
-                </p>
-                <p className="text-xs text-brand-muted/70">
-                  Pricing will be simple, subscription-based, and designed to stay in the background of normal business software spend.
-                </p>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-[24px] font-bold text-brand-navy mb-2">
+                    What You Get With a Free Account
+                  </h3>
+                  <p className="text-[15px] text-brand-slate">
+                    100% free. No credit card required.
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4 text-left">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-brand-slate text-[15px]">
+                      Save reports permanently
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-brand-slate text-[15px]">
+                      View all domains in one place
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-brand-slate text-[15px]">
+                      1 snapshot per domain every 30 days
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-brand-slate text-[15px]">
+                      Track changes over time
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="inline-block px-8 py-4 bg-brand-navy text-white rounded-[12px] font-semibold text-[16px] shadow-brand hover:shadow-brand-hover transition-all hover:scale-[1.02]"
+                  >
+                    Create Free Account
+                  </Link>
+                  <p className="text-sm text-brand-muted mt-4">
+                    Already have an account? <Link href="/login" className="text-brand-cyan hover:underline font-medium">Log in</Link>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
