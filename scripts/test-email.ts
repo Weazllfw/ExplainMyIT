@@ -36,7 +36,6 @@ async function testEmailIntegration() {
     
     if (basicResult.success) {
       console.log(`✅ Basic email sent successfully!`);
-      console.log(`   Message ID: ${basicResult.messageId}`);
     } else {
       console.error(`❌ Basic email failed: ${basicResult.error}`);
     }
@@ -73,7 +72,6 @@ Thanks for using Explain My IT.`,
     
     if (snapshotResult.success) {
       console.log(`✅ Snapshot email sent successfully!`);
-      console.log(`   Message ID: ${snapshotResult.messageId}`);
     } else {
       console.error(`❌ Snapshot email failed: ${snapshotResult.error}`);
     }
@@ -85,7 +83,6 @@ Thanks for using Explain My IT.`,
     
     if (welcomeResult.success) {
       console.log(`✅ Welcome email sent successfully!`);
-      console.log(`   Message ID: ${welcomeResult.messageId}`);
     } else {
       console.error(`❌ Welcome email failed: ${welcomeResult.error}`);
     }

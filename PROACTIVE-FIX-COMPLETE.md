@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (20 Categories, 164 Individual Fixes)
+## Fixes Applied (21 Categories, 167 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -169,6 +169,12 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - All test scripts now match database schema (no `.success`, proper optional chaining)
 - Fixed cross-block flags display (now `string[]` instead of object)
 
+### Category 21: Email Test Property Access (3 fixes)
+**File**: `scripts/test-email.ts`
+- Removed `messageId` property access (3 locations: basic, snapshot, welcome email tests)
+- Property doesn't exist in email function return types
+- Return type is `{ success: boolean; error?: string }` (no messageId)
+
 ---
 
 ## Files Modified
@@ -190,7 +196,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**17 Documentation Files**:
+**18 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -206,8 +212,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 13. `IMPLICIT-ANY-FIX.md`
 14. `CROSS-BLOCK-FLAGS-CONVERSION.md`
 15. `SCRIPT-IMPORT-FIX.md`
-16. `TEST-SCRIPTS-FIX.md` - **NEW**
-17. `PROACTIVE-FIX-COMPLETE.md` (this file)
+16. `TEST-SCRIPTS-FIX.md`
+17. `EMAIL-TEST-FIX.md` - **NEW**
+18. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -272,7 +279,8 @@ if (error || !data) { ... }
 - [x] Cross-block flags conversion (object to string array)
 - [x] Script import errors fixed (setup-db.ts)
 - [x] Test script schema mismatches fixed (3 test files, removed `.success`, added optional chaining)
-- [x] All test scripts now match database schema
+- [x] Email test property access fixed (removed non-existent `messageId` references)
+- [x] All test scripts now match their function return types
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
 - [ ] Vercel build verification (next push)
@@ -281,11 +289,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 21+ build failures, each requiring a separate push cycle
+**Before**: 22+ build failures, each requiring a separate push cycle
 
 **After**: All type issues fixed proactively in comprehensive passes
 
-**Fixes**: 164 individual fixes across 21 code files and 20 issue categories
+**Fixes**: 167 individual fixes across 22 code files and 21 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
