@@ -21,6 +21,17 @@ export default function Footer() {
           
           <div className="flex flex-wrap gap-8">
             <div>
+              <h4 className="text-sm font-semibold mb-2 text-brand-navy">Product</h4>
+              <div className="space-y-2">
+                <Link 
+                  href="/how-it-works" 
+                  className="text-brand-cyan hover:text-brand-navy transition-colors text-sm block"
+                >
+                  How It Works
+                </Link>
+              </div>
+            </div>
+            <div>
               <h4 className="text-sm font-semibold mb-2 text-brand-navy">Contact</h4>
               <a 
                 href="mailto:contact@explainmyit.com" 
