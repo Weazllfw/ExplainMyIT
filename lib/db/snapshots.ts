@@ -119,9 +119,11 @@ export async function getSnapshotByToken(
  */
 export async function getUserSnapshots(
   userId: string,
-  limit = 50
+  limit = 50,
+  supabaseClient?: any
 ): Promise<{ snapshots: Snapshot[]; error: string | null }> {
-  const supabase = getSupabaseAdmin();
+  // Use provided client (browser client from client-side) or admin client (server-side)
+  const supabase = supabaseClient || getSupabaseAdmin();
   
   const { data: snapshots, error } = await supabase
     .from('snapshots')
