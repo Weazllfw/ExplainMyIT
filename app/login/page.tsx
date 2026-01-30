@@ -5,6 +5,7 @@
  */
 
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LoginForm from '@/components/auth/LoginForm';
@@ -35,7 +36,9 @@ export default function LoginPage() {
 
             {/* Login Form Card */}
             <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-8">
-              <LoginForm />
+              <Suspense fallback={<div className="text-center text-brand-muted">Loading...</div>}>
+                <LoginForm />
+              </Suspense>
             </div>
           </div>
         </div>
