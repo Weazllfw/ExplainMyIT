@@ -9,6 +9,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { Analytics } from '@/lib/analytics';
+import { getCurrentUser } from '@/lib/auth/supabase-auth';
 
 const LOADING_STEPS = [
   { text: 'Analyzing DNS records...', duration: 2000 },
@@ -26,6 +27,17 @@ export default function SnapshotRequestForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [loadingStep, setLoadingStep] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check auth status on mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const user = await getCurrentUser();
+    setIsAuthenticated(!!user);
+  };
 
   // Animated loading steps
   useEffect(() => {
@@ -105,29 +117,56 @@ export default function SnapshotRequestForm() {
           </p>
         </div>
 
-        {/* Conversion CTA - Create Account */}
-        <div className="bg-brand-cyan/10 border border-brand-cyan/30 rounded-[12px] p-6">
-          <h4 className="text-[16px] font-bold text-brand-navy mb-2">
-            Want to Save This Report?
-          </h4>
-          <p className="text-sm text-brand-slate mb-4">
-            Create a free account to save your snapshots, track changes over time, and view all your domains in one dashboard.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/signup"
-              className="flex-1 text-center px-4 py-2 bg-brand-navy text-white font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all text-sm shadow-brand"
-            >
-              Create Free Account
-            </Link>
-            <button
-              onClick={() => setSuccess(false)}
-              className="flex-1 px-4 py-2 text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-all text-sm font-medium"
-            >
-              Request Another
-            </button>
+        {/* Smart CTA based on auth state */}
+        {isAuthenticated ? (
+          /* Logged-in user - Direct to Dashboard */
+          <div className="bg-brand-cyan/10 border border-brand-cyan/30 rounded-[12px] p-6">
+            <h4 className="text-[16px] font-bold text-brand-navy mb-2">
+              Your Snapshot is Being Saved
+            </h4>
+            <p className="text-sm text-brand-slate mb-4">
+              Once complete, you'll find it in your dashboard. We'll also email you a copy for your records.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/dashboard"
+                className="flex-1 text-center px-4 py-2 bg-brand-navy text-white font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all text-sm shadow-brand"
+              >
+                Go to Dashboard
+              </Link>
+              <button
+                onClick={() => setSuccess(false)}
+                className="flex-1 px-4 py-2 text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-all text-sm font-medium"
+              >
+                Request Another
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Anonymous user - Encourage signup */
+          <div className="bg-brand-cyan/10 border border-brand-cyan/30 rounded-[12px] p-6">
+            <h4 className="text-[16px] font-bold text-brand-navy mb-2">
+              Want to Save This Report?
+            </h4>
+            <p className="text-sm text-brand-slate mb-4">
+              Create a free account to save your snapshots, track changes over time, and view all your domains in one dashboard.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/signup"
+                className="flex-1 text-center px-4 py-2 bg-brand-navy text-white font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all text-sm shadow-brand"
+              >
+                Create Free Account
+              </Link>
+              <button
+                onClick={() => setSuccess(false)}
+                className="flex-1 px-4 py-2 text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-all text-sm font-medium"
+              >
+                Request Another
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
