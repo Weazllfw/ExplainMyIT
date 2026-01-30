@@ -99,7 +99,7 @@ export async function collectHibpSignals(
     ];
     
     // Remove duplicates (if user submitted info@domain.com)
-    const uniqueEmails = [...new Set(emailsToCheck)];
+    const uniqueEmails = Array.from(new Set(emailsToCheck));
     
     console.log(`🔍 HIBP: Checking ${uniqueEmails.length} email(s) for ${normalizedDomain}`);
     
