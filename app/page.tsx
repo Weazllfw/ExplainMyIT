@@ -31,6 +31,9 @@ export default function Home() {
                   <p className="text-[15px] leading-relaxed">
                     You'll receive a short, plain-English report explaining what your IT setup appears to be, what it's assuming, and what questions are worth asking.
                   </p>
+                  <p className="text-[14px] text-brand-muted leading-relaxed">
+                    <strong className="text-brand-navy">This snapshot is dated.</strong> IT configurations change quietly over time — often without owners being notified. This creates a record of how things looked today.
+                  </p>
                 </div>
               </div>
               
@@ -73,9 +76,14 @@ export default function Home() {
         {/* What You'll Get Section */}
         <section className="container-section bg-brand-bg">
           <h2 className="section-title">What's In Your Free Snapshot</h2>
-          <p className="text-center text-brand-slate text-[16px] mb-8 max-w-3xl mx-auto">
-            Your free snapshot includes a short owner-readable report made up of the following sections:
-          </p>
+          <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
+            <p className="text-brand-slate text-[16px]">
+              Your free snapshot includes a short owner-readable report made up of the following sections:
+            </p>
+            <p className="text-[15px] text-brand-navy leading-relaxed bg-white rounded-[12px] p-4 border border-brand-border">
+              Most businesses don't notice changes to domains, email, certificates, or hosting until something breaks or a third party asks questions. <strong>Explain My IT keeps a dated record of how things looked at each point in time.</strong>
+            </p>
+          </div>
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-[14px] p-6 border border-brand-border shadow-brand hover:shadow-brand-hover transition-shadow">
               <div className="text-3xl mb-3" aria-hidden="true">📊</div>
@@ -195,6 +203,87 @@ export default function Home() {
               </div>
               <h3 className="text-[18px] font-bold text-brand-navy">Preparing</h3>
               <p className="text-[15px] text-brand-slate">for insurance, growth, audits, or transitions</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Free vs Recurring Comparison */}
+        <section className="container-section bg-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-[28px] font-bold text-center text-brand-navy mb-3">
+              One Snapshot vs. Recurring Reports
+            </h2>
+            <p className="text-center text-brand-muted mb-10 max-w-2xl mx-auto">
+              A single snapshot answers "what does this look like today?" Recurring reports answer "when did this change, and why?"
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Free Snapshot */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-[16px] p-8 border-2 border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-brand-cyan/10 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-[20px] font-bold text-brand-navy">Free Snapshot</h3>
+                </div>
+                <ul className="space-y-3 text-[15px] text-brand-slate">
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>One point in time</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Useful for awareness</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Answers "what does this look like today?"</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Recurring Reports */}
+              <div className="bg-gradient-to-br from-brand-navy to-blue-700 rounded-[16px] p-8 border-2 border-brand-navy shadow-brand-hover">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-[20px] font-bold text-white">Recurring Reports</h3>
+                </div>
+                <ul className="space-y-3 text-[15px] text-blue-100">
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-white flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Creates a timeline</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-white flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Captures silent changes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-white flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Answers "when did this change, and why?"</span>
+                  </li>
+                </ul>
+                <p className="text-xs text-blue-200 mt-4 pt-4 border-t border-white/20">
+                  Available with paid plans
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -350,10 +439,13 @@ export default function Home() {
         <section className="container-section bg-brand-navy">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h2 className="text-[32px] md:text-[36px] font-bold mb-4">
-              Ready to Track Your IT Over Time?
+              Create a Record of Your IT Over Time
             </h2>
+            <p className="text-[16px] text-blue-100 mb-2 leading-relaxed">
+              Stop relying on memory and people.
+            </p>
             <p className="text-[16px] text-brand-cyan/80 mb-8 leading-relaxed">
-              Create a free account to save your snapshots, view them in your dashboard, and track changes as your IT evolves.
+              Have evidence when questions come up. Save your snapshots and see what changed.
             </p>
             <div className="bg-white rounded-[20px] shadow-brand-hover p-8 md:p-10">
               <div className="space-y-6">
@@ -372,7 +464,7 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-brand-slate text-[15px]">
-                      Save reports permanently
+                      Keep dated records permanently
                     </span>
                   </div>
                   <div className="flex items-start gap-3">
@@ -396,7 +488,7 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-brand-slate text-[15px]">
-                      Track changes over time
+                      Build a history of what changed
                     </span>
                   </div>
                 </div>
