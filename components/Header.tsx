@@ -29,6 +29,15 @@ export default function Header() {
               </li>
               <li>
                 <Link 
+                  href="/pricing" 
+                  className="text-brand-muted hover:text-brand-navy transition-colors font-medium text-[15px]"
+                  data-umami-event="nav-pricing"
+                >
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link 
                   href="/blog" 
                   className="text-brand-muted hover:text-brand-navy transition-colors font-medium text-[15px]"
                   data-umami-event="nav-blog"

@@ -503,6 +503,9 @@ export default function Home() {
                   <p className="text-sm text-brand-muted mt-4">
                     Already have an account? <Link href="/login" className="text-brand-cyan hover:underline font-medium">Log in</Link>
                   </p>
+                  <p className="text-sm text-brand-muted mt-2">
+                    Want recurring snapshots? <Link href="/pricing" className="text-brand-cyan hover:underline font-medium">View pricing</Link>
+                  </p>
                 </div>
               </div>
             </div>

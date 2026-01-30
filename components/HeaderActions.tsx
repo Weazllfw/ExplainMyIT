@@ -29,6 +29,7 @@ export default function HeaderActions() {
   };
 
   const handleLogout = async () => {
+    Analytics.headerCtaClicked('logout');
     const result = await logout();
     if (result.success) {
       Analytics.userLoggedOut();
@@ -50,7 +51,8 @@ export default function HeaderActions() {
     return (
       <div className="flex items-center gap-3">
         <Link 
-          href="/dashboard" 
+          href="/dashboard"
+          onClick={() => Analytics.headerCtaClicked('dashboard')}
           className="hidden md:inline-flex text-brand-navy hover:text-brand-cyan transition-colors font-medium text-[15px]"
         >
           Dashboard
@@ -69,13 +71,15 @@ export default function HeaderActions() {
   return (
     <div className="flex items-center gap-3">
       <Link 
-        href="/login" 
+        href="/login"
+        onClick={() => Analytics.headerCtaClicked('login')}
         className="text-brand-navy hover:text-brand-cyan transition-colors font-medium text-[15px]"
       >
         Log in
       </Link>
       <Link 
-        href="/signup" 
+        href="/signup"
+        onClick={() => Analytics.headerCtaClicked('signup')}
         className="bg-brand-navy text-white px-5 py-2 rounded-[12px] hover:bg-brand-navy/90 transition-all font-medium shadow-brand text-[15px]"
       >
         Sign up

@@ -216,6 +216,41 @@ export const Analytics = {
       domain,
     });
   },
+
+  // Email opt-in events
+  emailOptInChecked: (source: 'snapshot-form' | 'success-state' | 'report-footer') => {
+    trackEvent('email-opt-in-checked', {
+      source,
+    });
+  },
+
+  emailOptInSubmitted: (source: 'snapshot-form' | 'success-state' | 'report-footer', domain?: string) => {
+    trackEvent('email-opt-in-submitted', {
+      source,
+      domain: domain || 'unknown',
+    });
+  },
+
+  // Snapshot success state CTAs
+  snapshotSuccessCtaClicked: (ctaType: 'create-account' | 'go-to-dashboard' | 'request-another' | 'request-another-auth') => {
+    trackEvent('snapshot-success-cta-clicked', {
+      ctaType,
+    });
+  },
+
+  // Header navigation CTAs
+  headerCtaClicked: (ctaType: 'signup' | 'login' | 'dashboard' | 'logout') => {
+    trackEvent('header-cta-clicked', {
+      ctaType,
+    });
+  },
+
+  // Pricing page CTAs
+  pricingCtaClicked: (ctaType: 'free-snapshot' | 'tier1-coming-soon' | 'free-snapshot-cta-bottom' | 'how-it-works') => {
+    trackEvent('pricing-cta-clicked', {
+      ctaType,
+    });
+  },
 };
 
 /**

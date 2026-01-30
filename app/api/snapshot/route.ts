@@ -23,6 +23,7 @@ import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
 import { generateMagicLink } from '@/lib/auth/magic-link';
 import { sendSnapshotEmail } from '@/lib/email/snapshot-email';
+import { addToWaitlist } from '@/lib/brevo';
 import { getApiUser } from '@/lib/auth/api-auth';
 import { getUserByAuthId } from '@/lib/db/users';
 import type { SnapshotSignals } from '@/types/database';
@@ -62,9 +63,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { domain, email } = validation.data;
+    const { domain, email, optIntoEmails } = validation.data;
 
-    console.log(`📨 Snapshot request received: ${domain} (${email}) [user_id: ${userId || 'anonymous'}]`);
+    console.log(`📨 Snapshot request received: ${domain} (${email}) [user_id: ${userId || 'anonymous'}]${optIntoEmails ? ' [opted into emails]' : ''}`);
 
     // Hash email for storage (privacy) - only for anonymous users
     const emailHash = userId ? undefined : hashIdentifier(email);
@@ -171,6 +172,27 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`✅ Snapshot completed: ${snapshot.id} (${duration.toFixed(2)}s)`);
+
+    // If user opted into emails, add them to Brevo mailing list
+    if (optIntoEmails && !userId) {
+      // Only add if they don't have an account (account users are added on signup)
+      console.log(`📧 Adding ${email} to Brevo mailing list...`);
+      const brevoResult = await addToWaitlist({
+        email,
+        companySize: 'Not provided',
+        hasIT: 'Not provided',
+        signupSource: 'free-snapshot',
+        signupPage: 'snapshot-form',
+        utmSource: 'snapshot-opt-in',
+      });
+
+      if (brevoResult.success) {
+        console.log(`✅ Successfully added to Brevo mailing list`);
+      } else {
+        console.warn(`⚠️  Failed to add to Brevo: ${brevoResult.error}`);
+        // Don't fail the request if Brevo fails
+      }
+    }
 
     // Send email via Brevo (with appropriate link based on auth status)
     const emailResult = await sendSnapshotEmail(

@@ -8,6 +8,7 @@ export interface WaitlistFormData {
   utmCampaign?: string;
   referrer?: string;
   signupPage?: string;
+  signupSource?: string; // e.g., 'free-snapshot', 'waitlist-form', 'account-creation'
 }
 
 export interface WaitlistResponse {
