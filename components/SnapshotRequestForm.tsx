@@ -25,6 +25,7 @@ const LOADING_STEPS = [
 export default function SnapshotRequestForm() {
   const [email, setEmail] = useState('');
   const [domain, setDomain] = useState('');
+  const [optIntoEmails, setOptIntoEmails] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -73,7 +74,7 @@ export default function SnapshotRequestForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, domain }),
+        body: JSON.stringify({ email, domain, optIntoEmails }),
       });
 
       const data = await response.json();
@@ -132,12 +133,16 @@ export default function SnapshotRequestForm() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/dashboard"
+                onClick={() => Analytics.snapshotSuccessCtaClicked('go-to-dashboard')}
                 className="flex-1 text-center px-4 py-2 bg-brand-navy text-white font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all text-sm shadow-brand"
               >
                 Go to Dashboard
               </Link>
               <button
-                onClick={() => setSuccess(false)}
+                onClick={() => {
+                  Analytics.snapshotSuccessCtaClicked('request-another-auth');
+                  setSuccess(false);
+                }}
                 className="flex-1 px-4 py-2 text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-all text-sm font-medium"
               >
                 Request Another
@@ -156,12 +161,16 @@ export default function SnapshotRequestForm() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/signup"
+                onClick={() => Analytics.snapshotSuccessCtaClicked('create-account')}
                 className="flex-1 text-center px-4 py-2 bg-brand-navy text-white font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all text-sm shadow-brand"
               >
                 Create Free Account
               </Link>
               <button
-                onClick={() => setSuccess(false)}
+                onClick={() => {
+                  Analytics.snapshotSuccessCtaClicked('request-another');
+                  setSuccess(false);
+                }}
                 className="flex-1 px-4 py-2 text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-all text-sm font-medium"
               >
                 Request Another
@@ -209,6 +218,26 @@ export default function SnapshotRequestForm() {
         <p className="text-xs text-brand-muted mt-1">
           Just the domain (e.g., company.com, not www.company.com)
         </p>
+      </div>
+
+      {/* Email Opt-in Checkbox */}
+      <div className="flex items-start gap-3 p-3 bg-brand-bg rounded-[10px] border border-brand-border">
+        <input
+          type="checkbox"
+          id="opt-in-emails"
+          checked={optIntoEmails}
+          onChange={(e) => {
+            setOptIntoEmails(e.target.checked);
+            if (e.target.checked) {
+              Analytics.emailOptInChecked('snapshot-form');
+            }
+          }}
+          disabled={isLoading}
+          className="mt-0.5 w-4 h-4 text-brand-cyan border-brand-border rounded focus:ring-2 focus:ring-brand-cyan/35"
+        />
+        <label htmlFor="opt-in-emails" className="text-sm text-brand-slate leading-relaxed cursor-pointer">
+          Keep me updated about my IT setup (occasional emails, unsubscribe anytime)
+        </label>
       </div>
 
       {error && (

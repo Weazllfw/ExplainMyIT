@@ -26,6 +26,11 @@ This directory contains minimal, focused documentation explaining exactly how ea
 ### Frontend
 - **[Frontend-Report-Architecture.md](./Frontend-Report-Architecture.md)** - Report view page, display components, authentication flow, responsive design
 - **[Homepage-Architecture.md](./Homepage-Architecture.md)** - Homepage snapshot request form, user flow, CTAs, conversion funnel
+- **[Frontend-Visual-Language.md](./Frontend-Visual-Language.md)** - Visual design system, component library, brand consistency
+
+### Analytics & Tracking
+- **[Umami-Quick-Start-Checklist.md](./Umami-Quick-Start-Checklist.md)** - ⚡ Fast setup checklist (15 min to go live)
+- **[Umami-Cloud-Setup-Guide.md](./Umami-Cloud-Setup-Guide.md)** - Complete setup guide: 40 events, 6 funnels, 4 dashboards, alerts
 
 ---
 
@@ -93,4 +98,4 @@ This directory contains minimal, focused documentation explaining exactly how ea
 
 ---
 
-**Last Updated**: January 29, 2026
+**Last Updated**: January 30, 2026

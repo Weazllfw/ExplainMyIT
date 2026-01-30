@@ -29,6 +29,12 @@ export default function Footer() {
                 >
                   How It Works
                 </Link>
+                <Link 
+                  href="/pricing" 
+                  className="text-brand-cyan hover:text-brand-navy transition-colors text-sm block"
+                >
+                  Pricing
+                </Link>
               </div>
             </div>
             <div>
@@ -50,12 +56,6 @@ export default function Footer() {
                   Privacy Policy
                 </Link>
               </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-2 text-brand-navy">Pricing</h4>
-              <p className="text-brand-muted text-sm max-w-xs">
-                Simple, subscription-based, designed to stay in the background of normal business software spend.
-              </p>
             </div>
           </div>
         </div>

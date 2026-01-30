@@ -84,6 +84,7 @@ export function sanitizeString(input: string, maxLength: number = 255): string {
 export interface SnapshotRequestPayload {
   domain: string;
   email: string;
+  optIntoEmails?: boolean;
 }
 
 export function validateSnapshotRequest(
@@ -120,6 +121,7 @@ export function validateSnapshotRequest(
     data: {
       domain: normalizeDomain(payload.domain),
       email: payload.email.toLowerCase().trim(),
+      optIntoEmails: payload.optIntoEmails === true, // Explicitly convert to boolean
     },
   };
 }
