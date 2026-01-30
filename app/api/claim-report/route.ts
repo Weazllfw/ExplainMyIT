@@ -5,14 +5,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth/supabase-auth';
+import { getApiUser } from '@/lib/auth/api-auth';
 import { linkSnapshotToUser, getSnapshotById } from '@/lib/db/snapshots';
 import { getUserByAuthId } from '@/lib/db/users';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get authenticated user
-    const authUser = await getCurrentUser();
+    // Get authenticated user from API route context
+    const authUser = await getApiUser(request);
     
     if (!authUser) {
       return NextResponse.json(
