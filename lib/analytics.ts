@@ -34,6 +34,9 @@ export function trackEvent(eventName: string, eventData?: Record<string, any>): 
  * Pre-defined event trackers for common actions
  */
 export const Analytics = {
+  // Generic track method (exposes trackEvent for custom events)
+  track: trackEvent,
+
   // Waitlist events
   waitlistSignup: (data: { companySize?: string; hasIT?: string; source?: string }) => {
     trackEvent('waitlist-signup', {
