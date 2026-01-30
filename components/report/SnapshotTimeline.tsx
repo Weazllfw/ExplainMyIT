@@ -8,6 +8,8 @@
  * Conversion Purpose: Make one-time snapshots feel incomplete without fear.
  */
 
+'use client';
+
 import { formatDistanceToNow } from 'date-fns';
 
 interface SnapshotTimelineProps {
@@ -55,13 +57,13 @@ export function SnapshotTimeline({ createdAt }: SnapshotTimelineProps) {
           </div>
           
           {/* Future snapshot (locked) */}
-          <div className="flex flex-col items-center opacity-40">
+          <div className="flex flex-col items-center opacity-40" title="Recurring snapshots show what changed">
             <div className="w-3 h-3 rounded-full border-2 border-dashed border-gray-300 bg-white relative z-10" />
             <span className="text-xs text-gray-400 mt-2">Future</span>
           </div>
           
           {/* Future snapshot 2 (locked) */}
-          <div className="flex flex-col items-center opacity-40">
+          <div className="flex flex-col items-center opacity-40" title="Recurring snapshots show what changed">
             <div className="w-3 h-3 rounded-full border-2 border-dashed border-gray-300 bg-white relative z-10" />
             <span className="text-xs text-gray-400 mt-2">Future</span>
           </div>
