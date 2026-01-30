@@ -7,6 +7,8 @@
  * Purpose: Natural usage expansion, sets up multi-domain management.
  */
 
+'use client';
+
 import Link from 'next/link';
 
 export function RunAnotherDomainCTA() {
