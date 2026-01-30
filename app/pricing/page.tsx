@@ -509,62 +509,6 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* Why This Pricing Works */}
-        <section className="py-16 px-4">
-          <div className="max-w-[800px] mx-auto">
-            <h2 className="text-[36px] font-bold text-brand-navy mb-8 text-center">
-              Why This Pricing Works
-            </h2>
-            <div className="bg-white rounded-[16px] border border-brand-border p-8 shadow-sm">
-              <ul className="space-y-4">
-                {[
-                  'Low enough to fade into background business spend',
-                  'High enough to signal seriousness and credibility',
-                  'Designed for long-term continuity, not one-off novelty',
-                  'No contracts, no pressure, no sales calls',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-brand-cyan flex-shrink-0 mt-0.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span className="text-[16px] text-brand-slate leading-relaxed">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* Future Upgrades */}
-        <section className="py-16 px-4 bg-gradient-to-b from-white to-brand-bg">
-          <div className="max-w-[800px] mx-auto text-center">
-            <div className="bg-white rounded-[16px] border border-brand-border p-8 shadow-sm">
-              <h2 className="text-[28px] font-bold text-brand-navy mb-4">
-                Future Upgrades
-              </h2>
-              <p className="text-[16px] text-brand-slate leading-relaxed mb-4">
-                Internal visibility and deeper analysis tools will be offered as
-                an upgrade once available.
-              </p>
-              <p className="text-[16px] text-brand-navy font-semibold">
-                No commitment required today.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-20 px-4 bg-gradient-to-br from-brand-navy via-brand-navy to-brand-cyan">
           <div className="max-w-[800px] mx-auto text-center">
