@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SubscribeButton from '@/components/pricing/SubscribeButton';
+import ProWaitlistForm from '@/components/pricing/ProWaitlistForm';
 
 export const metadata: Metadata = {
   title: 'Pricing — Explain My IT',
@@ -55,8 +56,8 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <section className="py-12 px-4">
-          <div className="max-w-[1100px] mx-auto">
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {/* Free Snapshot */}
               <div className="bg-white rounded-[16px] border-2 border-brand-border p-8 shadow-sm hover:shadow-md transition-shadow">
                 <div className="mb-6">
@@ -281,6 +282,107 @@ export default function PricingPage() {
                   No credit card required for free account. Cancel anytime.
                 </p>
               </div>
+
+              {/* Pro - On-Premise (Coming Soon) */}
+              <div className="bg-gradient-to-br from-brand-navy/5 to-brand-muted/5 rounded-[16px] border-2 border-brand-border p-8 shadow-sm hover:shadow-md transition-shadow relative">
+                <div className="absolute top-4 right-4 bg-brand-muted text-white text-[12px] font-semibold px-3 py-1 rounded-full">
+                  COMING SOON
+                </div>
+
+                <div className="mb-6">
+                  <h2 className="text-[28px] font-bold text-brand-navy mb-2">
+                    Pro — On-Premise
+                  </h2>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="text-[24px] font-bold text-brand-muted">
+                      Contact Us
+                    </span>
+                  </div>
+                  <p className="text-[16px] text-brand-slate leading-relaxed">
+                    Internal visibility tool installed within your network for comprehensive IT oversight.
+                  </p>
+                  <p className="text-[14px] text-brand-muted leading-relaxed mt-2 italic">
+                    Gives you visibility into internal systems, changes, and configurations that external snapshots cannot see.
+                  </p>
+                </div>
+
+                <div className="mb-8">
+                  <h3 className="text-[16px] font-semibold text-brand-navy mb-3">
+                    Includes:
+                  </h3>
+                  <ul className="space-y-2.5">
+                    {[
+                      'Everything in Tier 1',
+                      'Internal network scanning',
+                      'Asset discovery and inventory',
+                      'Configuration change detection',
+                      'User and permission tracking',
+                      'Integration with your systems',
+                      'On-premise or private cloud deployment',
+                      'Dedicated support',
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <svg
+                          className="w-5 h-5 text-brand-muted flex-shrink-0 mt-0.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        <span className="text-[15px] text-brand-slate leading-relaxed">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mb-8">
+                  <h3 className="text-[16px] font-semibold text-brand-navy mb-3">
+                    What this gives you:
+                  </h3>
+                  <ul className="space-y-2.5">
+                    {[
+                      'Complete internal and external IT visibility',
+                      'Real-time change detection across your infrastructure',
+                      'Audit trail for compliance and governance',
+                      'Answers the questions Tier 1 cannot',
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <svg
+                          className="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="text-[15px] text-brand-slate leading-relaxed">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-brand-bg rounded-[12px] p-6">
+                  <p className="text-[14px] text-brand-navy font-semibold mb-4 text-center">
+                    Get notified when Pro is available
+                  </p>
+                  <ProWaitlistForm />
+                </div>
+              </div>
             </div>
 
             {/* Comparison Table */}
@@ -302,7 +404,7 @@ export default function PricingPage() {
                         Tier 1
                       </th>
                       <th className="text-center py-4 px-4 text-[16px] font-semibold text-brand-muted">
-                        Tier 2
+                        Pro
                       </th>
                     </tr>
                   </thead>
@@ -312,49 +414,61 @@ export default function PricingPage() {
                         feature: 'Public IT snapshot',
                         free: true,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
                         feature: 'Owner-readable summary',
                         free: true,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
                         feature: 'Assumptions & questions',
                         free: true,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
                         feature: 'Monthly snapshots',
                         free: false,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
                         feature: 'Full history & timeline',
                         free: false,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
                         feature: 'Access to past reports',
                         free: false,
                         tier1: true,
-                        tier2: true,
+                        pro: true,
                       },
                       {
-                        feature: 'Internal visibility tools',
+                        feature: 'Internal network scanning',
                         free: false,
                         tier1: false,
-                        tier2: true,
+                        pro: true,
                       },
                       {
-                        feature: 'Deeper analysis',
+                        feature: 'Asset discovery & inventory',
                         free: false,
                         tier1: false,
-                        tier2: true,
+                        pro: true,
+                      },
+                      {
+                        feature: 'Change detection',
+                        free: false,
+                        tier1: false,
+                        pro: true,
+                      },
+                      {
+                        feature: 'On-premise deployment',
+                        free: false,
+                        tier1: false,
+                        pro: true,
                       },
                     ].map((row, i) => (
                       <tr key={i} className="border-b border-brand-border/50">
@@ -400,7 +514,7 @@ export default function PricingPage() {
                           )}
                         </td>
                         <td className="py-4 px-4 text-center">
-                          {row.tier2 ? (
+                          {row.pro ? (
                             <svg
                               className="w-5 h-5 text-brand-muted mx-auto"
                               fill="none"
@@ -431,7 +545,7 @@ export default function PricingPage() {
                         $19.99/mo
                       </td>
                       <td className="py-4 px-4 text-center text-[15px] text-brand-muted">
-                        Coming soon
+                        Contact us
                       </td>
                     </tr>
                   </tbody>
