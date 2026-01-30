@@ -70,6 +70,27 @@ export async function upsertUserFromAuth(data: {
 }
 
 /**
+ * Get user by auth_user_id
+ */
+export async function getUserByAuthId(
+  authUserId: string
+): Promise<{ user: User | null; error: string | null }> {
+  const supabase = getSupabaseAdmin();
+  
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('auth_user_id', authUserId)
+    .single();
+  
+  if (error) {
+    return { user: null, error: error.message };
+  }
+  
+  return { user, error: null };
+}
+
+/**
  * Get user by ID
  */
 export async function getUserById(
