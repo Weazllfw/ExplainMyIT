@@ -33,6 +33,13 @@ export async function checkRateLimit(params: {
   const supabase = getSupabaseAdmin();
   const { domain, userId, email, tierLimitType = 'free' } = params;
   
+  // TESTING BYPASS: Whitelist specific emails (no rate limiting)
+  const whitelistEmails = ['masterjedi.r13@gmail.com'];
+  if (email && whitelistEmails.includes(email.toLowerCase())) {
+    console.log(`✅ Rate limit bypass for whitelisted email: ${email}`);
+    return { allowed: true, error: null };
+  }
+  
   const domainHash = hashIdentifier(domain);
   const emailHash = email ? hashIdentifier(email) : null;
   
