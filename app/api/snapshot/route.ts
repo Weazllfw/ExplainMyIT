@@ -15,7 +15,7 @@
  * 8. Return snapshot ID + access info
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { validateSnapshotRequest } from '@/lib/utils/validation';
 import { checkRateLimit, recordSnapshotRun, hashIdentifier } from '@/lib/db/rate-limits';
 import { createSnapshot, updateSnapshot } from '@/lib/db/snapshots';
@@ -23,12 +23,30 @@ import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
 import { generateMagicLink } from '@/lib/auth/magic-link';
 import { sendSnapshotEmail } from '@/lib/email/snapshot-email';
+import { getApiUser } from '@/lib/auth/api-auth';
+import { getUserByAuthId } from '@/lib/db/users';
 import type { SnapshotSignals } from '@/types/database';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
+    // Check if user is authenticated
+    const authUser = await getApiUser(request);
+    let userId: string | undefined = undefined;
+
+    if (authUser) {
+      console.log(`🔐 Authenticated user detected: ${authUser.id}`);
+      // Get the database user record
+      const { user } = await getUserByAuthId(authUser.id);
+      if (user) {
+        userId = user.id;
+        console.log(`✅ User ID for snapshot: ${userId}`);
+      }
+    } else {
+      console.log(`👤 Anonymous snapshot request`);
+    }
+
     // Parse and validate request
     const body = await request.json();
     const validation = validateSnapshotRequest(body);
@@ -46,10 +64,10 @@ export async function POST(request: Request) {
 
     const { domain, email } = validation.data;
 
-    console.log(`📨 Snapshot request received: ${domain} (${email})`);
+    console.log(`📨 Snapshot request received: ${domain} (${email}) [user_id: ${userId || 'anonymous'}]`);
 
-    // Hash email for storage (privacy)
-    const emailHash = hashIdentifier(email);
+    // Hash email for storage (privacy) - only for anonymous users
+    const emailHash = userId ? undefined : hashIdentifier(email);
 
     // Check rate limits
     const rateLimit = await checkRateLimit({
@@ -70,13 +88,16 @@ export async function POST(request: Request) {
     }
 
     // Create snapshot record (pending status)
+    // If user is authenticated, link directly to user_id
+    // If anonymous, store email_hash for later linking
     const snapshot = await createSnapshot({
       domain,
+      user_id: userId,
       email_hash: emailHash,
       status: 'pending',
     });
 
-    console.log(`📝 Created snapshot: ${snapshot.id}`);
+    console.log(`📝 Created snapshot: ${snapshot.id} [${userId ? 'owned by user' : 'anonymous'}]`);
 
     // Update to processing
     await updateSnapshot(snapshot.id, { status: 'processing' });
@@ -113,11 +134,21 @@ export async function POST(request: Request) {
     // Store the LLM report directly (JSONB allows flexible structure)
     const report = reportResult.report;
 
-    // Generate magic link token
-    const magicLink = await generateMagicLink(snapshot.id, email, domain, baseUrl);
-    const accessTokenHash = hashIdentifier(magicLink);
-    const accessExpiresAt = new Date();
-    accessExpiresAt.setDate(accessExpiresAt.getDate() + 30); // 30 days
+    // Generate magic link token (only for anonymous users)
+    let magicLink: string;
+    let accessTokenHash: string | undefined;
+    let accessExpiresAt: Date | undefined;
+
+    if (!userId) {
+      // Anonymous user - generate magic link for email access
+      magicLink = await generateMagicLink(snapshot.id, email, domain, baseUrl);
+      accessTokenHash = hashIdentifier(magicLink);
+      accessExpiresAt = new Date();
+      accessExpiresAt.setDate(accessExpiresAt.getDate() + 30); // 30 days
+    } else {
+      // Authenticated user - use dashboard link
+      magicLink = `${baseUrl}/dashboard`;
+    }
 
     // Update snapshot with signals, report, and access info
     const duration = (Date.now() - startTime) / 1000;
@@ -128,7 +159,7 @@ export async function POST(request: Request) {
       report_json: report as any, // Store LLM report directly (JSONB is flexible)
       generation_duration_seconds: Math.round(duration),
       access_token_hash: accessTokenHash,
-      access_expires_at: accessExpiresAt.toISOString(),
+      access_expires_at: accessExpiresAt?.toISOString(),
       completed_at: new Date().toISOString(),
     });
 
@@ -141,7 +172,7 @@ export async function POST(request: Request) {
 
     console.log(`✅ Snapshot completed: ${snapshot.id} (${duration.toFixed(2)}s)`);
 
-    // Send email via Brevo
+    // Send email via Brevo (with appropriate link based on auth status)
     const emailResult = await sendSnapshotEmail(
       email,
       domain,
@@ -153,6 +184,8 @@ export async function POST(request: Request) {
     if (!emailResult.success) {
       console.warn(`⚠️  Email sending failed: ${emailResult.error}`);
       // Don't fail the request if email fails - snapshot is still created
+    } else {
+      console.log(`📧 Email sent to ${email} [${userId ? 'dashboard link' : 'magic link'}]`);
     }
 
     // Return success response
