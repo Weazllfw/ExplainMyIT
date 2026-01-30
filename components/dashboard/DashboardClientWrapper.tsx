@@ -40,7 +40,7 @@ export default function DashboardClientWrapper({ showWelcome }: DashboardClientW
       return;
     }
 
-    console.log('[Dashboard] User authenticated:', currentUser.id);
+    console.log('[Dashboard] Auth user authenticated:', currentUser.id);
     setUser(currentUser);
 
     // Track dashboard view
@@ -48,12 +48,30 @@ export default function DashboardClientWrapper({ showWelcome }: DashboardClientW
 
     // Load user's snapshots using browser client (not admin)
     try {
-      console.log('[Dashboard] Loading snapshots for user:', currentUser.id);
+      // CRITICAL FIX: Get database user ID from auth user ID
       const supabase = getSupabaseBrowserClient();
+      
+      console.log('[Dashboard] Looking up database user ID for auth ID:', currentUser.id);
+      const { data: dbUser, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', currentUser.id)
+        .single();
+
+      if (userError || !dbUser) {
+        console.error('[Dashboard] Could not find database user:', userError);
+        setError('User record not found');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('[Dashboard] Database user ID:', dbUser.id);
+      console.log('[Dashboard] Loading snapshots for database user ID:', dbUser.id);
+
       const { snapshots: userSnapshots, error: snapshotsError } = await getUserSnapshots(
-        currentUser.id,
+        dbUser.id, // Use database user ID, not auth user ID!
         50,
-        supabase // Pass browser client to avoid service key error
+        supabase
       );
       
       console.log('[Dashboard] Snapshots query result:', {
