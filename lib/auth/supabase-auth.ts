@@ -5,7 +5,6 @@
  */
 
 import { supabase } from '@/lib/db/client';
-import { upsertUserFromAuth } from '@/lib/db/users';
 
 export interface AuthUser {
   id: string;
@@ -52,17 +51,21 @@ export async function signUp(data: SignupData): Promise<{
       return { success: false, error: 'Failed to create user' };
     }
 
-    // Create user record in our database
-    const { user, error: dbError } = await upsertUserFromAuth({
-      email: data.email,
-      authUserId: authData.user.id,
-      fullName: data.fullName,
-    });
-
-    if (dbError) {
-      console.error('Failed to create user record:', dbError);
-      // Auth user created but DB record failed - this is OK, can be retried
-      // The user can still log in and we'll create the record on next login
+    // Create user record in our database via API route
+    // This avoids client-side access to getSupabaseAdmin()
+    try {
+      await fetch('/api/auth/create-user-record', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          authUserId: authData.user.id,
+          email: data.email,
+          fullName: data.fullName,
+        }),
+      });
+      // If this fails, it's OK - user can still log in and we'll create record on next login
+    } catch (error) {
+      console.warn('Failed to create user record (non-critical):', error);
     }
 
     return {
