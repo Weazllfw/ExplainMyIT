@@ -80,7 +80,7 @@ export function OwnershipSignals({ signals, domain }: OwnershipSignalsProps) {
 
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
         <p className="text-xs text-gray-700 leading-relaxed">
-          This snapshot can't determine whether access and responsibility for these systems is documented or whether continuity plans exist for key vendor relationships.
+          This snapshot can't determine whether access to these services is documented or shared among multiple people, or whether continuity plans exist for key vendor relationships.
         </p>
       </div>
     </div>

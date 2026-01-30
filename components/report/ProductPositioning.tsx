@@ -13,8 +13,11 @@ export function ProductPositioning() {
       <p className="text-sm text-gray-600 leading-relaxed max-w-2xl mx-auto">
         <strong>Explain My IT</strong> exists because most IT documentation is written for technicians, not owners.
       </p>
-      <p className="text-xs text-gray-500 mt-2">
+      <p className="text-xs text-gray-500 mt-3">
         Plain-English IT reality reports for business owners.
+      </p>
+      <p className="text-xs text-gray-500 mt-3 max-w-3xl mx-auto">
+        Explain My IT is designed to give business owners clarity — not to replace their IT team or recommend changes.
       </p>
     </div>
   );

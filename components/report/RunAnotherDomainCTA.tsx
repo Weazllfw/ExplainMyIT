@@ -16,7 +16,7 @@ export function RunAnotherDomainCTA() {
     <div className="bg-gradient-to-br from-brand-navy to-blue-700 rounded-[16px] p-8 text-center">
       <div className="max-w-2xl mx-auto">
         <h3 className="text-[24px] font-bold text-white mb-3">
-          Check Another Domain
+          Run Another Snapshot
         </h3>
         <p className="text-blue-100 mb-6 leading-relaxed">
           Want to see how your other domains, clients, or competitors look? 

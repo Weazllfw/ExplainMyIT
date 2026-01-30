@@ -11,7 +11,7 @@ export function ConfidenceLegend() {
   return (
     <div className="bg-gray-50 rounded-[12px] p-6 border border-gray-200">
       <h3 className="text-sm font-semibold text-brand-navy mb-4">
-        Confidence Levels
+        How certain are these observations?
       </h3>
 
       <div className="space-y-3">

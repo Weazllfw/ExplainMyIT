@@ -295,12 +295,17 @@ RULES FOR OWNER SUMMARY:
 - Be calm and factual. Avoid fear words ('critical', 'severe', 'immediately')
 - Focus on what this setup implies for the business
 - MUST include exactly one sentence: "This snapshot is based on public signals only and cannot see inside your network."
+- **STRONGLY ENCOURAGED: Include temporal awareness - mention that systems "change quietly over time" or similar**
 
 RULES FOR TOP FINDINGS:
 - Maximum 3 findings
 - Rank by business relevance, not technical severity
 - 2-3 sentences each
 - Focus on "what this means" not "what was found"
+- **CRITICAL: Frame as UNCERTAINTY, not absence or conclusions**
+- Use "can't determine" / "not visible" / "unclear" language
+- Avoid verdict-like statements ("No X" → "This snapshot can't determine whether X...")
+- Keep observational, not evaluative
 
 RULES FOR ASSUMPTIONS:
 - Write assumptions the BUSINESS is making, not the IT team
