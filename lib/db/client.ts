@@ -25,7 +25,9 @@ function getSupabaseAnonKey(): string {
 }
 
 function getSupabaseServiceKey(): string | undefined {
-  return process.env.SUPABASE_SERVICE_KEY;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  // Trim whitespace and check if actually has content
+  return key?.trim() || undefined;
 }
 
 // Lazy initialization
@@ -79,7 +81,16 @@ export function getSupabaseAdmin() {
   }
   
   if (!_supabaseAdmin) {
-    throw new Error('Supabase service key not configured. Set SUPABASE_SERVICE_KEY in .env.local');
+    // More detailed error message for debugging
+    const hasKey = !!process.env.SUPABASE_SERVICE_KEY;
+    const keyLength = process.env.SUPABASE_SERVICE_KEY?.length || 0;
+    const keyPreview = process.env.SUPABASE_SERVICE_KEY?.substring(0, 20) || 'undefined';
+    
+    throw new Error(
+      `Supabase service key not configured. ` +
+      `Env check: exists=${hasKey}, length=${keyLength}, preview=${keyPreview}... ` +
+      `Set SUPABASE_SERVICE_KEY in Vercel environment variables.`
+    );
   }
   
   return _supabaseAdmin;
