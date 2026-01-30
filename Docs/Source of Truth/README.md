@@ -4,6 +4,12 @@
 
 This directory contains minimal, focused documentation explaining exactly how each part works. These are living documents that get updated as we build.
 
+## Visual Language
+
+- **Visual Style Spec**: `../VISUAL-STYLE-SPEC.md` - Complete brand and UI guidelines
+- **Logo**: `../ChatGPT Image Jan 29, 2026, 07_12_37 PM.png` - Brand mark reference
+- **Brand Optimization Log**: `../../FRONTEND-BRAND-OPTIMIZATION.md` - Complete frontend brand alignment (Jan 29, 2026)
+
 ---
 
 ## Documents

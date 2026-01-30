@@ -17,22 +17,22 @@ export function ReportHeader({ domain, createdAt }: ReportHeaderProps) {
   });
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-brand-border shadow-sm">
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
           <Link 
             href="/" 
-            className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="text-[24px] font-bold text-brand-navy hover:text-brand-cyan transition-colors"
             aria-label="Return to Explain My IT homepage"
           >
             Explain My IT
           </Link>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-[32px] font-bold text-brand-navy mb-2">
             IT Snapshot: {domain}
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-brand-muted">
             Generated on {reportDate} • Valid for 30 days
           </p>
         </div>

@@ -80,15 +80,15 @@ export default function WaitlistForm() {
   if (submitStatus === 'success') {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        <div className="w-16 h-16 bg-brand-positive/15 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-brand-positive" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+        <h3 className="text-[24px] font-bold text-brand-navy mb-2">
           You&apos;re on the list!
         </h3>
-        <p className="text-gray-600">
+        <p className="text-brand-slate text-[15px]">
           Check your email for confirmation.
         </p>
       </div>
@@ -99,11 +99,11 @@ export default function WaitlistForm() {
     <div>
       {submitStatus === 'error' && (
         <div 
-          className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3"
+          className="bg-red-50 border border-red-300 rounded-[12px] p-4 mb-6 flex items-start gap-3"
           role="alert"
         >
-          <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-red-700 text-sm">{errorMessage}</p>
         </div>
@@ -111,7 +111,7 @@ export default function WaitlistForm() {
       
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-brand-navy mb-2">
             Your Email
           </label>
           <input
@@ -121,14 +121,14 @@ export default function WaitlistForm() {
             required
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+            className="w-full px-4 py-3 border border-brand-border rounded-[12px] focus:ring-2 focus:ring-brand-cyan/35 focus:border-brand-cyan text-brand-navy placeholder-brand-muted/50"
             placeholder="you@company.com"
           />
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="companySize" className="block text-sm font-medium text-gray-900 mb-2">
+            <label htmlFor="companySize" className="block text-sm font-medium text-brand-navy mb-2">
               Company Size
             </label>
             <select
@@ -136,7 +136,7 @@ export default function WaitlistForm() {
               name="companySize"
               value={formData.companySize}
               onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-brand-border rounded-[12px] focus:ring-2 focus:ring-brand-cyan/35 focus:border-brand-cyan text-brand-navy bg-white"
             >
               <option value="">Select size</option>
               <option value="1-10">1-10 employees</option>
@@ -147,7 +147,7 @@ export default function WaitlistForm() {
           </div>
 
           <div>
-            <label htmlFor="hasIT" className="block text-sm font-medium text-gray-900 mb-2">
+            <label htmlFor="hasIT" className="block text-sm font-medium text-brand-navy mb-2">
               Do you have internal IT?
             </label>
             <select
@@ -155,7 +155,7 @@ export default function WaitlistForm() {
               name="hasIT"
               value={formData.hasIT}
               onChange={(e) => setFormData({ ...formData, hasIT: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-brand-border rounded-[12px] focus:ring-2 focus:ring-brand-cyan/35 focus:border-brand-cyan text-brand-navy bg-white"
             >
               <option value="">Select option</option>
               <option value="Yes">Yes</option>
@@ -168,7 +168,7 @@ export default function WaitlistForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full px-8 py-4 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-800 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-8 py-4 bg-brand-navy text-white font-semibold rounded-[12px] hover:bg-brand-navy/90 transition-all shadow-brand hover:shadow-brand-hover focus:outline-none focus:ring-2 focus:ring-brand-cyan/35 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Joining the Waitlist...' : 'Join the Waitlist'}
         </button>

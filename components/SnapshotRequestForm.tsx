@@ -59,20 +59,20 @@ export default function SnapshotRequestForm() {
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center" role="alert" aria-live="polite">
+      <div className="bg-brand-positive/10 border border-brand-positive/30 rounded-[12px] p-6 text-center" role="alert" aria-live="polite">
         <div className="text-4xl mb-3" aria-hidden="true">✅</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-[20px] font-bold text-brand-navy mb-2">
           Snapshot Requested!
         </h3>
-        <p className="text-gray-700 mb-4">
+        <p className="text-brand-slate text-[15px] mb-4">
           We're generating your IT snapshot now. You'll receive an email with your report in 30-60 seconds.
         </p>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-brand-muted mb-4">
           Check your spam folder if you don't see it in a few minutes.
         </p>
         <button
           onClick={() => setSuccess(false)}
-          className="text-blue-600 hover:text-blue-700 hover:underline font-semibold text-sm transition-all"
+          className="text-brand-cyan hover:text-brand-navy hover:underline font-semibold text-sm transition-all"
           aria-label="Reset form to request another snapshot"
         >
           Request another snapshot
@@ -84,7 +84,7 @@ export default function SnapshotRequestForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+        <label htmlFor="email" className="block text-sm font-semibold text-brand-navy mb-2">
           Your Email Address
         </label>
         <input
@@ -95,13 +95,13 @@ export default function SnapshotRequestForm() {
           onFocus={() => Analytics.snapshotFormStarted()}
           placeholder="you@company.com"
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 border border-brand-border rounded-[12px] focus:ring-2 focus:ring-brand-cyan/35 focus:border-brand-cyan transition-all text-[15px]"
           disabled={isLoading}
         />
       </div>
 
       <div>
-        <label htmlFor="domain" className="block text-sm font-semibold text-gray-700 mb-2">
+        <label htmlFor="domain" className="block text-sm font-semibold text-brand-navy mb-2">
           Your Company Domain
         </label>
         <input
@@ -111,16 +111,16 @@ export default function SnapshotRequestForm() {
           onChange={(e) => setDomain(e.target.value)}
           placeholder="example.com"
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 border border-brand-border rounded-[12px] focus:ring-2 focus:ring-brand-cyan/35 focus:border-brand-cyan transition-all text-[15px]"
           disabled={isLoading}
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-brand-muted mt-1">
           Just the domain (e.g., company.com, not www.company.com)
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4" role="alert" aria-live="assertive">
+        <div className="bg-red-50 border border-red-300 rounded-[12px] p-4" role="alert" aria-live="assertive">
           <div className="flex items-start gap-3">
             <span className="text-red-600 text-lg flex-shrink-0" aria-hidden="true">⚠️</span>
             <div>
@@ -134,7 +134,7 @@ export default function SnapshotRequestForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-brand-navy text-white font-semibold py-3 px-6 rounded-[12px] hover:bg-brand-navy/90 focus:ring-4 focus:ring-brand-cyan/35 transition-all disabled:bg-brand-muted disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-brand"
         aria-label={isLoading ? 'Generating your snapshot, please wait' : 'Get my free IT snapshot'}
       >
         {isLoading ? (
@@ -150,7 +150,7 @@ export default function SnapshotRequestForm() {
         )}
       </button>
 
-      <p className="text-xs text-gray-500 text-center">
+      <p className="text-xs text-brand-muted text-center">
         100% free. No credit card required. Results in 30-60 seconds.
       </p>
     </form>

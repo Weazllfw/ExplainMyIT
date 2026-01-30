@@ -55,8 +55,8 @@ export function BlockNarratives({ narratives }: BlockNarrativesProps) {
   ][];
 
   return (
-    <section className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Findings</h2>
+    <section className="bg-white rounded-[16px] border border-brand-border shadow-brand p-8">
+      <h2 className="text-[24px] font-bold text-brand-navy mb-6">Detailed Findings</h2>
       <div className="space-y-3">
         {blocks.map(([blockKey, narrative]) => (
           <BlockCard
@@ -85,31 +85,32 @@ function BlockCard({ blockKey, narrative, isExpanded, onToggle }: BlockCardProps
   const confidenceBadge = getConfidenceBadge(narrative.confidence);
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-brand-border rounded-[14px] overflow-hidden hover:border-brand-cyan/30 transition-colors">
       {/* Header (clickable) */}
       <button
         onClick={onToggle}
-        className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset transition-colors text-left"
+        className="w-full px-5 py-4 flex items-center justify-between hover:bg-brand-bg focus:bg-brand-bg focus:outline-none focus:ring-2 focus:ring-brand-cyan/35 focus:ring-inset transition-colors text-left"
         aria-expanded={isExpanded}
         aria-controls={`block-${blockKey}-content`}
         aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${title} section`}
       >
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{icon}</span>
+          <span className="text-2xl" aria-hidden="true">{icon}</span>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-600">{narrative.title}</p>
+            <h3 className="text-[17px] font-bold text-brand-navy">{title}</h3>
+            <p className="text-sm text-brand-muted">{narrative.title}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {confidenceBadge}
           <svg
-            className={`w-5 h-5 text-gray-400 transition-transform ${
+            className={`w-5 h-5 text-brand-muted transition-transform ${
               isExpanded ? 'rotate-180' : ''
             }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -125,28 +126,28 @@ function BlockCard({ blockKey, narrative, isExpanded, onToggle }: BlockCardProps
       {isExpanded && (
         <div 
           id={`block-${blockKey}-content`}
-          className="px-5 pb-5 border-t border-gray-100 pt-4 space-y-4"
+          className="px-5 pb-5 border-t border-brand-border/50 pt-4 space-y-4"
           role="region"
           aria-label={`${title} details`}
         >
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">What We Found</h4>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <h4 className="text-sm font-semibold text-brand-navy mb-2">What We Found</h4>
+            <p className="text-[15px] text-brand-slate leading-relaxed whitespace-pre-wrap">
               {narrative.explanation}
             </p>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">Why It Matters</h4>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <h4 className="text-sm font-semibold text-brand-navy mb-2">Why It Matters</h4>
+            <p className="text-[15px] text-brand-slate leading-relaxed whitespace-pre-wrap">
               {narrative.why_it_matters}
             </p>
           </div>
 
           {narrative.confidence_note && (
-            <div className="bg-gray-50 rounded-md p-3">
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Confidence Note</h4>
-              <p className="text-sm text-gray-600">{narrative.confidence_note}</p>
+            <div className="bg-brand-bg rounded-[10px] p-4 border border-brand-border/50">
+              <h4 className="text-sm font-semibold text-brand-navy mb-1">Confidence Note</h4>
+              <p className="text-sm text-brand-muted">{narrative.confidence_note}</p>
             </div>
           )}
         </div>
@@ -157,16 +158,16 @@ function BlockCard({ blockKey, narrative, isExpanded, onToggle }: BlockCardProps
 
 function getConfidenceBadge(confidence: 'high' | 'medium' | 'low') {
   const styles = {
-    high: 'bg-green-100 text-green-800 border-green-200',
-    medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    low: 'bg-gray-100 text-gray-800 border-gray-200',
+    high: 'bg-brand-navy/10 text-brand-navy border-brand-navy/20',
+    medium: 'bg-brand-caution/15 text-brand-caution border-brand-caution/30',
+    low: 'bg-brand-info/10 text-brand-info border-brand-info/20',
   };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[confidence]}`}
+      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${styles[confidence]}`}
     >
-      {confidence}
+      {confidence === 'high' ? 'High' : confidence === 'medium' ? 'Medium' : 'Low'} confidence
     </span>
   );
 }
