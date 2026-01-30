@@ -6,21 +6,38 @@
 
 import { notFound, redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
 import { verifyMagicLinkToken } from '@/lib/auth/magic-link';
 import { getSnapshotById } from '@/lib/db/snapshots';
 import { ReportHeader } from '@/components/report/ReportHeader';
 import { ReportTracker } from '@/components/report/ReportTracker';
+import { SnapshotAgeBanner } from '@/components/report/SnapshotAgeBanner';
 import { OwnerSummary } from '@/components/report/OwnerSummary';
 import { TemporalDisclaimer } from '@/components/report/TemporalDisclaimer';
+import { SnapshotTimeline } from '@/components/report/SnapshotTimeline';
+import { EmailAuthMatrix } from '@/components/report/EmailAuthMatrix';
+import { CertificateExpiryTimeline } from '@/components/report/CertificateExpiryTimeline';
+import { DomainAgeTimeline } from '@/components/report/DomainAgeTimeline';
+import { ShareReportButton } from '@/components/report/ShareReportButton';
+import { PrintButton } from '@/components/report/PrintButton';
 import { TopFindings } from '@/components/report/TopFindings';
 import { BlockNarratives } from '@/components/report/BlockNarratives';
+import { SinglePointDependency } from '@/components/report/SinglePointDependency';
 import { Assumptions } from '@/components/report/Assumptions';
 import { Questions } from '@/components/report/Questions';
+import { OwnershipSignals } from '@/components/report/OwnershipSignals';
+import { BrandSurfaceSignals } from '@/components/report/BrandSurfaceSignals';
 import { BlindSpots } from '@/components/report/BlindSpots';
+import { ConfidenceLegend } from '@/components/report/ConfidenceLegend';
+import { RunAnotherDomainCTA } from '@/components/report/RunAnotherDomainCTA';
 import { TechnicalDataViewer } from '@/components/report/TechnicalDataViewer';
+import { SocialProof } from '@/components/report/SocialProof';
+import { SavedIndicator } from '@/components/report/SavedIndicator';
+import { ProductPositioning } from '@/components/report/ProductPositioning';
 import { ReportFooterActions } from '@/components/report/ReportFooterActions';
 import type { LLMReport } from '@/lib/llm/types';
+import type { SnapshotSignals } from '@/types/database';
 
 interface PageProps {
   params: {
@@ -28,6 +45,43 @@ interface PageProps {
   };
   searchParams: {
     token?: string;
+  };
+}
+
+// Dynamic metadata for better SEO and social sharing
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  // Fetch snapshot to get domain name
+  const { getSnapshotById } = await import('@/lib/db/snapshots');
+  const { snapshot } = await getSnapshotById(params.id);
+
+  if (!snapshot) {
+    return {
+      title: 'Report Not Found | Explain My IT',
+    };
+  }
+
+  const domain = snapshot.domain;
+  const title = `IT Snapshot for ${domain} | Explain My IT`;
+  const description = `Free IT snapshot report for ${domain}. Covers DNS, email security, SSL certificates, tech stack, and public exposure analysis.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `https://explainmyit.com/report/${params.id}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    robots: {
+      index: false, // Don't index individual reports for privacy
+      follow: false,
+    },
   };
 }
 
@@ -121,14 +175,57 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
 
       {/* Header */}
       <ReportHeader domain={snapshot.domain} createdAt={snapshot.created_at} />
+      
+      {/* Action buttons bar */}
+      <div className="max-w-4xl mx-auto px-4 pt-4 print:hidden">
+        <div className="flex items-center justify-end gap-3">
+          <PrintButton domain={snapshot.domain} />
+          <ShareReportButton 
+            reportUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://explainmyit.com'}/report/${snapshot.id}`}
+            domain={snapshot.domain}
+          />
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+        {/* Snapshot Age Banner - Shows temporal decay */}
+        <SnapshotAgeBanner createdAt={snapshot.created_at} />
+
         {/* Owner Summary */}
         <OwnerSummary summary={report.owner_summary} />
 
         {/* Temporal Disclaimer - Static conversion framing */}
         <TemporalDisclaimer />
+
+        {/* Visual Components Grid - Phase 1 Conversion Visuals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Snapshot Timeline - Primary conversion visual */}
+          <div className="lg:col-span-2">
+            <SnapshotTimeline createdAt={snapshot.created_at} />
+          </div>
+
+          {/* Email Authentication Matrix */}
+          {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).email && (
+            <EmailAuthMatrix 
+              signals={(snapshot.signals_json as SnapshotSignals).email} 
+            />
+          )}
+
+          {/* Certificate Expiry Timeline */}
+          {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).tls && (
+            <CertificateExpiryTimeline 
+              signals={(snapshot.signals_json as SnapshotSignals).tls} 
+            />
+          )}
+
+          {/* Domain Age Timeline */}
+          {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).dns && (
+            <DomainAgeTimeline 
+              signals={(snapshot.signals_json as SnapshotSignals).dns} 
+            />
+          )}
+        </div>
 
         {/* Top Findings */}
         {report.top_findings && report.top_findings.length > 0 && (
@@ -138,6 +235,11 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
         {/* Block Narratives */}
         {report.block_narratives && (
           <BlockNarratives narratives={report.block_narratives} />
+        )}
+
+        {/* Single Point Dependency - Provider consolidation */}
+        {snapshot.signals_json && (
+          <SinglePointDependency signals={snapshot.signals_json as SnapshotSignals} />
         )}
 
         {/* Assumptions */}
@@ -150,8 +252,25 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
           <Questions questions={report.questions} />
         )}
 
+        {/* Ownership Signals - Governance awareness */}
+        {snapshot.signals_json && (
+          <OwnershipSignals 
+            signals={snapshot.signals_json as SnapshotSignals}
+            domain={snapshot.domain}
+          />
+        )}
+
+        {/* Brand Surface Signals - Safe OSINT */}
+        <BrandSurfaceSignals domain={snapshot.domain} />
+
         {/* Blind Spots - Static conversion framing */}
         <BlindSpots />
+
+        {/* Confidence Legend - Transparency */}
+        <ConfidenceLegend />
+
+        {/* Run Another Domain CTA */}
+        <RunAnotherDomainCTA />
 
         {/* Technical Data Viewer */}
         {snapshot.signals_json && (
@@ -161,6 +280,9 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
           />
         )}
 
+        {/* Social Proof - Anonymous usage proof */}
+        <SocialProof />
+
         {/* Footer Actions - Smart CTA based on auth state */}
         <ReportFooterActions 
           snapshotId={snapshot.id}
@@ -169,8 +291,13 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
         />
       </main>
 
+      {/* Saved Indicator - Behavioral nudge */}
+      <SavedIndicator isOwnedByUser={!!snapshot.user_id} />
+
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-16">
+        {/* Product Positioning */}
+        <ProductPositioning />
         <div className="max-w-4xl mx-auto px-4 py-6 text-center text-sm text-gray-600">
           <p className="mb-2">
             This report is valid for 30 days from the generation date.
@@ -191,77 +318,4 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
       </footer>
     </div>
   );
-}
-
-export async function generateMetadata({ params, searchParams }: PageProps) {
-  const { id } = params;
-  const { token } = searchParams;
-
-  const { snapshot, error } = await getSnapshotById(id);
-  if (error || !snapshot) {
-    return {
-      title: 'Report Not Found - Explain My IT',
-      description: 'The requested report could not be found',
-    };
-  }
-
-  // Check if user owns this report or has valid token
-  let hasAccess = false;
-
-  // Check ownership
-  if (snapshot.user_id) {
-    try {
-      const cookieStore = cookies();
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            get(name: string) {
-              return cookieStore.get(name)?.value;
-            },
-            set() {},
-            remove() {},
-          },
-        }
-      );
-
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        const { data: dbUser } = await supabase
-          .from('users')
-          .select('id')
-          .eq('auth_user_id', user.id)
-          .single();
-
-        if (dbUser && dbUser.id === snapshot.user_id) {
-          hasAccess = true;
-        }
-      }
-    } catch (err) {
-      // Ignore
-    }
-  }
-
-  // Check magic link
-  if (!hasAccess && token) {
-    const tokenResult = await verifyMagicLinkToken(token);
-    if (tokenResult.valid && tokenResult.payload && tokenResult.payload.snapshot_id === id) {
-      hasAccess = true;
-    }
-  }
-
-  if (!hasAccess) {
-    return {
-      title: 'Access Required - Explain My IT',
-      description: 'Log in or use the link from your email to view this report',
-    };
-  }
-
-  return {
-    title: `IT Snapshot: ${snapshot.domain} - Explain My IT`,
-    description: `View your IT reality check report for ${snapshot.domain}`,
-    robots: 'noindex, nofollow', // Don't index report pages
-  };
 }

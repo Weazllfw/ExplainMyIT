@@ -10,6 +10,8 @@ import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { Analytics } from '@/lib/analytics';
 import { getCurrentUser } from '@/lib/auth/supabase-auth';
+import { DomainInput } from './ui/DomainInput';
+import { TrustSignals } from './ui/TrustSignals';
 
 const LOADING_STEPS = [
   { text: 'Analyzing DNS records...', duration: 2000 },
@@ -245,9 +247,8 @@ export default function SnapshotRequestForm() {
         )}
       </button>
 
-      <p className="text-xs text-brand-muted text-center">
-        100% free. No credit card required. Results in 30-60 seconds.
-      </p>
+      {/* Trust signals */}
+      <TrustSignals />
     </form>
   );
 }

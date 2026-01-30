@@ -134,6 +134,7 @@ LANGUAGE RULES:
 6. No vendor recommendations
 7. No CVE IDs or version numbers
 8. Keep each explanation to 2-4 sentences
+9. **Use social context to normalize reality: "common among small businesses", "typical", "less commonly seen" (NEVER "good/bad" or "better/worse")**
 
 CONFIDENCE HANDLING (MANDATORY FOR EACH BLOCK):
 - High confidence → Declarative language allowed ("Your domain uses...")

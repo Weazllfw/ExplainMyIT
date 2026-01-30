@@ -2,6 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Print styles for reports */
+@media print {
+  /* Hide non-essential elements */
+  .print\\:hidden,
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Optimize layout for print */
+  body {
+    background: white !important;
+  }
+
+  /* Ensure proper page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Optimize colors for print */
+  .bg-brand-bg,
+  .bg-gray-50 {
+    background: white !important;
+  }
+
+  /* Ensure links are visible */
+  a {
+    text-decoration: underline;
+    color: #1e3a8a !important;
+  }
+
+  /* Show link URLs after links (optional) */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Remove page margins for better content fit */
+  @page {
+    margin: 1.5cm;
+  }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 @layer base {
   body {
     @apply text-brand-slate bg-brand-bg;
