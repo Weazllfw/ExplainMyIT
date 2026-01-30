@@ -54,7 +54,7 @@ export async function signUp(data: SignupData): Promise<{
     // Create user record in our database via API route
     // This avoids client-side access to getSupabaseAdmin()
     try {
-      await fetch('/api/auth/create-user-record', {
+      const response = await fetch('/api/auth/create-user-record', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -63,9 +63,16 @@ export async function signUp(data: SignupData): Promise<{
           fullName: data.fullName,
         }),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.warn('[Signup] User record creation failed (non-critical):', errorData);
+      } else {
+        console.log('[Signup] User record created successfully');
+      }
       // If this fails, it's OK - user can still log in and we'll create record on next login
     } catch (error) {
-      console.warn('Failed to create user record (non-critical):', error);
+      console.warn('[Signup] Failed to create user record (non-critical):', error);
     }
 
     return {
@@ -206,7 +213,7 @@ export async function sendPasswordReset(email: string): Promise<{
 }> {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`,
     });
 
     if (error) {
@@ -219,6 +226,32 @@ export async function sendPasswordReset(email: string): Promise<{
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to send reset email' 
+    };
+  }
+}
+
+/**
+ * Reset password with new password
+ */
+export async function resetPassword(newPassword: string): Promise<{ 
+  success: boolean; 
+  error?: string;
+}> {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to reset password' 
     };
   }
 }

@@ -13,7 +13,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { authUserId, email, fullName } = body;
 
+    console.log('[API] Create user record request:', { authUserId, email, hasFullName: !!fullName });
+
     if (!authUserId || !email) {
+      console.error('[API] Missing required fields');
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -28,16 +31,17 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error('Failed to create user record:', error);
+      console.error('[API] Failed to create user record:', error);
       return NextResponse.json(
         { success: false, error },
         { status: 500 }
       );
     }
 
+    console.log('[API] User record created successfully:', user?.id);
     return NextResponse.json({ success: true, user });
   } catch (error) {
-    console.error('Create user record error:', error);
+    console.error('[API] Create user record exception:', error);
     return NextResponse.json(
       { 
         success: false, 

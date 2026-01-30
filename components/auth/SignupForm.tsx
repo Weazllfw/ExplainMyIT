@@ -20,6 +20,8 @@ export default function SignupForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [createdEmail, setCreatedEmail] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,8 +60,9 @@ export default function SignupForm() {
       Analytics.formSubmitted('signup');
       Analytics.userSignedUp();
 
-      // Redirect to dashboard
-      router.push('/dashboard?welcome=true');
+      // Show success confirmation
+      setCreatedEmail(formData.email);
+      setSuccess(true);
     } catch (err) {
       setError('Something went wrong. Please try again.');
       Analytics.formError('signup', 'exception');
@@ -68,6 +71,87 @@ export default function SignupForm() {
       setIsLoading(false);
     }
   };
+
+  // Success state - show confirmation before login
+  if (success) {
+    return (
+      <div className="space-y-6">
+        {/* Success Icon */}
+        <div className="text-center">
+          <div className="w-16 h-16 bg-brand-positive/15 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-brand-positive" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-[24px] font-bold text-brand-navy mb-2">
+            Account Created! 🎉
+          </h3>
+          <p className="text-brand-slate text-[15px] leading-relaxed">
+            Your account has been successfully created.
+          </p>
+        </div>
+
+        {/* What Happens Next */}
+        <div className="bg-brand-bg border border-brand-border rounded-[12px] p-6 space-y-4">
+          <h4 className="text-[16px] font-bold text-brand-navy">
+            What happens next:
+          </h4>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-brand-cyan/15 rounded-full flex items-center justify-center text-xs font-bold text-brand-navy">
+                1
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-brand-navy">Log in to your account</p>
+                <p className="text-xs text-brand-muted">Use the email and password you just created</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-brand-cyan/15 rounded-full flex items-center justify-center text-xs font-bold text-brand-navy">
+                2
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-brand-navy">Access your dashboard</p>
+                <p className="text-xs text-brand-muted">View and manage your IT snapshots in one place</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-brand-cyan/15 rounded-full flex items-center justify-center text-xs font-bold text-brand-navy">
+                3
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-brand-navy">Run your first snapshot</p>
+                <p className="text-xs text-brand-muted">Track your IT setup and save it permanently</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Details */}
+        <div className="bg-white border border-brand-border rounded-[12px] p-4">
+          <p className="text-sm text-brand-slate">
+            <span className="font-semibold text-brand-navy">Your email:</span> {createdEmail}
+          </p>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          onClick={() => router.push('/login')}
+          className="w-full bg-brand-navy text-white font-semibold py-3 px-6 rounded-[12px] hover:bg-brand-navy/90 transition-all shadow-brand"
+        >
+          Continue to Login
+        </button>
+
+        {/* Secondary Link */}
+        <p className="text-center text-sm text-brand-muted">
+          Want to explore first?{' '}
+          <Link href="/" className="text-brand-cyan hover:underline font-medium">
+            Back to homepage
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
