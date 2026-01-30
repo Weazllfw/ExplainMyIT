@@ -180,6 +180,7 @@ export interface HibpRawSignals {
   }>;
   total_breach_count: number;
   most_recent_breach_date: string | null;
+  emails_checked?: string[];  // Which emails were checked (e.g., info@, user's email)
 }
 
 export interface HibpDerivedFlags {

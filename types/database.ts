@@ -266,6 +266,7 @@ export interface EmailSummary {
 export interface HibpResults {
   breaches: HibpBreach[];
   fetched_at: string;
+  emails_checked?: string[];  // Which emails were checked (e.g., info@, user's email)
 }
 
 export interface HibpBreach {
