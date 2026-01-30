@@ -339,9 +339,9 @@ async function testOrchestrator() {
     const signals = await collectAllSignals(testDomain);
     
     console.log('\n📊 Collection Summary:');
-    console.log(`  Domain: ${signals.domain}`);
-    console.log(`  Duration: ${(signals.collection_duration_ms / 1000).toFixed(2)}s`);
-    console.log(`  Collected: ${signals.collected_at}`);
+    console.log(`  Domain: ${signals.domain || 'N/A'}`);
+    console.log(`  Duration: ${signals.collection_duration_ms ? (signals.collection_duration_ms / 1000).toFixed(2) : 'N/A'}s`);
+    console.log(`  Collected: ${signals.collected_at || 'N/A'}`);
     
     console.log('\n  Module Success:');
     console.log(`    DNS: ${signals.dns?.error ? '❌' : '✅'} (${signals.dns?.confidence || 'N/A'})`);

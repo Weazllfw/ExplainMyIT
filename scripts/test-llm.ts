@@ -23,7 +23,7 @@ async function testLLMGeneration() {
     console.log(`\n📡 Step 1: Collecting signals for ${testDomain}...\n`);
     const signals = await collectAllSignals(testDomain);
     
-    console.log(`✅ Signal collection complete (${signals.collection_duration_ms}ms)`);
+    console.log(`✅ Signal collection complete (${signals.collection_duration_ms || 0}ms)`);
     console.log(`   Successful modules: ${
       [!signals.dns?.error, !signals.email?.error, !signals.tls?.error, 
        !signals.techstack?.error, !signals.exposure?.error, !signals.hibp?.error]
