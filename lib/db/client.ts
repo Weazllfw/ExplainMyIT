@@ -44,7 +44,9 @@ export const supabase = new Proxy({} as any, {
     if (!_supabase) {
       _supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
         auth: {
-          persistSession: false,
+          persistSession: true, // CHANGED: Enable session persistence in cookies
+          storageKey: 'supabase-auth-token',
+          storage: typeof window !== 'undefined' ? window.localStorage : undefined,
         },
       });
     }
