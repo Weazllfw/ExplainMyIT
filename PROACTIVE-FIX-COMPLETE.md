@@ -17,7 +17,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 
 ---
 
-## Fixes Applied (21 Categories, 167 Individual Fixes)
+## Fixes Applied (22 Categories, 171 Individual Fixes)
 
 ### Category 1: Rate Limit Function Signatures (1 fix)
 **File**: `app/api/snapshot/route.ts`
@@ -175,6 +175,12 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 - Property doesn't exist in email function return types
 - Return type is `{ success: boolean; error?: string }` (no messageId)
 
+### Category 22: Optional Properties in Test Scripts (4 fixes)
+**Files**: `scripts/test-signals.ts`, `scripts/test-llm.ts`
+- **test-signals.ts**: Added safe guards for `domain`, `collection_duration_ms`, `collected_at`
+- **test-llm.ts**: Added fallback for `collection_duration_ms`
+- All optional properties now have `|| fallback` or conditional checks
+
 ---
 
 ## Files Modified
@@ -196,7 +202,7 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `types/database.ts`
 15. `types/whois-json.d.ts` - **NEW**
 
-**18 Documentation Files**:
+**19 Documentation Files**:
 1. `BUILD-FIXES-SUMMARY.md`
 2. `TYPE-FIXES-FINAL.md`
 3. `DATABASE-TYPE-FIXES.md`
@@ -213,8 +219,9 @@ Vercel builds were failing with TypeScript errors one at a time, requiring multi
 14. `CROSS-BLOCK-FLAGS-CONVERSION.md`
 15. `SCRIPT-IMPORT-FIX.md`
 16. `TEST-SCRIPTS-FIX.md`
-17. `EMAIL-TEST-FIX.md` - **NEW**
-18. `PROACTIVE-FIX-COMPLETE.md` (this file)
+17. `EMAIL-TEST-FIX.md`
+18. `OPTIONAL-PROPERTIES-FIX.md` - **NEW**
+19. `PROACTIVE-FIX-COMPLETE.md` (this file)
 
 ---
 
@@ -228,7 +235,7 @@ const insertData = {
   field2: value2,
 };
 
-// Cast as any before passing to Supabase
+8// Cast as any before passing to Supabase
 const { data, error } = await supabase
   .from('table_name')
   .insert(insertData as any);
@@ -280,7 +287,8 @@ if (error || !data) { ... }
 - [x] Script import errors fixed (setup-db.ts)
 - [x] Test script schema mismatches fixed (3 test files, removed `.success`, added optional chaining)
 - [x] Email test property access fixed (removed non-existent `messageId` references)
-- [x] All test scripts now match their function return types
+- [x] Optional properties in test scripts (safe guards for `domain`, `collected_at`, `collection_duration_ms`)
+- [x] All test scripts now match their function return types and handle optional properties
 - [x] Documentation complete
 - [ ] Local build verification (in progress)
 - [ ] Vercel build verification (next push)
@@ -289,11 +297,11 @@ if (error || !data) { ... }
 
 ## Impact
 
-**Before**: 22+ build failures, each requiring a separate push cycle
+**Before**: 23+ build failures, each requiring a separate push cycle
 
 **After**: All type issues fixed proactively in comprehensive passes
 
-**Fixes**: 167 individual fixes across 22 code files and 21 issue categories
+**Fixes**: 171 individual fixes across 22 code files and 22 issue categories
 
 **Expected Result**: Vercel build should succeed on next deployment
 
