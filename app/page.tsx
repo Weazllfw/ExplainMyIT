@@ -28,6 +28,9 @@ export default function Home() {
                   <p className="font-medium text-brand-navy">
                     Get a free snapshot of your IT setup in plain English. No credit card required.
                   </p>
+                  <p className="text-[15px] leading-relaxed">
+                    You'll receive a short, plain-English report explaining what your IT setup appears to be, what it's assuming, and what questions are worth asking.
+                  </p>
                 </div>
               </div>
               
@@ -38,7 +41,7 @@ export default function Home() {
                     Get Your Free IT Snapshot
                   </h3>
                   <p className="text-sm text-brand-muted">
-                    See what your IT setup actually means, explained in plain English
+                    Results delivered to your email in 30-60 seconds
                   </p>
                 </div>
                 <SnapshotRequestForm />
@@ -70,6 +73,9 @@ export default function Home() {
         {/* What You'll Get Section */}
         <section className="container-section bg-brand-bg">
           <h2 className="section-title">What's In Your Free Snapshot</h2>
+          <p className="text-center text-brand-slate text-[16px] mb-8 max-w-3xl mx-auto">
+            Your free snapshot includes a short owner-readable report made up of the following sections:
+          </p>
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-[14px] p-6 border border-brand-border shadow-brand hover:shadow-brand-hover transition-shadow">
               <div className="text-3xl mb-3" aria-hidden="true">📊</div>
@@ -113,6 +119,43 @@ export default function Home() {
                   {item}
                 </span>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* What This Snapshot Is/Isn't - Tier 1 Clarifier */}
+        <section className="container-section bg-white">
+          <div className="max-w-3xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* What It Is */}
+              <div className="bg-brand-bg rounded-[16px] p-6 border border-brand-border">
+                <h3 className="text-[20px] font-bold text-brand-navy mb-3">
+                  What This Snapshot Is
+                </h3>
+                <p className="text-[15px] text-brand-slate leading-relaxed mb-4">
+                  A one-time, external view of your IT setup based only on publicly observable signals.
+                </p>
+                <p className="text-[15px] text-brand-slate leading-relaxed">
+                  It explains what your current setup appears to be doing, not how to fix it.
+                </p>
+              </div>
+
+              {/* What It Isn't */}
+              <div className="bg-brand-bg rounded-[16px] p-6 border border-brand-border">
+                <h3 className="text-[20px] font-bold text-brand-navy mb-3">
+                  What This Snapshot Isn't
+                </h3>
+                <p className="text-[15px] text-brand-slate leading-relaxed">
+                  It doesn't scan your network, access your systems, or change anything.
+                </p>
+              </div>
+            </div>
+
+            {/* Concrete Example */}
+            <div className="mt-6 bg-white rounded-[14px] p-6 border border-brand-border">
+              <p className="text-[15px] text-brand-slate leading-relaxed italic">
+                <strong className="text-brand-navy not-italic">Example:</strong> "Your email protection is partially configured, which means someone could impersonate your company unless additional controls are in place. This is common in small businesses and is usually handled by internal IT or an MSP."
+              </p>
             </div>
           </div>
         </section>

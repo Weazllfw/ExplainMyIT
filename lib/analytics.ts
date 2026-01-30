@@ -91,6 +91,19 @@ export const Analytics = {
     });
   },
 
+  // Form tracking
+  formStarted: (formName: string) => {
+    trackEvent('form-started', {
+      formName,
+    });
+  },
+
+  formSubmitted: (formName: string) => {
+    trackEvent('form-submitted', {
+      formName,
+    });
+  },
+
   // Error tracking (non-PII)
   formError: (formName: string, errorType: string) => {
     trackEvent('form-error', {
@@ -159,6 +172,45 @@ export const Analytics = {
     trackEvent('email-clicked', {
       snapshotId,
       link,
+    });
+  },
+
+  // Auth events
+  userSignedUp: () => {
+    trackEvent('user-signed-up');
+  },
+
+  userLoggedIn: () => {
+    trackEvent('user-logged-in');
+  },
+
+  userLoggedOut: () => {
+    trackEvent('user-logged-out');
+  },
+
+  // Dashboard events
+  dashboardViewed: () => {
+    trackEvent('dashboard-viewed');
+  },
+
+  dashboardCtaClicked: (ctaType: 'new-snapshot' | 'view-report') => {
+    trackEvent('dashboard-cta-clicked', {
+      ctaType,
+    });
+  },
+
+  // Report claiming
+  reportClaimStarted: (snapshotId: string, domain: string) => {
+    trackEvent('report-claim-started', {
+      snapshotId,
+      domain,
+    });
+  },
+
+  reportClaimCompleted: (snapshotId: string, domain: string) => {
+    trackEvent('report-claim-completed', {
+      snapshotId,
+      domain,
     });
   },
 };
