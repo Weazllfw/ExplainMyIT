@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/supabase-auth';
 import { getUserSnapshots } from '@/lib/db/snapshots';
+import { getSupabaseBrowserClient } from '@/lib/db/supabase-browser';
 import DashboardContent from './DashboardContent';
 import { Analytics } from '@/lib/analytics';
 
@@ -45,9 +46,14 @@ export default function DashboardClientWrapper({ showWelcome }: DashboardClientW
     // Track dashboard view
     Analytics.dashboardViewed();
 
-    // Load user's snapshots
+    // Load user's snapshots using browser client (not admin)
     try {
-      const { snapshots: userSnapshots, error: snapshotsError } = await getUserSnapshots(currentUser.id);
+      const supabase = getSupabaseBrowserClient();
+      const { snapshots: userSnapshots, error: snapshotsError } = await getUserSnapshots(
+        currentUser.id,
+        50,
+        supabase // Pass browser client to avoid service key error
+      );
       if (snapshotsError) {
         setError(snapshotsError);
       } else {
