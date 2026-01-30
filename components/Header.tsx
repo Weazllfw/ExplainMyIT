@@ -20,7 +20,7 @@ export default function Header() {
             <ul className="hidden md:flex items-center gap-8">
               <li>
                 <Link 
-                  href="/#waitlist" 
+                  href="/how-it-works" 
                   className="text-brand-muted hover:text-brand-navy transition-colors font-medium text-[15px]"
                   data-umami-event="nav-how-it-works"
                 >
