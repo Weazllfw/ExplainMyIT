@@ -33,20 +33,22 @@ const BLOCK_ICONS = {
 };
 
 export function BlockNarratives({ narratives }: BlockNarrativesProps) {
-  const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
 
   const toggleBlock = (blockKey: string) => {
-    const isCurrentlyExpanded = expandedBlock === blockKey;
-    
-    if (isCurrentlyExpanded) {
-      // Collapsing
-      Analytics.blockCollapsed(blockKey);
-      setExpandedBlock(null);
-    } else {
-      // Expanding
-      Analytics.blockExpanded(blockKey);
-      setExpandedBlock(blockKey);
-    }
+    setExpandedBlocks(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(blockKey)) {
+        // Collapsing
+        Analytics.blockCollapsed(blockKey);
+        newSet.delete(blockKey);
+      } else {
+        // Expanding
+        Analytics.blockExpanded(blockKey);
+        newSet.add(blockKey);
+      }
+      return newSet;
+    });
   };
 
   const blocks = Object.entries(narratives) as [
@@ -54,16 +56,38 @@ export function BlockNarratives({ narratives }: BlockNarrativesProps) {
     AllBlockNarratives[keyof AllBlockNarratives]
   ][];
 
+  const allExpanded = expandedBlocks.size === blocks.length;
+
+  const toggleAll = () => {
+    if (allExpanded) {
+      // Collapse all
+      setExpandedBlocks(new Set());
+      Analytics.blockCollapsed('all');
+    } else {
+      // Expand all
+      setExpandedBlocks(new Set(blocks.map(([key]) => key)));
+      Analytics.blockExpanded('all');
+    }
+  };
+
   return (
     <section className="bg-white rounded-[16px] border border-brand-border shadow-brand p-8">
-      <h2 className="text-[24px] font-bold text-brand-navy mb-6">Detailed Findings</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-[24px] font-bold text-brand-navy">Detailed Findings</h2>
+        <button
+          onClick={toggleAll}
+          className="px-4 py-2 text-sm font-semibold text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-colors"
+        >
+          {allExpanded ? 'Collapse All' : 'Expand All'}
+        </button>
+      </div>
       <div className="space-y-3">
         {blocks.map(([blockKey, narrative]) => (
           <BlockCard
             key={blockKey}
             blockKey={blockKey}
             narrative={narrative}
-            isExpanded={expandedBlock === blockKey}
+            isExpanded={expandedBlocks.has(blockKey)}
             onToggle={() => toggleBlock(blockKey)}
           />
         ))}

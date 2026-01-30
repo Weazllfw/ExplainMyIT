@@ -23,6 +23,7 @@ interface DashboardContentProps {
 export default function DashboardContent({ user, snapshots, error }: DashboardContentProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [sortBy, setSortBy] = useState<'date' | 'domain'>('date');
 
   // Track dashboard view on mount
   useEffect(() => {
@@ -35,6 +36,26 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
     await logout();
     router.push('/');
   };
+
+  // Calculate stats
+  const stats = {
+    total: snapshots.length,
+    completed: snapshots.filter(s => s.status === 'completed').length,
+    thisMonth: snapshots.filter(s => {
+      const created = new Date(s.created_at);
+      const now = new Date();
+      return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+    }).length,
+  };
+
+  // Sort snapshots
+  const sortedSnapshots = [...snapshots].sort((a, b) => {
+    if (sortBy === 'date') {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    } else {
+      return a.domain.localeCompare(b.domain);
+    }
+  });
 
   return (
     <>
@@ -57,22 +78,72 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
         </div>
       </div>
 
+      {/* Stats Grid */}
+      {snapshots.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-brand-cyan/10 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-brand-muted">Total Snapshots</p>
+                <p className="text-[28px] font-bold text-brand-navy">{stats.total}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-brand-positive/10 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-brand-positive" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-brand-muted">Completed</p>
+                <p className="text-[28px] font-bold text-brand-navy">{stats.completed}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-brand-muted">This Month</p>
+                <p className="text-[28px] font-bold text-brand-navy">{stats.thisMonth}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* New Snapshot CTA */}
-      <div className="bg-brand-cyan/10 border border-brand-cyan/30 rounded-[16px] p-6 mb-8">
+      <div className="bg-gradient-to-br from-brand-navy to-blue-700 rounded-[16px] p-6 mb-8 shadow-brand">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[18px] font-bold text-brand-navy mb-1">
+            <h3 className="text-[20px] font-bold text-white mb-1">
               Run a New Snapshot
             </h3>
-            <p className="text-brand-slate text-sm">
-              Get fresh insights on any domain (1 per domain every 30 days)
+            <p className="text-blue-100 text-sm">
+              Get fresh insights on any domain • Free for every domain every 30 days
             </p>
           </div>
           <Link
             href="/"
             onClick={() => Analytics.dashboardCtaClicked('new-snapshot')}
-            className="px-6 py-2 bg-brand-navy text-white font-semibold rounded-[12px] hover:bg-brand-navy/90 transition-all shadow-brand"
+            className="px-6 py-3 bg-white text-brand-navy font-semibold rounded-[12px] hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
             New Snapshot
           </Link>
         </div>
@@ -80,9 +151,36 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
 
       {/* Snapshots List */}
       <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-8">
-        <h2 className="text-[24px] font-bold text-brand-navy mb-6">
-          Your Snapshots
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-[24px] font-bold text-brand-navy">
+            Your Snapshots
+          </h2>
+          {snapshots.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-brand-muted">Sort by:</span>
+              <button
+                onClick={() => setSortBy('date')}
+                className={`px-3 py-1 text-sm font-medium rounded-[8px] transition-colors ${
+                  sortBy === 'date'
+                    ? 'bg-brand-cyan/10 text-brand-cyan'
+                    : 'text-brand-muted hover:bg-brand-bg'
+                }`}
+              >
+                Date
+              </button>
+              <button
+                onClick={() => setSortBy('domain')}
+                className={`px-3 py-1 text-sm font-medium rounded-[8px] transition-colors ${
+                  sortBy === 'domain'
+                    ? 'bg-brand-cyan/10 text-brand-cyan'
+                    : 'text-brand-muted hover:bg-brand-bg'
+                }`}
+              >
+                Domain
+              </button>
+            </div>
+          )}
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-300 rounded-[12px] p-4 mb-6">
@@ -92,30 +190,33 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
 
         {!error && snapshots.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <div className="w-20 h-20 bg-gradient-to-br from-brand-cyan/20 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-10 h-10 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-[20px] font-bold text-brand-navy mb-2">
-              No snapshots yet
+            <h3 className="text-[24px] font-bold text-brand-navy mb-2">
+              Ready to get started?
             </h3>
-            <p className="text-brand-muted mb-6">
-              Run your first snapshot to get started
+            <p className="text-brand-muted mb-6 max-w-md mx-auto">
+              Run your first IT snapshot to understand your domain's public configuration, security posture, and technical setup
             </p>
             <Link
               href="/"
               onClick={() => Analytics.dashboardCtaClicked('new-snapshot')}
-              className="inline-flex items-center justify-center px-6 py-3 bg-brand-navy text-white font-semibold rounded-[12px] hover:bg-brand-navy/90 transition-all shadow-brand"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-brand-navy text-white font-semibold rounded-[12px] hover:bg-brand-navy/90 transition-all shadow-brand"
             >
-              Run First Snapshot
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Run Your First Snapshot
             </Link>
           </div>
         )}
 
         {!error && snapshots.length > 0 && (
-          <div className="space-y-4">
-            {snapshots.map((snapshot) => (
+          <div className="space-y-3">
+            {sortedSnapshots.map((snapshot) => (
               <SnapshotCard key={snapshot.id} snapshot={snapshot} />
             ))}
           </div>
@@ -126,6 +227,9 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
 }
 
 function SnapshotCard({ snapshot }: { snapshot: Snapshot }) {
+  const [showActions, setShowActions] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
+
   const statusColors = {
     completed: 'bg-brand-positive/10 text-brand-positive border-brand-positive/30',
     processing: 'bg-brand-caution/10 text-brand-caution border-brand-caution/30',
@@ -135,34 +239,118 @@ function SnapshotCard({ snapshot }: { snapshot: Snapshot }) {
 
   const statusColor = statusColors[snapshot.status as keyof typeof statusColors] || statusColors.pending;
 
+  // Calculate age
+  const createdDate = new Date(snapshot.created_at);
+  const now = new Date();
+  const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  const timeAgoText = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`;
+  const ageColor = daysAgo > 14 ? 'text-brand-caution' : 'text-brand-muted';
+
+  const handleCopyLink = () => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    navigator.clipboard.writeText(`${baseUrl}/report/${snapshot.id}`);
+    setCopyStatus('copied');
+    Analytics.dashboardCtaClicked('copy-link');
+    setTimeout(() => setCopyStatus('idle'), 2000);
+  };
+
   return (
     <div className="border border-brand-border rounded-[14px] p-5 hover:shadow-brand-hover hover:border-brand-cyan/30 transition-all">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-[18px] font-bold text-brand-navy">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <h3 className="text-[18px] font-bold text-brand-navy truncate">
               {snapshot.domain}
             </h3>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColor}`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColor} flex-shrink-0`}>
               {snapshot.status}
             </span>
           </div>
-          <p className="text-sm text-brand-muted">
-            Created {new Date(snapshot.created_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
+          <div className="flex items-center gap-4 text-sm flex-wrap">
+            <span className="text-brand-muted">
+              {createdDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
+            <span className={`font-medium ${ageColor}`}>
+              {timeAgoText}
+            </span>
+            {snapshot.status === 'completed' && snapshot.generation_duration_seconds && (
+              <span className="text-brand-muted">
+                {snapshot.generation_duration_seconds}s generation
+              </span>
+            )}
+          </div>
         </div>
+        
         {snapshot.status === 'completed' && (
-          <Link
-            href={`/report/${snapshot.id}`}
-            onClick={() => Analytics.dashboardCtaClicked('view-report')}
-            className="px-4 py-2 text-sm font-semibold text-brand-cyan hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-colors"
-          >
-            View Report
-          </Link>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Link
+              href={`/report/${snapshot.id}`}
+              onClick={() => Analytics.dashboardCtaClicked('view-report')}
+              className="px-5 py-2 bg-brand-navy text-white text-sm font-semibold rounded-[10px] hover:bg-brand-navy/90 transition-all shadow-sm"
+            >
+              View Report
+            </Link>
+            <div className="relative">
+              <button
+                onClick={() => setShowActions(!showActions)}
+                className="p-2 text-brand-muted hover:text-brand-navy hover:bg-brand-bg rounded-[8px] transition-colors"
+                aria-label="More actions"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+              </button>
+              {showActions && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-brand-border rounded-[12px] shadow-brand z-10">
+                  <button
+                    onClick={handleCopyLink}
+                    className="w-full px-4 py-2 text-left text-sm text-brand-slate hover:bg-brand-bg rounded-t-[12px] transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    {copyStatus === 'copied' ? 'Copied!' : 'Copy Link'}
+                  </button>
+                  <Link
+                    href="/"
+                    onClick={() => Analytics.dashboardCtaClicked('rerun-domain')}
+                    className="block w-full px-4 py-2 text-left text-sm text-brand-slate hover:bg-brand-bg rounded-b-[12px] transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Re-run Snapshot
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {snapshot.status === 'processing' && (
+          <div className="flex items-center gap-2 text-brand-caution text-sm flex-shrink-0">
+            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span className="font-medium">Processing...</span>
+          </div>
+        )}
+
+        {snapshot.status === 'failed' && (
+          <div className="flex items-center gap-2 text-red-600 text-sm flex-shrink-0">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">Generation failed</span>
+          </div>
         )}
       </div>
     </div>
