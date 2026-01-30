@@ -14,7 +14,7 @@ import { TopFindings } from '@/components/report/TopFindings';
 import { BlockNarratives } from '@/components/report/BlockNarratives';
 import { Assumptions } from '@/components/report/Assumptions';
 import { Questions } from '@/components/report/Questions';
-import { CreateAccountCTA } from '@/components/report/CreateAccountCTA';
+import { ReportFooterActions } from '@/components/report/ReportFooterActions';
 import type { LLMReport } from '@/lib/llm/types';
 
 interface PageProps {
@@ -91,8 +91,12 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
           <Questions questions={report.questions} />
         )}
 
-        {/* CTA */}
-        <CreateAccountCTA />
+        {/* Footer Actions - Smart CTA based on auth state */}
+        <ReportFooterActions 
+          snapshotId={snapshot.id}
+          domain={snapshot.domain}
+          isOwnedByUser={!!snapshot.user_id}
+        />
       </main>
 
       {/* Footer */}
