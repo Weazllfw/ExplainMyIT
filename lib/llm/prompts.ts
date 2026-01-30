@@ -16,91 +16,124 @@ import type { SnapshotSignals } from '@/types/database';
  * CALL 1: Generate all 6 block narratives in one request
  */
 export function buildBlockNarrativesPrompt(signals: SnapshotSignals): string {
-  return `You are generating plain-English explanations for all 6 signal blocks of an IT reality snapshot.
+  // Build blocks dynamically (6 base blocks + optional subdomains)
+  const blocksData: any = {
+    dns: {
+      block_name: 'Domain & DNS Setup',
+      confidence: signals.dns!.confidence,
+      signals: {
+        domain_age_days: signals.dns!.domain_age_days,
+        registrar: signals.dns!.registrar,
+        nameservers: signals.dns!.nameservers,
+        has_dnssec: signals.dns!.has_dnssec,
+      },
+    },
+    email: {
+      block_name: 'Email & Identity Posture',
+      confidence: signals.email!.confidence,
+      signals: {
+        has_spf: signals.email!.has_spf,
+        spf_record: signals.email!.spf_record,
+        has_dkim: signals.email!.has_dkim,
+        has_dmarc: signals.email!.has_dmarc,
+        dmarc_policy: signals.email!.dmarc_policy,
+        email_spoofing_possible: signals.email!.email_spoofing_possible,
+      },
+    },
+    tls: {
+      block_name: 'Website Security (TLS/SSL)',
+      confidence: signals.tls!.confidence,
+      signals: {
+        has_https: signals.tls!.has_https,
+        https_enforced: signals.tls!.https_enforced,
+        certificate_valid: signals.tls!.certificate_valid,
+        certificate_issuer: signals.tls!.certificate_issuer,
+        days_until_expiry: signals.tls!.days_until_expiry,
+        tls_versions: signals.tls!.tls_versions,
+        ssl_expiring_soon: signals.tls!.ssl_expiring_soon,
+      },
+    },
+    techstack: {
+      block_name: 'Website Technology & Hosting',
+      confidence: signals.techstack!.confidence,
+      signals: {
+        cms: signals.techstack!.cms,
+        cdn_detected: signals.techstack!.cdn_detected,
+        cdn_provider: signals.techstack!.cdn_provider,
+        hosting_provider: signals.techstack!.hosting_provider,
+        frameworks: signals.techstack!.frameworks,
+      },
+    },
+    exposure: {
+      block_name: 'Public Exposure Awareness',
+      confidence: signals.exposure!.confidence,
+      signals: {
+        reverse_dns: signals.exposure!.reverse_dns,
+        infrastructure_type: signals.exposure!.infrastructure_type,
+        ip_geolocation: signals.exposure!.ip_geolocation,
+      },
+    },
+    hibp: {
+      block_name: 'Breach History',
+      confidence: signals.hibp!.confidence,
+      signals: {
+        breaches_found: signals.hibp!.breaches_found,
+        most_recent_breach_date: signals.hibp!.most_recent_breach_date,
+        breach_names: signals.hibp!.breach_names.slice(0, 3), // First 3 for context
+      },
+    },
+  };
+
+  // Conditionally add subdomains block if data exists
+  if (signals.subdomains && signals.subdomains.success && signals.subdomains.raw_signals.total_subdomain_count > 0) {
+    blocksData.subdomains = {
+      block_name: 'Public Domain Footprint',
+      confidence: signals.subdomains.confidence,
+      signals: {
+        total_subdomain_count: signals.subdomains.raw_signals.total_subdomain_count,
+        example_subdomains: signals.subdomains.raw_signals.subdomains.slice(0, 5).map(s => s.subdomain),
+      },
+    };
+  }
+
+  const blockCount = Object.keys(blocksData).length;
+
+  return `You are generating plain-English explanations for ${blockCount} signal blocks of an IT reality snapshot.
 
 CONTEXT:
 You are part of "Explain My IT" - a service that translates technical IT reality into owner-level understanding.
 
-INPUT DATA (ALL 6 BLOCKS):
-${JSON.stringify(
-    {
-      dns: {
-        block_name: 'Domain & DNS Setup',
-        confidence: signals.dns!.confidence,
-        signals: {
-          domain_age_days: signals.dns!.domain_age_days,
-          registrar: signals.dns!.registrar,
-          nameservers: signals.dns!.nameservers,
-          has_dnssec: signals.dns!.has_dnssec,
-        },
-      },
-      email: {
-        block_name: 'Email & Identity Posture',
-        confidence: signals.email!.confidence,
-        signals: {
-          has_spf: signals.email!.has_spf,
-          spf_record: signals.email!.spf_record,
-          has_dkim: signals.email!.has_dkim,
-          has_dmarc: signals.email!.has_dmarc,
-          dmarc_policy: signals.email!.dmarc_policy,
-          email_spoofing_possible: signals.email!.email_spoofing_possible,
-        },
-      },
-      tls: {
-        block_name: 'Website Security (TLS/SSL)',
-        confidence: signals.tls!.confidence,
-        signals: {
-          has_https: signals.tls!.has_https,
-          https_enforced: signals.tls!.https_enforced,
-          certificate_valid: signals.tls!.certificate_valid,
-          certificate_issuer: signals.tls!.certificate_issuer,
-          days_until_expiry: signals.tls!.days_until_expiry,
-          tls_versions: signals.tls!.tls_versions,
-          ssl_expiring_soon: signals.tls!.ssl_expiring_soon,
-        },
-      },
-      techstack: {
-        block_name: 'Website Technology & Hosting',
-        confidence: signals.techstack!.confidence,
-        signals: {
-          cms: signals.techstack!.cms,
-          cdn_detected: signals.techstack!.cdn_detected,
-          cdn_provider: signals.techstack!.cdn_provider,
-          hosting_provider: signals.techstack!.hosting_provider,
-          frameworks: signals.techstack!.frameworks,
-        },
-      },
-      exposure: {
-        block_name: 'Public Exposure Awareness',
-        confidence: signals.exposure!.confidence,
-        signals: {
-          reverse_dns: signals.exposure!.reverse_dns,
-          infrastructure_type: signals.exposure!.infrastructure_type,
-          ip_geolocation: signals.exposure!.ip_geolocation,
-        },
-      },
-      hibp: {
-        block_name: 'Breach History',
-        confidence: signals.hibp!.confidence,
-        signals: {
-          breaches_found: signals.hibp!.breaches_found,
-          most_recent_breach_date: signals.hibp!.most_recent_breach_date,
-          breach_names: signals.hibp!.breach_names.slice(0, 3), // First 3 for context
-        },
-      },
-    },
-    null,
-    2
-  )}
+INPUT DATA (ALL ${blockCount} BLOCKS):
+${JSON.stringify(blocksData, null, 2)}
 
-RULES (apply to all 6 blocks):
+TIER 1 RULES (LOCKED - apply to all 6 blocks):
+
+✅ ALLOWED:
+- Expose ambiguity
+- Surface assumptions
+- Show breadth
+- Create mild discomfort
+- Raise questions
+- State facts
+
+❌ FORBIDDEN:
+- Judge
+- Score (no ratings, no health metrics)
+- Label risk ("critical", "severe", "high risk")
+- Imply negligence ("abandoned", "exposed", "vulnerable")
+- Recommend fixes or remediation
+- Name technical controls unless owner understands the category
+- Use fear language
+
+LANGUAGE RULES:
 1. Write for business owners, not IT staff
 2. Explain what this means for the business, not how it works technically
-3. Be calm and factual. Avoid fear words ('critical', 'severe', 'immediately')
-4. No remediation steps
-5. No vendor recommendations
-6. No CVE IDs or version numbers
-7. Keep each explanation to 2-4 sentences
+3. Be calm and factual - NEVER use: "critical", "severe", "immediately", "abandoned", "exposed", "vulnerable"
+4. Frame technical data in business meaning (e.g., "relies on hosting provider for protection" NOT "lacks CSP headers")
+5. No remediation steps
+6. No vendor recommendations
+7. No CVE IDs or version numbers
+8. Keep each explanation to 2-4 sentences
 
 CONFIDENCE HANDLING (MANDATORY FOR EACH BLOCK):
 - High confidence → Declarative language allowed ("Your domain uses...")
@@ -108,6 +141,72 @@ CONFIDENCE HANDLING (MANDATORY FOR EACH BLOCK):
 - Low confidence → MUST include both:
   * One qualifier word
   * One explicit limitation: "This cannot be confirmed from public signals alone."
+
+SPECIAL FRAMING FOR SECURITY HEADERS/BLACKLISTS:
+- NEVER name technical controls (CSP, HSTS, X-Frame-Options, DNSBL names)
+- Frame in business terms: "relies on hosting provider for protection against common web threats"
+- Do NOT make absence sound like a finding
+
+SPECIAL FRAMING FOR WHOIS GOVERNANCE SIGNALS (IF DATA EXISTS):
+**CRITICAL**: NEVER answer "who owns this?" - ONLY answer "how clearly is ownership defined?"
+
+✅ ALLOWED:
+- State registrar name (factual)
+- Bucket domain expiry ("renews within 6 months", "more than a year out")
+- Describe registrant type ("appears to be business entity", "privacy protected", "individual")
+- Note transfer lock status ("transfer protection present", "couldn't confirm")
+- Say "Many businesses..." or "This is common..."
+- Say "Access and responsibility may be split" (if registrar/DNS separated)
+
+❌ FORBIDDEN:
+- Expose or reference actual names, emails, addresses
+- Say "You personally own this"
+- Use urgency language ("urgent", "expires soon", "at risk")
+- Judge the setup ("poor practice", "concerning", "problematic")
+- Recommend fixes
+
+CORRECT TIER 1 TONE FOR GOVERNANCE SIGNALS:
+"Your domain registration is protected by a privacy service, which is common. This means ownership details aren't publicly visible, and access to the registrar account becomes especially important for continuity."
+
+or
+
+"Your domain registration and DNS are managed by different providers. This is common, but it means access and responsibility may be split across vendors."
+
+SPECIAL FRAMING FOR CERTIFICATE ISSUANCE (IF DATA EXISTS):
+**CRITICAL**: Certificate reissues are OBSERVATIONAL, not a finding.
+
+✅ ALLOWED:
+- State count ("certificates observed: X in last 12 months")
+- Note most recent date
+- Say "usually indicates routine renewals or infrastructure changes"
+- Say "suggests operational activity"
+
+❌ FORBIDDEN:
+- Imply instability
+- Label as "frequent" or "excessive"
+- Suggest it's a problem
+
+CORRECT TIER 1 TONE:
+"Your website certificate has been reissued multiple times over the past year, which usually indicates either routine renewals or infrastructure changes."
+
+SPECIAL FRAMING FOR SUBDOMAINS (IF DATA EXISTS):
+✅ ALLOWED:
+- State multiple subdomains exist
+- Show 3-5 examples
+- Note patterns ("dev", "test", "staging")
+- Say "This is common in organizations that have evolved over time"
+- Say "External observation cannot determine which are actively maintained"
+
+❌ FORBIDDEN:
+- Call them "abandoned"
+- Call them "exposed"
+- Assign risk
+- Count as a finding
+- Label as "issues"
+- Suggest they need cleanup
+
+CORRECT TIER 1 TONE FOR SUBDOMAINS:
+"We observed multiple public subdomains associated with your domain through Certificate Transparency logs. This is common in organizations that have evolved over time and often reflects development, testing, or service usage. From an external perspective, it isn't possible to determine which of these are actively maintained versus historical."
 
 OUTPUT FORMAT (JSON):
 {
@@ -123,7 +222,8 @@ OUTPUT FORMAT (JSON):
   "tls": { ... same structure ... },
   "techstack": { ... same structure ... },
   "exposure": { ... same structure ... },
-  "hibp": { ... same structure ... }
+  "hibp": { ... same structure ... },
+  "subdomains": { ... same structure (ONLY if subdomain data was provided) ... }
 }
 
 Return ONLY JSON. No markdown. No commentary.
@@ -131,7 +231,7 @@ Use double quotes for all JSON keys/strings.
 Do not include unescaped quotes inside strings.
 If you cannot comply, return: {"error":"invalid_output"}
 
-Generate all 6 block narratives now.`;
+Generate block narratives for all ${blockCount} blocks now.`;
 }
 
 /**
@@ -206,27 +306,32 @@ RULES FOR ASSUMPTIONS:
 - Focus on governance, continuity, and organizational responsibility
 - Use "You're assuming..." format consistently
 - MUST include at least 1 Organizational assumption
+- **CRITICAL: Prefer process and continuity assumptions over configuration assumptions**
+- **Emphasize how responsibilities might be missed during vacations, staff changes, vendor transitions, or undocumented handoffs**
 
 ASSUMPTION TAXONOMY:
 Domain & Infrastructure:
 - "You're assuming your domain registrar access is secure and documented."
 - "You're assuming your DNS provider will notify you of configuration issues."
 - "You're assuming someone would notice if your domain or DNS settings changed."
+- **"You're assuming responsibility for domain management wouldn't be missed during staff changes or vendor transitions."**
 
 Email & Identity:
 - "You're assuming email impersonation controls are sufficient for your risk profile."
 - "You're assuming all employee email accounts use strong, unique passwords."
 - "You're assuming your email provider is filtering phishing attempts effectively."
+- **"You're assuming email authentication controls would remain monitored during vacations or staff turnover."**
 
 Website & Hosting:
 - "You're assuming your hosting provider is patching underlying server software."
-- "You're assuming someone is monitoring for website downtime or certificate expiry."
+- **"You're assuming responsibility for monitoring certificate expiry wouldn't be missed during vacations, staff changes, or vendor transitions."**
 - "You're assuming your website's content management system is being maintained."
 
 Organizational (MUST INCLUDE AT LEAST 1):
 - "You're assuming someone has documented who is responsible for IT maintenance."
 - "You're assuming your IT setup is recoverable if a key person or vendor becomes unavailable."
 - "You're assuming important IT credentials are stored securely and accessibly."
+- **"You're assuming there's a process to detect and respond to unexpected changes in your public IT posture."**
 
 RULES FOR QUESTIONS:
 - Questions should be safe for owners to ask without sounding accusatory
@@ -234,6 +339,15 @@ RULES FOR QUESTIONS:
 - No instructions or fixes—just questions
 - Focus on "who handles this" and "what's the process" questions
 - Avoid yes/no phrasing. Use "How do we..." / "Who is responsible for..." / "Where is... documented..."
+- **CRITICAL: At least 2 questions MUST relate to change detection or review cadence, not just configuration**
+- **These questions should be unanswerable by a one-time snapshot**
+
+REQUIRED TIME-BASED QUESTION EXAMPLES (include at least 2 similar to these):
+- "How do we know if this changes next month?"
+- "Is there a regular review of this, or is it checked only when something breaks?"
+- "If this changed unexpectedly, how would we find out?"
+- "Who is responsible for reviewing these settings over time?"
+- "What's the process for detecting configuration drift?"
 
 OUTPUT FORMAT (JSON):
 {

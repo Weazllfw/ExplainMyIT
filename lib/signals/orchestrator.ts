@@ -11,6 +11,7 @@ import { collectTlsSignals } from './tls';
 import { collectTechStackSignals } from './techstack';
 import { collectExposureSignals } from './exposure';
 import { collectHibpSignals } from './hibp';
+import { collectSubdomainSignals } from './subdomains';
 import type { AllSignals, CrossBlockFlags } from './types';
 import type { SnapshotSignals } from '@/types/database';
 
@@ -22,15 +23,8 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
   
   console.log(`📡 Starting signal collection for: ${domain}`);
   
-  // Run all 6 modules in parallel for speed
-  const [
-    dnsResult,
-    emailResult,
-    tlsResult,
-    techstackResult,
-    exposureResult,
-    hibpResult,
-  ] = await Promise.all([
+  // Run all modules in parallel for speed (7 total: 6 core + subdomains)
+  const promises = [
     collectDnsSignals(domain).catch(err => {
       console.error('DNS collection failed:', err);
       return createFailedResult('dns');
@@ -55,7 +49,23 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
       console.error('HIBP collection failed:', err);
       return createFailedResult('hibp');
     }),
-  ]);
+    collectSubdomainSignals(domain).catch(err => {
+      console.error('Subdomain collection failed:', err);
+      return createFailedResult('subdomains');
+    }),
+  ];
+  
+  const results = await Promise.all(promises);
+  
+  const [
+    dnsResult,
+    emailResult,
+    tlsResult,
+    techstackResult,
+    exposureResult,
+    hibpResult,
+    subdomainResult,
+  ] = results;
   
   const endTime = new Date();
   const durationMs = endTime.getTime() - startTime.getTime();
@@ -70,6 +80,7 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
     `Tech: ${techstackResult.success ? '✅' : '❌'}`,
     `Exposure: ${exposureResult.success ? '✅' : '❌'}`,
     `HIBP: ${hibpResult.success ? '✅' : '❌'}`,
+    `Subdomains: ${subdomainResult.success ? '✅' : '❌'}`,
   ];
   console.log(`   ${summary.join(' | ')}`);
   
@@ -165,6 +176,14 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
       checked_at: startTime.toISOString(),
       error: hibpResult.error_message,
     },
+    subdomains: subdomainResult.success ? {
+      success: subdomainResult.success,
+      confidence: subdomainResult.confidence,
+      raw_signals: subdomainResult.raw_signals,
+      derived_flags: subdomainResult.derived_flags,
+      collected_at: subdomainResult.collected_at,
+      error_message: subdomainResult.error_message,
+    } : undefined,
     cross_block_flags: crossBlockFlags,
   };
   

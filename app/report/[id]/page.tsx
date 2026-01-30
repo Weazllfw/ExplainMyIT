@@ -12,10 +12,13 @@ import { getSnapshotById } from '@/lib/db/snapshots';
 import { ReportHeader } from '@/components/report/ReportHeader';
 import { ReportTracker } from '@/components/report/ReportTracker';
 import { OwnerSummary } from '@/components/report/OwnerSummary';
+import { TemporalDisclaimer } from '@/components/report/TemporalDisclaimer';
 import { TopFindings } from '@/components/report/TopFindings';
 import { BlockNarratives } from '@/components/report/BlockNarratives';
 import { Assumptions } from '@/components/report/Assumptions';
 import { Questions } from '@/components/report/Questions';
+import { BlindSpots } from '@/components/report/BlindSpots';
+import { TechnicalDataViewer } from '@/components/report/TechnicalDataViewer';
 import { ReportFooterActions } from '@/components/report/ReportFooterActions';
 import type { LLMReport } from '@/lib/llm/types';
 
@@ -124,6 +127,9 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
         {/* Owner Summary */}
         <OwnerSummary summary={report.owner_summary} />
 
+        {/* Temporal Disclaimer - Static conversion framing */}
+        <TemporalDisclaimer />
+
         {/* Top Findings */}
         {report.top_findings && report.top_findings.length > 0 && (
           <TopFindings findings={report.top_findings} />
@@ -142,6 +148,17 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
         {/* Questions */}
         {report.questions && report.questions.length > 0 && (
           <Questions questions={report.questions} />
+        )}
+
+        {/* Blind Spots - Static conversion framing */}
+        <BlindSpots />
+
+        {/* Technical Data Viewer */}
+        {snapshot.signals_json && (
+          <TechnicalDataViewer
+            signals={snapshot.signals_json as any}
+            domain={snapshot.domain}
+          />
         )}
 
         {/* Footer Actions - Smart CTA based on auth state */}

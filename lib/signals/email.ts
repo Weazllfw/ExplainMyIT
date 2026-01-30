@@ -17,6 +17,8 @@ import type {
 // Promisify DNS functions
 const resolveTxt = promisify(dns.resolveTxt);
 const resolveMx = promisify(dns.resolveMx);
+const resolve4 = promisify(dns.resolve4);
+const reverse = promisify(dns.reverse);
 
 /**
  * Main email auth signal collection function
@@ -28,21 +30,34 @@ export async function collectEmailSignals(domain: string): Promise<EmailBlockRes
     // Normalize domain
     const normalizedDomain = normalizeDomain(domain);
     
+    // Get primary mail server IP for blacklist checks
+    const mailServerIp = await getMailServerIp(normalizedDomain);
+    
     // Collect raw signals in parallel
     const [
       mxProvider,
       spfRecord,
       dkimPresent,
       dmarcPolicy,
+      blacklistResult,
     ] = await Promise.all([
       getMxProvider(normalizedDomain),
       getSpfRecord(normalizedDomain),
       checkDkimPresence(normalizedDomain),
       getDmarcPolicy(normalizedDomain),
+      checkBlacklists(mailServerIp),
     ]);
     
     // Assess SPF strictness
     const spfStrictness = assessSpfStrictness(spfRecord);
+    
+    // Calculate deliverability score
+    const deliverabilityScore = calculateDeliverabilityScore(
+      spfStrictness,
+      dkimPresent,
+      dmarcPolicy,
+      blacklistResult.status
+    );
     
     const rawSignals: EmailRawSignals = {
       mx_provider: mxProvider,
@@ -50,6 +65,9 @@ export async function collectEmailSignals(domain: string): Promise<EmailBlockRes
       spf_strictness: spfStrictness,
       dkim_present: dkimPresent,
       dmarc_policy: dmarcPolicy,
+      blacklist_status: blacklistResult.status,
+      blacklists_checked: blacklistResult.checked,
+      deliverability_score: deliverabilityScore,
     };
     
     // Compute derived flags
@@ -273,6 +291,124 @@ async function getDmarcPolicy(domain: string): Promise<'reject' | 'quarantine' |
 }
 
 /**
+ * Get mail server IP for blacklist checks
+ */
+async function getMailServerIp(domain: string): Promise<string | null> {
+  try {
+    const mxRecords = await resolveMx(domain);
+    if (mxRecords.length === 0) return null;
+    
+    // Get first MX record (highest priority)
+    const primaryMx = mxRecords.sort((a, b) => a.priority - b.priority)[0].exchange;
+    
+    // Resolve MX hostname to IP
+    const ips = await resolve4(primaryMx);
+    return ips.length > 0 ? ips[0] : null;
+  } catch (error) {
+    console.warn(`Mail server IP lookup failed for ${domain}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Check multiple DNS blacklists (DNSBL)
+ */
+async function checkBlacklists(ip: string | null): Promise<{
+  status: 'clean' | 'listed' | 'unknown';
+  checked: string[];
+}> {
+  if (!ip) {
+    return {
+      status: 'unknown',
+      checked: [],
+    };
+  }
+  
+  // Major free DNSBLs to check
+  const blacklists = [
+    'zen.spamhaus.org',           // Spamhaus ZEN (combined list)
+    'dnsbl-1.uceprotect.net',     // UCEPROTECT Level 1
+    'b.barracudacentral.org',     // Barracuda
+  ];
+  
+  // Reverse IP for DNSBL query (e.g., 1.2.3.4 → 4.3.2.1)
+  const reversedIp = ip.split('.').reverse().join('.');
+  
+  const checks = await Promise.allSettled(
+    blacklists.map(async (bl) => {
+      const query = `${reversedIp}.${bl}`;
+      try {
+        // If DNS resolves, IP is listed
+        await resolve4(query);
+        return { listed: true, blacklist: bl };
+      } catch (error) {
+        // NXDOMAIN = not listed (good!)
+        return { listed: false, blacklist: bl };
+      }
+    })
+  );
+  
+  const results = checks
+    .filter((r): r is PromiseFulfilledResult<{ listed: boolean; blacklist: string }> => 
+      r.status === 'fulfilled'
+    )
+    .map(r => r.value);
+  
+  const isListed = results.some(r => r.listed);
+  const checked = results.map(r => r.blacklist);
+  
+  return {
+    status: isListed ? 'listed' : 'clean',
+    checked,
+  };
+}
+
+/**
+ * Calculate deliverability score (0-100)
+ */
+function calculateDeliverabilityScore(
+  spfStrictness: 'strict' | 'permissive' | 'missing',
+  dkimPresent: boolean,
+  dmarcPolicy: 'reject' | 'quarantine' | 'none' | 'missing',
+  blacklistStatus: 'clean' | 'listed' | 'unknown'
+): number {
+  let score = 0;
+  
+  // SPF (30 points)
+  if (spfStrictness === 'strict') {
+    score += 30;
+  } else if (spfStrictness === 'permissive') {
+    score += 15;
+  }
+  // missing = 0 points
+  
+  // DKIM (25 points)
+  if (dkimPresent) {
+    score += 25;
+  }
+  
+  // DMARC (30 points)
+  if (dmarcPolicy === 'reject') {
+    score += 30;
+  } else if (dmarcPolicy === 'quarantine') {
+    score += 25;
+  } else if (dmarcPolicy === 'none') {
+    score += 10; // Monitoring only
+  }
+  // missing = 0 points
+  
+  // Blacklist status (15 points)
+  if (blacklistStatus === 'clean') {
+    score += 15;
+  } else if (blacklistStatus === 'unknown') {
+    score += 7; // Neutral - give partial credit
+  }
+  // listed = 0 points
+  
+  return Math.min(100, Math.max(0, score));
+}
+
+/**
  * Compute derived flags from raw signals
  */
 function computeEmailFlags(signals: EmailRawSignals): EmailDerivedFlags {
@@ -300,10 +436,20 @@ function computeEmailFlags(signals: EmailRawSignals): EmailDerivedFlags {
     signals.spf_strictness === 'strict' &&
     (signals.dmarc_policy === 'reject' || signals.dmarc_policy === 'quarantine');
   
+  // Enhanced flags
+  const blacklisted = signals.blacklist_status === 'listed';
+  const deliverability_excellent = signals.deliverability_score >= 90;
+  const deliverability_good = signals.deliverability_score >= 70 && signals.deliverability_score < 90;
+  const deliverability_poor = signals.deliverability_score < 70;
+  
   return {
     email_spoofing_possible,
     email_protection_partial,
     email_protection_strong,
+    blacklisted,
+    deliverability_excellent,
+    deliverability_good,
+    deliverability_poor,
   };
 }
 
@@ -317,6 +463,9 @@ function getEmptyEmailSignals(): EmailRawSignals {
     spf_strictness: 'missing',
     dkim_present: false,
     dmarc_policy: 'missing',
+    blacklist_status: 'unknown',
+    blacklists_checked: [],
+    deliverability_score: 0,
   };
 }
 
@@ -328,5 +477,9 @@ function getEmptyEmailFlags(): EmailDerivedFlags {
     email_spoofing_possible: false,
     email_protection_partial: false,
     email_protection_strong: false,
+    blacklisted: false,
+    deliverability_excellent: false,
+    deliverability_good: false,
+    deliverability_poor: true,
   };
 }

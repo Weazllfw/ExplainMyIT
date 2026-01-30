@@ -84,6 +84,7 @@ export interface SnapshotSignals {
   techstack?: TechStackSignals;
   exposure?: ExposureSignals;
   hibp?: HibpSignals;
+  subdomains?: SubdomainSignals;
   cross_block_flags?: string[];
   // Tier 2 can add: m365, google, azure, aws, etc.
 }
@@ -164,6 +165,28 @@ export interface HibpSignals {
   confidence: 'high' | 'medium' | 'low';
   checked_at: string;
   error?: string;
+}
+
+export interface SubdomainSignals {
+  success: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  raw_signals: {
+    subdomains: Array<{
+      subdomain: string;
+      first_seen: string | null;
+      last_seen: string | null;
+    }>;
+    total_subdomain_count: number;
+    active_subdomain_count: number | null;
+    potentially_abandoned: string[];
+  };
+  derived_flags: {
+    large_surface_area: boolean;
+    abandoned_subdomains_likely: boolean;
+    subdomain_sprawl: boolean;
+  };
+  collected_at: string;
+  error_message?: string;
 }
 
 // ============================================================================
