@@ -34,15 +34,15 @@ export async function POST(request: Request) {
       fullName,
     });
 
-    if (error) {
+    if (error || !user) {
       console.error('[API] Failed to create user record:', error);
       return NextResponse.json(
-        { success: false, error },
+        { success: false, error: error || 'User creation failed' },
         { status: 500 }
       );
     }
 
-    console.log('[API] User record created successfully:', user?.id);
+    console.log('[API] User record created successfully:', user.id);
 
     // AUTO-LINK: Find and link any anonymous snapshots with matching email
     try {
