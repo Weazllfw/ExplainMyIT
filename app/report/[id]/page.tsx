@@ -197,105 +197,143 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12 space-y-8">
         {/* Snapshot Age Banner - Shows temporal decay */}
-        <SnapshotAgeBanner createdAt={snapshot.created_at} />
+        <div className="page-break-avoid">
+          <SnapshotAgeBanner createdAt={snapshot.created_at} />
+        </div>
 
         {/* Owner Summary */}
-        <OwnerSummary summary={report.owner_summary} />
+        <div className="page-break-avoid">
+          <OwnerSummary summary={report.owner_summary} />
+        </div>
 
         {/* Temporal Disclaimer - Static conversion framing */}
-        <TemporalDisclaimer />
+        <div className="page-break-avoid">
+          <TemporalDisclaimer />
+        </div>
 
         {/* Visual Components Grid - Phase 1 Conversion Visuals */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 page-break-avoid">
           {/* Snapshot Timeline - Primary conversion visual */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 page-break-avoid">
             <SnapshotTimeline createdAt={snapshot.created_at} />
           </div>
 
           {/* Email Authentication Matrix */}
           {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).email && (
-            <EmailAuthMatrix 
-              signals={(snapshot.signals_json as SnapshotSignals).email} 
-            />
+            <div className="page-break-avoid">
+              <EmailAuthMatrix 
+                signals={(snapshot.signals_json as SnapshotSignals).email} 
+              />
+            </div>
           )}
 
           {/* Certificate Expiry Timeline */}
           {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).tls && (
-            <CertificateExpiryTimeline 
-              signals={(snapshot.signals_json as SnapshotSignals).tls} 
-            />
+            <div className="page-break-avoid">
+              <CertificateExpiryTimeline 
+                signals={(snapshot.signals_json as SnapshotSignals).tls} 
+              />
+            </div>
           )}
 
           {/* Domain Age Timeline */}
           {snapshot.signals_json && (snapshot.signals_json as SnapshotSignals).dns && (
-            <DomainAgeTimeline 
-              signals={(snapshot.signals_json as SnapshotSignals).dns} 
-            />
+            <div className="page-break-avoid">
+              <DomainAgeTimeline 
+                signals={(snapshot.signals_json as SnapshotSignals).dns} 
+              />
+            </div>
           )}
         </div>
 
         {/* Top Findings */}
         {report.top_findings && report.top_findings.length > 0 && (
-          <TopFindings findings={report.top_findings} />
+          <div className="page-break-avoid">
+            <TopFindings findings={report.top_findings} />
+          </div>
         )}
 
         {/* Block Narratives */}
         {report.block_narratives && (
-          <BlockNarratives narratives={report.block_narratives} />
+          <div className="page-break-avoid">
+            <BlockNarratives narratives={report.block_narratives} />
+          </div>
         )}
 
         {/* Single Point Dependency - Provider consolidation */}
         {snapshot.signals_json && (
-          <SinglePointDependency signals={snapshot.signals_json as SnapshotSignals} />
+          <div className="page-break-avoid">
+            <SinglePointDependency signals={snapshot.signals_json as SnapshotSignals} />
+          </div>
         )}
 
         {/* Assumptions */}
         {report.assumptions && report.assumptions.length > 0 && (
-          <Assumptions assumptions={report.assumptions} />
+          <div className="page-break-avoid">
+            <Assumptions assumptions={report.assumptions} />
+          </div>
         )}
 
         {/* Questions */}
         {report.questions && report.questions.length > 0 && (
-          <Questions questions={report.questions} />
+          <div className="page-break-avoid">
+            <Questions questions={report.questions} />
+          </div>
         )}
 
         {/* Ownership Signals - Governance awareness */}
         {snapshot.signals_json && (
-          <OwnershipSignals 
-            signals={snapshot.signals_json as SnapshotSignals}
-            domain={snapshot.domain}
-          />
+          <div className="page-break-avoid">
+            <OwnershipSignals 
+              signals={snapshot.signals_json as SnapshotSignals}
+              domain={snapshot.domain}
+            />
+          </div>
         )}
 
         {/* Brand Surface Signals - Safe OSINT */}
-        <BrandSurfaceSignals domain={snapshot.domain} />
+        <div className="page-break-avoid">
+          <BrandSurfaceSignals domain={snapshot.domain} />
+        </div>
 
         {/* Blind Spots - Static conversion framing */}
-        <BlindSpots />
+        <div className="page-break-avoid">
+          <BlindSpots />
+        </div>
 
         {/* Confidence Legend - Transparency */}
-        <ConfidenceLegend />
+        <div className="page-break-avoid">
+          <ConfidenceLegend />
+        </div>
 
         {/* Run Another Domain CTA */}
-        <RunAnotherDomainCTA />
+        <div className="page-break-avoid">
+          <RunAnotherDomainCTA />
+        </div>
 
         {/* Technical Data Viewer */}
         {snapshot.signals_json && (
-          <TechnicalDataViewer
-            signals={snapshot.signals_json as any}
-            domain={snapshot.domain}
-          />
+          <div className="page-break-avoid">
+            <TechnicalDataViewer
+              signals={snapshot.signals_json as any}
+              domain={snapshot.domain}
+            />
+          </div>
         )}
 
         {/* Social Proof - Anonymous usage proof */}
-        <SocialProof />
+        <div className="page-break-avoid">
+          <SocialProof />
+        </div>
 
         {/* Footer Actions - Smart CTA based on auth state */}
-        <ReportFooterActions 
-          snapshotId={snapshot.id}
-          domain={snapshot.domain}
-          isOwnedByUser={!!snapshot.user_id}
-        />
+        <div className="page-break-avoid">
+          <ReportFooterActions 
+            snapshotId={snapshot.id}
+            domain={snapshot.domain}
+            isOwnedByUser={!!snapshot.user_id}
+          />
+        </div>
       </main>
 
       {/* Saved Indicator - Behavioral nudge */}

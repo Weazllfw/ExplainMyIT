@@ -15,19 +15,61 @@
   /* Optimize layout for print */
   body {
     background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
-  /* Ensure proper page breaks */
+  /* Ensure proper page breaks - prevent sections from splitting */
   .page-break-before {
     page-break-before: always;
+    break-before: always;
   }
 
   .page-break-after {
     page-break-after: always;
+    break-after: always;
   }
 
   .page-break-avoid {
     page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Prevent all major sections from being split across pages */
+  main > div,
+  section,
+  article,
+  .bg-white,
+  .bg-gray-50,
+  .bg-gradient-to-br,
+  [class*="rounded-"],
+  [class*="border"] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Specific component protection */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Keep headers with their content */
+  h1 + *, h2 + *, h3 + * {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  /* Protect visual components */
+  .grid,
+  table,
+  ul,
+  ol,
+  figure {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   /* Remove shadows and borders for cleaner print */
@@ -41,22 +83,25 @@
     background: white !important;
   }
 
-  /* Ensure links are visible */
+  /* Ensure links are visible but cleaner */
   a {
-    text-decoration: underline;
     color: #1e3a8a !important;
   }
 
-  /* Show link URLs after links (optional) */
+  /* Don't show URLs after internal links */
   a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.8em;
-    color: #666;
+    content: none;
   }
 
-  /* Remove page margins for better content fit */
+  /* Better page margins */
   @page {
     margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Add spacing between major sections */
+  main > div + div {
+    margin-top: 1.5rem;
   }
 }
 
