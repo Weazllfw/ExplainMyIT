@@ -59,7 +59,7 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       {/* Analytics Tracker (invisible) */}
       <ReportTracker snapshotId={snapshot.id} domain={snapshot.domain} />
 
@@ -67,7 +67,7 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
       <ReportHeader domain={snapshot.domain} createdAt={snapshot.created_at} />
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-4 py-12 space-y-8">
         {/* Owner Summary */}
         <OwnerSummary summary={report.owner_summary} />
 
