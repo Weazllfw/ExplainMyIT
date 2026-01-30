@@ -12,7 +12,7 @@
 ┌─────────────────────────────────────────┐
 │  HERO SECTION                           │
 │  ┌─────────────────────────────────┐   │
-│  │ [Get Early Access to Dashboard] │   │ → data-umami-event="cta-click-hero"
+│  │ [Get Early Access to Dashboard] │   │ → data-umami-event="cta-click-heroa"
 │  └─────────────────────────────────┘   │
 └─────────────────────────────────────────┘
 
