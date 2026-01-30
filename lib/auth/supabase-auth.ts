@@ -54,28 +54,34 @@ export async function signUp(data: SignupData): Promise<{
     }
 
     // Create user record in our database via API route
-    // This avoids client-side access to getSupabaseAdmin()
-    try {
-      const response = await fetch('/api/auth/create-user-record', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          authUserId: authData.user.id,
-          email: data.email,
-          fullName: data.fullName,
-        }),
-      });
+    // CRITICAL: This must succeed or signup is incomplete
+    console.log('[Signup] Creating database user record for:', authData.user.id);
+    
+    const response = await fetch('/api/auth/create-user-record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        authUserId: authData.user.id,
+        email: data.email,
+        fullName: data.fullName,
+      }),
+    });
+    
+    const responseData = await response.json();
+    
+    if (!response.ok || !responseData.success) {
+      console.error('[Signup] CRITICAL: User record creation failed:', responseData);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.warn('[Signup] User record creation failed (non-critical):', errorData);
-      } else {
-        console.log('[Signup] User record created successfully');
-      }
-      // If this fails, it's OK - user can still log in and we'll create record on next login
-    } catch (error) {
-      console.warn('[Signup] Failed to create user record (non-critical):', error);
+      // NOTE: Auth user is created but database record failed
+      // The login fallback will create the database record on first login
+      
+      return {
+        success: false,
+        error: 'Failed to complete account setup. Please try logging in instead, or contact support.',
+      };
     }
+    
+    console.log('[Signup] Database user record created successfully:', responseData.user?.id);
 
     return {
       success: true,
@@ -123,17 +129,51 @@ export async function login(data: LoginData): Promise<{
 
     console.log('[Login] Login successful for user:', authData.user.id);
 
-    // Update last login timestamp
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ last_login_at: new Date().toISOString() })
-      .eq('auth_user_id', authData.user.id);
+    // FALLBACK: Check if user record exists in database, create if missing
+    // This handles cases where signup partially failed
+    try {
+      const { data: dbUsers, error: queryError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', authData.user.id)
+        .limit(1);
 
-    if (updateError) {
-      console.error('[Login] Failed to update last login (non-critical):', updateError);
-      // Non-critical error, continue
-    } else {
-      console.log('[Login] Updated last login timestamp');
+      if (queryError) {
+        console.error('[Login] Error checking for user record:', queryError);
+      } else if (!dbUsers || dbUsers.length === 0) {
+        console.warn('[Login] No database user record found - creating one now');
+        
+        const response = await fetch('/api/auth/create-user-record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            authUserId: authData.user.id,
+            email: authData.user.email,
+            fullName: authData.user.user_metadata?.full_name,
+          }),
+        });
+
+        if (response.ok) {
+          console.log('[Login] Created missing database user record ✅');
+        } else {
+          console.error('[Login] Failed to create database user record');
+        }
+      } else {
+        // User record exists - update last login timestamp
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ last_login_at: new Date().toISOString() })
+          .eq('auth_user_id', authData.user.id);
+
+        if (updateError) {
+          console.error('[Login] Failed to update last login (non-critical):', updateError);
+        } else {
+          console.log('[Login] Updated last login timestamp');
+        }
+      }
+    } catch (fallbackError) {
+      console.error('[Login] Fallback user creation error:', fallbackError);
+      // Non-critical - login still succeeds
     }
 
     console.log('[Login] Returning success');
