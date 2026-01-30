@@ -2,10 +2,14 @@
  * HIBP (Have I Been Pwned) Integration Module
  * 
  * Collects known breach data for Block F.
- * Uses HIBP API to check if domain has appeared in data breaches.
+ * Uses HIBP API to check if specific email addresses from the domain have appeared in breaches.
  * 
  * API: https://haveibeenpwned.com/API/v3
  * Tier: Pwned 1 (10 RPM, up to 25 breached email addresses per domain)
+ * 
+ * Strategy: Check 2 emails per snapshot:
+ * 1. info@domain.com (most common business email)
+ * 2. User's submitted email (most relevant)
  */
 
 import { getHibpCache, saveHibpCache } from '../db/cache';
@@ -19,6 +23,27 @@ import type { HibpResults } from '@/types/database';
 
 const HIBP_API_BASE = 'https://haveibeenpwned.com/api/v3';
 const HIBP_API_KEY = process.env.HIBP_API_KEY;
+
+// Simple rate limiter for HIBP API (10 RPM = 6 seconds between calls)
+class HibpRateLimiter {
+  private lastCallTime = 0;
+  private readonly minInterval = 6100; // 6.1 seconds (safer than 6 seconds)
+
+  async waitForSlot(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastCall = now - this.lastCallTime;
+    
+    if (timeSinceLastCall < this.minInterval) {
+      const waitTime = this.minInterval - timeSinceLastCall;
+      console.log(`⏳ HIBP rate limit: waiting ${(waitTime / 1000).toFixed(1)}s`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    this.lastCallTime = Date.now();
+  }
+}
+
+const hibpLimiter = new HibpRateLimiter();
 
 interface HibpBreach {
   Name: string;
@@ -40,8 +65,14 @@ interface HibpBreach {
 
 /**
  * Main HIBP signal collection function
+ * 
+ * @param domain - Domain to check
+ * @param userEmail - User's submitted email (optional but recommended for better results)
  */
-export async function collectHibpSignals(domain: string): Promise<HibpBlockResult> {
+export async function collectHibpSignals(
+  domain: string, 
+  userEmail?: string
+): Promise<HibpBlockResult> {
   const startTime = new Date().toISOString();
   
   // Check if API key is configured
@@ -61,11 +92,23 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
     // Normalize domain
     const normalizedDomain = normalizeDomain(domain);
     
-    // Check cache first (30-day TTL)
-    const cached = await getHibpCache(normalizedDomain);
+    // Determine which emails to check (2 total)
+    const emailsToCheck = [
+      `info@${normalizedDomain}`, // Most common business email
+      userEmail || `contact@${normalizedDomain}`, // User's email or fallback
+    ];
+    
+    // Remove duplicates (if user submitted info@domain.com)
+    const uniqueEmails = [...new Set(emailsToCheck)];
+    
+    console.log(`🔍 HIBP: Checking ${uniqueEmails.length} email(s) for ${normalizedDomain}`);
+    
+    // Check cache first (30-day TTL per email)
+    const cacheKey = `${normalizedDomain}-${uniqueEmails.join(',')}`;
+    const cached = await getHibpCache(cacheKey);
     
     if (cached.results) {
-      console.log(`HIBP cache hit for ${normalizedDomain}`);
+      console.log(`✅ HIBP cache hit for ${normalizedDomain}`);
       
       // Reconstruct block result from cached data
       const cachedBreaches = cached.results.breaches;
@@ -91,6 +134,7 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
         breaches: breachData,
         total_breach_count: cachedBreaches.length,
         most_recent_breach_date: mostRecentBreachDate,
+        emails_checked: cached.results.emails_checked || uniqueEmails,
       };
       
       const derivedFlags = computeHibpFlags(rawSignals);
@@ -106,11 +150,31 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
       };
     }
     
-    // Fetch from API
-    const breaches = await fetchBreachesForDomain(normalizedDomain);
+    // Fetch from API - check each email sequentially with rate limiting
+    const allBreaches: HibpBreach[] = [];
+    const breachesByEmail: Map<string, HibpBreach[]> = new Map();
+    
+    for (const email of uniqueEmails) {
+      try {
+        const breaches = await fetchBreachesForEmail(email);
+        breachesByEmail.set(email, breaches);
+        
+        // Add to combined list (avoid duplicates by breach name)
+        for (const breach of breaches) {
+          if (!allBreaches.some(b => b.Name === breach.Name)) {
+            allBreaches.push(breach);
+          }
+        }
+        
+        console.log(`   ${email}: ${breaches.length} breach(es) found`);
+      } catch (error) {
+        console.warn(`   ${email}: Check failed - ${error}`);
+        // Continue checking other emails
+      }
+    }
     
     // Extract relevant breach data
-    const breachData = breaches.map(b => ({
+    const breachData = allBreaches.map(b => ({
       name: b.Name,
       title: b.Title,
       breach_date: b.BreachDate,
@@ -119,17 +183,18 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
     }));
     
     // Find most recent breach
-    const mostRecentBreachDate = breaches.length > 0
-      ? breaches.reduce((latest, b) => {
+    const mostRecentBreachDate = allBreaches.length > 0
+      ? allBreaches.reduce((latest, b) => {
           const date = new Date(b.BreachDate);
           return date > latest ? date : latest;
-        }, new Date(breaches[0].BreachDate)).toISOString().split('T')[0]
+        }, new Date(allBreaches[0].BreachDate)).toISOString().split('T')[0]
       : null;
     
     const rawSignals: HibpRawSignals = {
       breaches: breachData,
-      total_breach_count: breaches.length,
+      total_breach_count: allBreaches.length,
       most_recent_breach_date: mostRecentBreachDate,
+      emails_checked: uniqueEmails,
     };
     
     // Compute derived flags
@@ -149,10 +214,13 @@ export async function collectHibpSignals(domain: string): Promise<HibpBlockResul
     
     // Cache the result (convert to HibpResults format for storage)
     const cacheData: HibpResults = {
-      breaches: breaches, // Store raw API breaches for cache
+      breaches: allBreaches, // Store combined breaches
+      emails_checked: uniqueEmails,
       fetched_at: startTime,
     };
-    await saveHibpCache(normalizedDomain, cacheData);
+    await saveHibpCache(cacheKey, cacheData);
+    
+    console.log(`✅ HIBP: Found ${allBreaches.length} unique breach(es) across ${uniqueEmails.length} email(s)`);
     
     return result;
     
@@ -190,10 +258,15 @@ function normalizeDomain(input: string): string {
 }
 
 /**
- * Fetch breaches for domain from HIBP API
+ * Fetch breaches for a specific email address from HIBP API
+ * Uses rate limiter to stay within 10 RPM (Pwned 1 tier)
  */
-async function fetchBreachesForDomain(domain: string): Promise<HibpBreach[]> {
-  const url = `${HIBP_API_BASE}/breaches?domain=${encodeURIComponent(domain)}`;
+async function fetchBreachesForEmail(email: string): Promise<HibpBreach[]> {
+  // Wait for rate limit slot
+  await hibpLimiter.waitForSlot();
+  
+  // Use breachedaccount endpoint to check individual email
+  const url = `${HIBP_API_BASE}/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`;
   
   const response = await fetch(url, {
     headers: {
@@ -259,6 +332,7 @@ function getEmptyHibpSignals(): HibpRawSignals {
     breaches: [],
     total_breach_count: 0,
     most_recent_breach_date: null,
+    emails_checked: [],
   };
 }
 

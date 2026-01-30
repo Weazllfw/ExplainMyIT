@@ -17,11 +17,20 @@ import type { SnapshotSignals } from '@/types/database';
 
 /**
  * Collect all signals for a domain in parallel
+ * 
+ * @param domain - Domain to check
+ * @param userEmail - User's submitted email (optional, used for HIBP checks)
  */
-export async function collectAllSignals(domain: string): Promise<SnapshotSignals> {
+export async function collectAllSignals(
+  domain: string,
+  userEmail?: string
+): Promise<SnapshotSignals> {
   const startTime = new Date();
   
   console.log(`📡 Starting signal collection for: ${domain}`);
+  if (userEmail) {
+    console.log(`   User email provided: ${userEmail} (will be used for HIBP checks)`);
+  }
   
   // Run all modules in parallel for speed (7 total: 6 core + subdomains)
   const promises = [
@@ -45,7 +54,7 @@ export async function collectAllSignals(domain: string): Promise<SnapshotSignals
       console.error('Exposure collection failed:', err);
       return createFailedResult('exposure');
     }),
-    collectHibpSignals(domain).catch(err => {
+    collectHibpSignals(domain, userEmail).catch(err => {
       console.error('HIBP collection failed:', err);
       return createFailedResult('hibp');
     }),

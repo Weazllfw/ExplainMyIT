@@ -102,9 +102,9 @@ export async function POST(request: NextRequest) {
     // Update to processing
     await updateSnapshot(snapshot.id, { status: 'processing' });
 
-    // Step 1: Collect signals
+    // Step 1: Collect signals (pass user's email for HIBP checks)
     console.log(`📡 Collecting signals for ${domain}...`);
-    const signals: SnapshotSignals = await collectAllSignals(domain);
+    const signals: SnapshotSignals = await collectAllSignals(domain, email);
 
     // Step 2: Generate LLM report
     console.log(`🤖 Generating LLM report...`);
