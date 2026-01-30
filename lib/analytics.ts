@@ -196,7 +196,7 @@ export const Analytics = {
     trackEvent('dashboard-viewed');
   },
 
-  dashboardCtaClicked: (ctaType: 'new-snapshot' | 'view-report') => {
+  dashboardCtaClicked: (ctaType: 'new-snapshot' | 'view-report' | 'copy-link' | 'rerun-domain') => {
     trackEvent('dashboard-cta-clicked', {
       ctaType,
     });
