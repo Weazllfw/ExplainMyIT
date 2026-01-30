@@ -33,6 +33,11 @@ export interface DnsRawSignals {
   aaaa_records: string[];
   mx_records: string[];
   dns_hosting_provider: string | null;
+  // WHOIS governance signals (NEVER store raw names/emails/addresses)
+  domain_expiry_days: number | null;
+  domain_expiry_window: 'more_than_1_year' | '6_to_12_months' | 'under_6_months' | 'unknown';
+  registrant_type: 'business' | 'individual' | 'proxy' | 'unknown';
+  transfer_lock_enabled: boolean | null;
 }
 
 export interface DnsDerivedFlags {
@@ -40,6 +45,12 @@ export interface DnsDerivedFlags {
   domain_age_low: boolean;          // < 1 year
   dns_provider_third_party: boolean; // Using external DNS (Cloudflare, etc.)
   single_point_dns_dependency: boolean; // All NS from same provider
+  // Governance signals
+  registrar_dns_separated: boolean;  // Registrar and DNS provider are different
+  domain_expiry_soon: boolean;       // Expiring within 6 months
+  registrant_individual: boolean;    // Registered to individual, not business
+  registrant_privacy_enabled: boolean; // Privacy protection enabled
+  transfer_lock_confirmed: boolean;  // Transfer lock is present
 }
 
 export type DnsBlockResult = BlockResult<DnsRawSignals>;
@@ -54,6 +65,10 @@ export interface EmailRawSignals {
   spf_strictness: 'strict' | 'permissive' | 'missing';
   dkim_present: boolean;
   dmarc_policy: 'reject' | 'quarantine' | 'none' | 'missing';
+  // Enhanced deliverability signals
+  blacklist_status: 'clean' | 'listed' | 'unknown';
+  blacklists_checked: string[];     // Which blacklists were queried
+  deliverability_score: number;     // 0-100 composite score
 }
 
 export interface EmailDerivedFlags {
@@ -61,6 +76,11 @@ export interface EmailDerivedFlags {
   email_spoofing_possible: boolean;
   email_protection_partial: boolean;
   email_protection_strong: boolean;
+  // Enhanced flags
+  blacklisted: boolean;             // Listed on any blacklist
+  deliverability_excellent: boolean; // 90-100
+  deliverability_good: boolean;     // 70-89
+  deliverability_poor: boolean;     // < 70
 }
 
 export type EmailBlockResult = BlockResult<EmailRawSignals>;
@@ -75,6 +95,20 @@ export interface TlsRawSignals {
   certificate_expiry_days: number | null;
   tls_versions_supported: string[];
   certificate_valid: boolean;
+  // Enhanced certificate details
+  certificate_organization: string | null;
+  certificate_san_count: number;
+  certificate_wildcard: boolean;
+  certificate_type: 'DV' | 'OV' | 'EV' | 'unknown';
+  // Security headers
+  security_headers: {
+    strict_transport_security: boolean;
+    content_security_policy: boolean;
+    x_frame_options: boolean;
+    x_content_type_options: boolean;
+    referrer_policy: boolean;
+    permissions_policy: boolean;
+  };
 }
 
 export interface TlsDerivedFlags {
@@ -82,6 +116,12 @@ export interface TlsDerivedFlags {
   ssl_expiring_soon: boolean;       // < 30 days
   legacy_tls_supported: boolean;    // TLS 1.0 or 1.1
   no_https_redirect: boolean;
+  // Enhanced flags
+  certificate_shared: boolean;      // Wildcard or multi-domain
+  certificate_premium: boolean;     // EV cert
+  security_headers_strong: boolean; // All headers present
+  security_headers_partial: boolean; // Some headers present
+  security_headers_missing: boolean; // Few or no headers
 }
 
 export type TlsBlockResult = BlockResult<TlsRawSignals>;
@@ -152,6 +192,33 @@ export interface HibpDerivedFlags {
 export type HibpBlockResult = BlockResult<HibpRawSignals>;
 
 // ============================================================================
+// Block G: Subdomains & Surface Area
+// ============================================================================
+
+export interface SubdomainRawSignals {
+  subdomains: Array<{
+    subdomain: string;
+    first_seen: string | null;
+    last_seen: string | null;
+  }>;
+  total_subdomain_count: number;
+  active_subdomain_count: number | null;
+  potentially_abandoned: string[];  // Always empty for Tier 1 (violates rules)
+  // Certificate issuance data (Tier 1 safe - observational only)
+  certificate_issuance_count_12mo: number;  // Certs issued in last 12 months
+  most_recent_certificate_date: string | null; // ISO date of most recent cert
+}
+
+export interface SubdomainDerivedFlags {
+  [key: string]: boolean;
+  large_surface_area: boolean;      // > 10 subdomains
+  abandoned_subdomains_likely: boolean; // Has dev/test/old patterns
+  subdomain_sprawl: boolean;        // > 50 subdomains
+}
+
+export type SubdomainBlockResult = BlockResult<SubdomainRawSignals>;
+
+// ============================================================================
 // Combined Signals (All Blocks)
 // ============================================================================
 
@@ -165,6 +232,7 @@ export interface AllSignals {
     techstack: TechStackBlockResult;
     exposure: ExposureBlockResult;
     hibp: HibpBlockResult;
+    subdomains?: SubdomainBlockResult; // Optional (requires paid API)
   };
 }
 
@@ -183,7 +251,7 @@ export interface CrossBlockFlags {
 // Helper Types
 // ============================================================================
 
-export type BlockName = 'dns' | 'email' | 'tls' | 'techstack' | 'exposure' | 'hibp';
+export type BlockName = 'dns' | 'email' | 'tls' | 'techstack' | 'exposure' | 'hibp' | 'subdomains';
 
 export interface CollectionError {
   block_name: BlockName;

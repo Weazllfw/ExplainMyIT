@@ -33,15 +33,13 @@ export async function collectDnsSignals(domain: string): Promise<DnsBlockResult>
     
     // Collect raw signals in parallel
     const [
-      domainAge,
-      registrar,
+      whoisData,
       nameservers,
       aRecords,
       aaaaRecords,
       mxRecords,
     ] = await Promise.all([
-      getDomainAge(normalizedDomain),
-      getRegistrar(normalizedDomain),
+      getWhoisGovernanceData(normalizedDomain),
       getNameservers(normalizedDomain),
       getARecords(normalizedDomain),
       getAAAARecords(normalizedDomain),
@@ -52,13 +50,18 @@ export async function collectDnsSignals(domain: string): Promise<DnsBlockResult>
     const dnsProvider = inferDnsProvider(nameservers);
     
     const rawSignals: DnsRawSignals = {
-      domain_age_years: domainAge,
-      registrar,
+      domain_age_years: whoisData.domain_age_years,
+      registrar: whoisData.registrar,
       nameservers,
       a_records: aRecords,
       aaaa_records: aaaaRecords,
       mx_records: mxRecords,
       dns_hosting_provider: dnsProvider,
+      // WHOIS governance signals
+      domain_expiry_days: whoisData.expiry_days,
+      domain_expiry_window: whoisData.expiry_window,
+      registrant_type: whoisData.registrant_type,
+      transfer_lock_enabled: whoisData.transfer_lock_enabled,
     };
     
     // Compute derived flags
@@ -115,45 +118,126 @@ function normalizeDomain(input: string): string {
 }
 
 /**
- * Get domain age from WHOIS
+ * WHOIS data structure (governance signals only)
  */
-async function getDomainAge(domain: string): Promise<number | null> {
+interface WhoisGovernanceData {
+  domain_age_years: number | null;
+  registrar: string | null;
+  expiry_days: number | null;
+  expiry_window: 'more_than_1_year' | '6_to_12_months' | 'under_6_months' | 'unknown';
+  registrant_type: 'business' | 'individual' | 'proxy' | 'unknown';
+  transfer_lock_enabled: boolean | null;
+}
+
+/**
+ * Get comprehensive WHOIS governance data
+ * 
+ * CRITICAL: We derive governance signals ONLY.
+ * We never store or expose: names, emails, addresses, phone numbers.
+ */
+async function getWhoisGovernanceData(domain: string): Promise<WhoisGovernanceData> {
   try {
     const whoisData = await whois(domain, { timeout: 10000 });
     
+    // Domain age
+    let domain_age_years: number | null = null;
     if (whoisData.creationDate) {
       const createdDate = new Date(whoisData.creationDate);
       const now = new Date();
       const ageMs = now.getTime() - createdDate.getTime();
-      const ageYears = ageMs / (1000 * 60 * 60 * 24 * 365.25);
-      
-      return Math.max(0, Math.round(ageYears * 10) / 10); // Round to 1 decimal
+      domain_age_years = Math.max(0, Math.round((ageMs / (1000 * 60 * 60 * 24 * 365.25)) * 10) / 10);
     }
     
-    return null;
+    // Registrar
+    const registrar = whoisData.registrar ? String(whoisData.registrar).trim() : null;
+    
+    // Domain expiry
+    let expiry_days: number | null = null;
+    let expiry_window: WhoisGovernanceData['expiry_window'] = 'unknown';
+    if (whoisData.expirationDate) {
+      const expiryDate = new Date(whoisData.expirationDate);
+      const now = new Date();
+      const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      expiry_days = daysUntilExpiry;
+      
+      // Bucket into windows
+      if (daysUntilExpiry > 365) {
+        expiry_window = 'more_than_1_year';
+      } else if (daysUntilExpiry >= 180) {
+        expiry_window = '6_to_12_months';
+      } else if (daysUntilExpiry >= 0) {
+        expiry_window = 'under_6_months';
+      }
+    }
+    
+    // Registrant type inference (NEVER store actual names/emails)
+    let registrant_type: WhoisGovernanceData['registrant_type'] = 'unknown';
+    const registrantName = String(whoisData.registrant || whoisData.registrantName || '').toLowerCase();
+    const registrantOrg = String(whoisData.registrantOrganization || '').toLowerCase();
+    
+    if (registrantName.includes('privacy') || registrantName.includes('protected') || 
+        registrantName.includes('redacted') || registrantName.includes('proxy') ||
+        registrantOrg.includes('privacy') || registrantOrg.includes('protected')) {
+      registrant_type = 'proxy';
+    } else if (registrantOrg && registrantOrg.length > 2 && 
+               !registrantOrg.includes('n/a') && !registrantOrg.includes('none')) {
+      registrant_type = 'business';
+    } else if (registrantName && registrantName.length > 2) {
+      // Has a name but no org - likely individual
+      registrant_type = 'individual';
+    }
+    
+    // Transfer lock status
+    let transfer_lock_enabled: boolean | null = null;
+    const status = whoisData.domainStatus || whoisData.status || [];
+    const statusArray = Array.isArray(status) ? status : [status];
+    const statusString = statusArray.join(' ').toLowerCase();
+    
+    if (statusString.includes('clienttransferprohibited') || 
+        statusString.includes('transfer prohibited')) {
+      transfer_lock_enabled = true;
+    } else if (statusString.length > 0) {
+      transfer_lock_enabled = false;
+    }
+    
+    return {
+      domain_age_years,
+      registrar,
+      expiry_days,
+      expiry_window,
+      registrant_type,
+      transfer_lock_enabled,
+    };
+    
   } catch (error) {
-    console.warn(`WHOIS lookup failed for ${domain}:`, error);
-    return null;
+    console.warn(`WHOIS governance lookup failed for ${domain}:`, error);
+    return {
+      domain_age_years: null,
+      registrar: null,
+      expiry_days: null,
+      expiry_window: 'unknown',
+      registrant_type: 'unknown',
+      transfer_lock_enabled: null,
+    };
   }
 }
 
 /**
- * Get registrar from WHOIS
+ * Get domain age from WHOIS (legacy wrapper)
+ */
+async function getDomainAge(domain: string): Promise<number | null> {
+  const data = await getWhoisGovernanceData(domain);
+  return data.domain_age_years;
+}
+
+/**
+ * Get registrar from WHOIS (legacy wrapper)
  */
 async function getRegistrar(domain: string): Promise<string | null> {
-  try {
-    const whoisData = await whois(domain, { timeout: 10000 });
-    
-    if (whoisData.registrar) {
-      return String(whoisData.registrar).trim();
-    }
-    
-    return null;
-  } catch (error) {
-    console.warn(`Registrar lookup failed for ${domain}:`, error);
-    return null;
-  }
+  const data = await getWhoisGovernanceData(domain);
+  return data.registrar;
 }
+
 
 /**
  * Get nameservers
@@ -258,10 +342,33 @@ function computeDnsFlags(signals: DnsRawSignals): DnsDerivedFlags {
   const single_point_dns_dependency = signals.nameservers.length > 0 && 
     hasSingleProvider(signals.nameservers);
   
+  // Registrar and DNS provider are separate (governance signal)
+  const registrar_dns_separated = signals.registrar !== null &&
+    signals.dns_hosting_provider !== null &&
+    signals.dns_hosting_provider !== signals.registrar &&
+    !signals.dns_hosting_provider.includes('Unknown');
+  
+  // Domain expiry within 6 months
+  const domain_expiry_soon = signals.domain_expiry_window === 'under_6_months';
+  
+  // Registrant type indicates individual ownership
+  const registrant_individual = signals.registrant_type === 'individual';
+  
+  // Privacy protection enabled
+  const registrant_privacy_enabled = signals.registrant_type === 'proxy';
+  
+  // Transfer lock confirmed present
+  const transfer_lock_confirmed = signals.transfer_lock_enabled === true;
+  
   return {
     domain_age_low,
     dns_provider_third_party,
     single_point_dns_dependency,
+    registrar_dns_separated,
+    domain_expiry_soon,
+    registrant_individual,
+    registrant_privacy_enabled,
+    transfer_lock_confirmed,
   };
 }
 
@@ -331,6 +438,10 @@ function getEmptyDnsSignals(): DnsRawSignals {
     aaaa_records: [],
     mx_records: [],
     dns_hosting_provider: null,
+    domain_expiry_days: null,
+    domain_expiry_window: 'unknown',
+    registrant_type: 'unknown',
+    transfer_lock_enabled: null,
   };
 }
 
@@ -342,5 +453,10 @@ function getEmptyDnsFlags(): DnsDerivedFlags {
     domain_age_low: false,
     dns_provider_third_party: false,
     single_point_dns_dependency: false,
+    registrar_dns_separated: false,
+    domain_expiry_soon: false,
+    registrant_individual: false,
+    registrant_privacy_enabled: false,
+    transfer_lock_confirmed: false,
   };
 }

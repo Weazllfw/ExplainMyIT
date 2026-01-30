@@ -30,12 +30,22 @@ export async function collectTlsSignals(domain: string): Promise<TlsBlockResult>
       checkHttpRedirect(normalizedDomain),
     ]);
     
+    // Parse security headers
+    const securityHeaders = parseSecurityHeaders(httpsResult.headers);
+    
     const rawSignals: TlsRawSignals = {
       https_enforced: httpRedirects,
       certificate_issuer: httpsResult.issuer,
       certificate_expiry_days: httpsResult.expiryDays,
       tls_versions_supported: httpsResult.tlsVersions,
       certificate_valid: httpsResult.valid,
+      // Enhanced certificate details
+      certificate_organization: httpsResult.organization,
+      certificate_san_count: httpsResult.sanCount,
+      certificate_wildcard: httpsResult.wildcard,
+      certificate_type: httpsResult.certType,
+      // Security headers
+      security_headers: securityHeaders,
     };
     
     // Compute derived flags
@@ -90,12 +100,17 @@ async function checkHttpsCertificate(domain: string): Promise<{
   issuer: string | null;
   expiryDays: number | null;
   tlsVersions: string[];
+  organization: string | null;
+  sanCount: number;
+  wildcard: boolean;
+  certType: 'DV' | 'OV' | 'EV' | 'unknown';
+  headers: Record<string, string>;
 }> {
   return new Promise((resolve) => {
     const options = {
       host: domain,
       port: 443,
-      method: 'HEAD',
+      method: 'GET',  // Changed to GET to capture headers
       path: '/',
       timeout: 10000,
       rejectUnauthorized: false, // We want to detect invalid certs, not fail on them
@@ -105,12 +120,24 @@ async function checkHttpsCertificate(domain: string): Promise<{
       const socket = res.socket as tls.TLSSocket;
       const cert = socket.getPeerCertificate();
       
+      // Capture response headers
+      const headers: Record<string, string> = {};
+      Object.keys(res.headers).forEach(key => {
+        const value = res.headers[key];
+        headers[key] = Array.isArray(value) ? value.join(', ') : (value || '');
+      });
+      
       if (!cert || Object.keys(cert).length === 0) {
         resolve({
           valid: false,
           issuer: null,
           expiryDays: null,
           tlsVersions: [],
+          organization: null,
+          sanCount: 0,
+          wildcard: false,
+          certType: 'unknown',
+          headers,
         });
         req.destroy();
         return;
@@ -128,11 +155,34 @@ async function checkHttpsCertificate(domain: string): Promise<{
       // Get TLS version
       const tlsVersion = socket.getProtocol() || 'Unknown';
       
+      // Enhanced certificate details
+      const organization = cert.subject?.O || null;
+      const subjectAltName = (cert as any).subjectaltname || '';
+      const sanList = subjectAltName.split(', ').filter((s: string) => s.startsWith('DNS:'));
+      const sanCount = sanList.length;
+      const wildcard = sanList.some((s: string) => s.includes('*'));
+      
+      // Detect certificate type (EV, OV, DV)
+      let certType: 'DV' | 'OV' | 'EV' | 'unknown' = 'unknown';
+      if (organization) {
+        // If org + jurisdiction, likely EV
+        const hasJurisdiction = !!(cert.subject as any)?.jurisdictionCountryName || 
+                               !!(cert.subject as any)?.jurisdictionStateOrProvinceName;
+        certType = hasJurisdiction ? 'EV' : 'OV';
+      } else {
+        certType = 'DV';
+      }
+      
       resolve({
         valid,
         issuer,
         expiryDays,
         tlsVersions: [tlsVersion],
+        organization,
+        sanCount,
+        wildcard,
+        certType,
+        headers,
       });
       
       req.destroy();
@@ -146,6 +196,11 @@ async function checkHttpsCertificate(domain: string): Promise<{
         issuer: null,
         expiryDays: null,
         tlsVersions: [],
+        organization: null,
+        sanCount: 0,
+        wildcard: false,
+        certType: 'unknown',
+        headers: {},
       });
     });
     
@@ -156,6 +211,11 @@ async function checkHttpsCertificate(domain: string): Promise<{
         issuer: null,
         expiryDays: null,
         tlsVersions: [],
+        organization: null,
+        sanCount: 0,
+        wildcard: false,
+        certType: 'unknown',
+        headers: {},
       });
     });
     
@@ -206,6 +266,33 @@ async function checkHttpRedirect(domain: string): Promise<boolean> {
 }
 
 /**
+ * Parse security headers from HTTP response
+ */
+function parseSecurityHeaders(headers: Record<string, string>): {
+  strict_transport_security: boolean;
+  content_security_policy: boolean;
+  x_frame_options: boolean;
+  x_content_type_options: boolean;
+  referrer_policy: boolean;
+  permissions_policy: boolean;
+} {
+  // Normalize header keys to lowercase for comparison
+  const normalizedHeaders: Record<string, string> = {};
+  Object.keys(headers).forEach(key => {
+    normalizedHeaders[key.toLowerCase()] = headers[key];
+  });
+  
+  return {
+    strict_transport_security: !!normalizedHeaders['strict-transport-security'],
+    content_security_policy: !!normalizedHeaders['content-security-policy'],
+    x_frame_options: !!normalizedHeaders['x-frame-options'],
+    x_content_type_options: !!normalizedHeaders['x-content-type-options'],
+    referrer_policy: !!normalizedHeaders['referrer-policy'],
+    permissions_policy: !!normalizedHeaders['permissions-policy'] || !!normalizedHeaders['feature-policy'],
+  };
+}
+
+/**
  * Compute derived flags from raw signals
  */
 function computeTlsFlags(signals: TlsRawSignals): TlsDerivedFlags {
@@ -222,10 +309,26 @@ function computeTlsFlags(signals: TlsRawSignals): TlsDerivedFlags {
   // No HTTPS redirect
   const no_https_redirect = !signals.https_enforced;
   
+  // Enhanced certificate flags
+  const certificate_shared = signals.certificate_wildcard || signals.certificate_san_count > 1;
+  const certificate_premium = signals.certificate_type === 'EV';
+  
+  // Security headers assessment
+  const headers = signals.security_headers;
+  const headerCount = Object.values(headers).filter(v => v === true).length;
+  const security_headers_strong = headerCount >= 5; // All or nearly all
+  const security_headers_partial = headerCount >= 3 && headerCount < 5;
+  const security_headers_missing = headerCount < 3;
+  
   return {
     ssl_expiring_soon,
     legacy_tls_supported,
     no_https_redirect,
+    certificate_shared,
+    certificate_premium,
+    security_headers_strong,
+    security_headers_partial,
+    security_headers_missing,
   };
 }
 
@@ -257,6 +360,18 @@ function getEmptyTlsSignals(): TlsRawSignals {
     certificate_expiry_days: null,
     tls_versions_supported: [],
     certificate_valid: false,
+    certificate_organization: null,
+    certificate_san_count: 0,
+    certificate_wildcard: false,
+    certificate_type: 'unknown',
+    security_headers: {
+      strict_transport_security: false,
+      content_security_policy: false,
+      x_frame_options: false,
+      x_content_type_options: false,
+      referrer_policy: false,
+      permissions_policy: false,
+    },
   };
 }
 
@@ -268,5 +383,10 @@ function getEmptyTlsFlags(): TlsDerivedFlags {
     ssl_expiring_soon: false,
     legacy_tls_supported: false,
     no_https_redirect: false,
+    certificate_shared: false,
+    certificate_premium: false,
+    security_headers_strong: false,
+    security_headers_partial: false,
+    security_headers_missing: true,
   };
 }
