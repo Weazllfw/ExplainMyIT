@@ -101,18 +101,24 @@ export async function login(data: LoginData): Promise<{
   user?: AuthUser;
 }> {
   try {
+    console.log('[Login] Attempting login for:', data.email);
+    
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
     if (authError) {
+      console.error('[Login] Supabase auth error:', authError);
       return { success: false, error: authError.message };
     }
 
     if (!authData.user) {
+      console.error('[Login] No user returned from Supabase');
       return { success: false, error: 'Login failed' };
     }
+
+    console.log('[Login] Login successful for user:', authData.user.id);
 
     // Update last login timestamp
     const { error: updateError } = await supabase
@@ -121,10 +127,13 @@ export async function login(data: LoginData): Promise<{
       .eq('auth_user_id', authData.user.id);
 
     if (updateError) {
-      console.error('Failed to update last login:', updateError);
+      console.error('[Login] Failed to update last login (non-critical):', updateError);
       // Non-critical error, continue
+    } else {
+      console.log('[Login] Updated last login timestamp');
     }
 
+    console.log('[Login] Returning success');
     return {
       success: true,
       user: {
@@ -134,7 +143,7 @@ export async function login(data: LoginData): Promise<{
       },
     };
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[Login] Exception:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Login failed' 
