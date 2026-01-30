@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import HeaderActions from './HeaderActions';
 
 export default function Header() {
   return (
@@ -36,13 +37,7 @@ export default function Header() {
                 </Link>
               </li>
             </ul>
-            <Link 
-              href="#waitlist" 
-              className="bg-brand-navy text-white px-6 py-2 rounded-[12px] hover:bg-brand-navy/90 transition-all font-medium shadow-brand text-[15px]"
-              data-umami-event="cta-click-header"
-            >
-              Get Early Access
-            </Link>
+            <HeaderActions />
           </div>
         </div>
       </nav>

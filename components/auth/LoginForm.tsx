@@ -19,6 +19,7 @@ export default function LoginForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Get redirect URL from query params (e.g., /login?redirect=/dashboard)
   const redirectTo = searchParams.get('redirect') || '/dashboard';
@@ -47,16 +48,46 @@ export default function LoginForm() {
       Analytics.formSubmitted('login');
       Analytics.userLoggedIn();
 
-      // Redirect to dashboard or specified page
-      router.push(redirectTo);
+      // Show redirecting state
+      setIsRedirecting(true);
+      console.log('[Login UI] Redirecting to:', redirectTo);
+
+      // Small delay to ensure session is saved, then redirect
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Force hard navigation to ensure session is picked up
+      window.location.href = redirectTo;
     } catch (err) {
       setError('Something went wrong. Please try again.');
       Analytics.formError('login', 'exception');
       console.error('Login error:', err);
-    } finally {
       setIsLoading(false);
     }
   };
+
+  // Show success/redirecting state
+  if (isRedirecting) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-brand-positive/15 rounded-full flex items-center justify-center mx-auto">
+          <svg className="w-8 h-8 text-brand-positive" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-[20px] font-bold text-brand-navy mb-1">
+            Login Successful!
+          </h3>
+          <p className="text-brand-slate text-[15px]">
+            Redirecting to your dashboard...
+          </p>
+        </div>
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-navy"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
