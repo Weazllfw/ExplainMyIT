@@ -50,10 +50,12 @@ export default function LoginForm() {
 
       // Show redirecting state
       setIsRedirecting(true);
-      console.log('[Login UI] Redirecting to:', redirectTo);
+      console.log('[Login UI] Session created, waiting for persistence...');
 
-      // Small delay to ensure session is saved, then redirect
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Longer delay to ensure session is fully persisted to localStorage
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('[Login UI] Redirecting to:', redirectTo);
       
       // Force hard navigation to ensure session is picked up
       window.location.href = redirectTo;

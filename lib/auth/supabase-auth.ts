@@ -4,7 +4,7 @@
  * Handles user signup, login, logout, and session management
  */
 
-import { supabase } from '@/lib/db/client';
+import { getSupabaseBrowserClient } from '@/lib/db/supabase-browser';
 
 export interface AuthUser {
   id: string;
@@ -32,6 +32,8 @@ export async function signUp(data: SignupData): Promise<{
   user?: AuthUser;
 }> {
   try {
+    const supabase = getSupabaseBrowserClient();
+    
     // Create auth user in Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
@@ -101,6 +103,7 @@ export async function login(data: LoginData): Promise<{
   user?: AuthUser;
 }> {
   try {
+    const supabase = getSupabaseBrowserClient();
     console.log('[Login] Attempting login for:', data.email);
     
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -156,6 +159,7 @@ export async function login(data: LoginData): Promise<{
  */
 export async function logout(): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.signOut();
     
     if (error) {
@@ -177,6 +181,7 @@ export async function logout(): Promise<{ success: boolean; error?: string }> {
  */
 export async function getSession() {
   try {
+    const supabase = getSupabaseBrowserClient();
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {
@@ -196,6 +201,7 @@ export async function getSession() {
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
+    const supabase = getSupabaseBrowserClient();
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error || !user) {
@@ -221,6 +227,7 @@ export async function sendPasswordReset(email: string): Promise<{
   error?: string;
 }> {
   try {
+    const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`,
     });
@@ -247,6 +254,7 @@ export async function resetPassword(newPassword: string): Promise<{
   error?: string;
 }> {
   try {
+    const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });
