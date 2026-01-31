@@ -75,11 +75,17 @@ export async function recordWebhookEvent(event: Stripe.Event): Promise<void> {
  * Extract subscription details from Stripe event
  */
 export function extractSubscriptionDetails(subscription: Stripe.Subscription) {
+  // current_period_end is a Unix timestamp (seconds since epoch)
+  const periodEndTimestamp = (subscription as any).current_period_end;
+  const periodEnd = periodEndTimestamp 
+    ? new Date(periodEndTimestamp * 1000) 
+    : null;
+
   return {
     subscriptionId: subscription.id,
     customerId: subscription.customer as string,
     status: subscription.status as any,
-    periodEnd: new Date(((subscription as any).current_period_end as number) * 1000),
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    periodEnd,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
   };
 }
