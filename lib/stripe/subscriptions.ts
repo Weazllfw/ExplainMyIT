@@ -38,6 +38,12 @@ export async function updateUserSubscription(params: {
 }) {
   const supabase = getSupabaseAdminClient();
 
+  console.log(`[Subscription] Updating user ${params.stripeCustomerId}:`, {
+    status: params.status,
+    periodEnd: params.periodEnd?.toISOString(),
+    subscriptionId: params.subscriptionId,
+  });
+
   const { error } = await supabase
     .from('users')
     .update({
