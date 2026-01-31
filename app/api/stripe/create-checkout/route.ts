@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/db/supabase-server';
+import { getSupabaseAdminClient } from '@/lib/db/supabase-admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-01-28.clover',
@@ -57,11 +58,23 @@ export async function POST(req: Request) {
       });
       customerId = customer.id;
 
-      // Save customer ID to database
-      await supabase
+      console.log(`[Checkout] Created Stripe customer: ${customerId} for user ${userData.email}`);
+
+      // Save customer ID to database (use admin client to bypass RLS)
+      const adminClient = getSupabaseAdminClient();
+      const { error: updateError } = await adminClient
         .from('users')
         .update({ stripe_customer_id: customerId })
         .eq('auth_user_id', user.id);
+
+      if (updateError) {
+        console.error('[Checkout] Failed to save stripe_customer_id:', updateError);
+        throw new Error('Failed to save customer ID');
+      }
+
+      console.log(`[Checkout] Saved stripe_customer_id to database for ${userData.email}`);
+    } else {
+      console.log(`[Checkout] Using existing Stripe customer: ${customerId}`);
     }
 
     // Create Stripe Checkout Session

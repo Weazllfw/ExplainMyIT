@@ -82,7 +82,20 @@ export async function getUserSubscriptionStatus(
  * Uses admin client to bypass RLS (called from webhooks)
  */
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
+  console.log(`[Subscription] Looking up user with Stripe customer ID: ${stripeCustomerId}`);
+  
   const supabase = getSupabaseAdminClient();
+
+  // First, check if user exists at all
+  const { data: allUsers, error: countError } = await supabase
+    .from('users')
+    .select('id, email, stripe_customer_id')
+    .eq('stripe_customer_id', stripeCustomerId);
+
+  console.log(`[Subscription] Query result - Found ${allUsers?.length || 0} user(s)`);
+  if (allUsers && allUsers.length > 0) {
+    console.log(`[Subscription] User found:`, JSON.stringify(allUsers[0]));
+  }
 
   const { data, error } = await supabase
     .from('users')

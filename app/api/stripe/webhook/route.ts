@@ -114,10 +114,18 @@ async function handleSubscriptionChange(event: Stripe.Event) {
     `[Webhook] Subscription change: ${details.customerId} → ${details.status}`
   );
 
-  // Verify user exists
-  const user = await getUserByStripeCustomerId(details.customerId);
+  // Verify user exists (with retry for race conditions)
+  let user = await getUserByStripeCustomerId(details.customerId);
+  
+  // If user not found, wait and retry once (handles race condition)
   if (!user) {
-    console.error(`[Webhook] User not found for customer ${details.customerId}`);
+    console.log(`[Webhook] User not found, retrying in 2 seconds...`);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    user = await getUserByStripeCustomerId(details.customerId);
+  }
+  
+  if (!user) {
+    console.error(`[Webhook] User not found for customer ${details.customerId} after retry`);
     return;
   }
 
