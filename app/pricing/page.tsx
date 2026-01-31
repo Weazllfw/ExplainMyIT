@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SubscribeButton from '@/components/pricing/SubscribeButton';
 import ProWaitlistForm from '@/components/pricing/ProWaitlistForm';
+import { PricingPageTracker } from '@/components/pricing/PricingPageTracker';
 
 export const metadata: Metadata = {
   title: 'Pricing — Explain My IT',
@@ -38,6 +39,7 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <>
+      <PricingPageTracker />
       <Header />
       <main className="min-h-screen bg-gradient-to-b from-white to-brand-bg">
         {/* Hero Section */}

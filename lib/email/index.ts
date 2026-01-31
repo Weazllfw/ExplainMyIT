@@ -3,31 +3,17 @@
  * 
  * All email sending goes through this service for:
  * - Consistent branding and formatting
- * - Template management
+ * - Local HTML template management
  * - Error handling and retry logic
  * - Analytics and tracking
  */
 
-import { sendEmail, sendTemplateEmail } from './brevo-client';
+import { sendEmail } from './brevo-client';
 import type { EmailRecipient } from './brevo-client';
-
-// ============================================================================
-// BREVO TEMPLATE IDs
-// ============================================================================
-
-export const EMAIL_TEMPLATES = {
-  // Core product emails
-  SNAPSHOT_READY: 1, // Existing template for snapshot completion
-  
-  // Subscription lifecycle (create in Brevo)
-  SUBSCRIPTION_WELCOME: 4,
-  MONTHLY_SNAPSHOT_READY: 5,
-  PAYMENT_FAILED: 6,
-  SUBSCRIPTION_CANCELED: 7,
-  
-  // Future templates
-  ACCOUNT_WELCOME: 8, // When user creates free account
-} as const;
+import { buildSubscriptionWelcomeEmail } from './templates/subscription-welcome';
+import { buildMonthlySnapshotEmail } from './templates/monthly-snapshot';
+import { buildPaymentFailedEmail } from './templates/payment-failed';
+import { buildSubscriptionCanceledEmail } from './templates/subscription-canceled';
 
 // ============================================================================
 // EMAIL CONFIGURATION
@@ -36,7 +22,7 @@ export const EMAIL_TEMPLATES = {
 const EMAIL_CONFIG = {
   sender: {
     name: 'Explain My IT',
-    email: 'reports@explainmyit.com',
+    email: 'noreply@explainmyit.com',
   },
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://explainmyit.com',
   brandColor: '#1f3a5f',
@@ -106,18 +92,22 @@ export async function sendMonthlySnapshotEmail(params: {
   console.log(`[Email] Sending monthly snapshot to ${params.email} for ${params.domain}`);
 
   const reportUrl = `${EMAIL_CONFIG.baseUrl}/report/${params.snapshotId}`;
+  const dashboardUrl = `${EMAIL_CONFIG.baseUrl}/dashboard`;
 
-  return sendTemplateEmail(
-    EMAIL_TEMPLATES.MONTHLY_SNAPSHOT_READY,
-    [{ email: params.email, name: params.name }],
-    {
-      NAME: params.name || params.email,
-      DOMAIN: params.domain,
-      REPORT_URL: reportUrl,
-      DASHBOARD_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-    },
-    ['subscription', 'monthly-snapshot']
-  );
+  const { subject, html, text } = buildMonthlySnapshotEmail({
+    name: params.name || params.email,
+    domain: params.domain,
+    reportUrl,
+    dashboardUrl,
+  });
+
+  return sendEmail({
+    to: [{ email: params.email, name: params.name }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+    tags: ['subscription', 'monthly-snapshot'],
+  });
 }
 
 // ============================================================================
@@ -133,15 +123,20 @@ export async function sendSubscriptionWelcomeEmail(params: {
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   console.log(`[Email] Sending subscription welcome to ${params.email}`);
 
-  return sendTemplateEmail(
-    EMAIL_TEMPLATES.SUBSCRIPTION_WELCOME,
-    [{ email: params.email, name: params.name }],
-    {
-      NAME: params.name || params.email,
-      DASHBOARD_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-    },
-    ['subscription', 'welcome']
-  );
+  const dashboardUrl = `${EMAIL_CONFIG.baseUrl}/dashboard`;
+
+  const { subject, html, text } = buildSubscriptionWelcomeEmail({
+    name: params.name || params.email,
+    dashboardUrl,
+  });
+
+  return sendEmail({
+    to: [{ email: params.email, name: params.name }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+    tags: ['subscription', 'welcome'],
+  });
 }
 
 /**
@@ -153,16 +148,20 @@ export async function sendPaymentFailedEmail(params: {
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   console.log(`[Email] Sending payment failed to ${params.email}`);
 
-  return sendTemplateEmail(
-    EMAIL_TEMPLATES.PAYMENT_FAILED,
-    [{ email: params.email, name: params.name }],
-    {
-      NAME: params.name || params.email,
-      PORTAL_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-      DASHBOARD_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-    },
-    ['subscription', 'payment-failed']
-  );
+  const portalUrl = `${EMAIL_CONFIG.baseUrl}/dashboard`;
+
+  const { subject, html, text } = buildPaymentFailedEmail({
+    name: params.name || params.email,
+    portalUrl,
+  });
+
+  return sendEmail({
+    to: [{ email: params.email, name: params.name }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+    tags: ['subscription', 'payment-failed'],
+  });
 }
 
 /**
@@ -181,37 +180,23 @@ export async function sendSubscriptionCanceledEmail(params: {
     year: 'numeric',
   });
 
-  return sendTemplateEmail(
-    EMAIL_TEMPLATES.SUBSCRIPTION_CANCELED,
-    [{ email: params.email, name: params.name }],
-    {
-      NAME: params.name || params.email,
-      ACCESS_END_DATE: accessEndDate,
-      PRICING_URL: `${EMAIL_CONFIG.baseUrl}/pricing`,
-      DASHBOARD_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-    },
-    ['subscription', 'canceled']
-  );
-}
+  const pricingUrl = `${EMAIL_CONFIG.baseUrl}/pricing`;
+  const dashboardUrl = `${EMAIL_CONFIG.baseUrl}/dashboard`;
 
-/**
- * Send account welcome email (free tier)
- */
-export async function sendAccountWelcomeEmail(params: {
-  email: string;
-  name?: string;
-}): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  console.log(`[Email] Sending account welcome to ${params.email}`);
+  const { subject, html, text } = buildSubscriptionCanceledEmail({
+    name: params.name || params.email,
+    accessEndDate,
+    pricingUrl,
+    dashboardUrl,
+  });
 
-  return sendTemplateEmail(
-    EMAIL_TEMPLATES.ACCOUNT_WELCOME,
-    [{ email: params.email, name: params.name }],
-    {
-      NAME: params.name || params.email,
-      DASHBOARD_URL: `${EMAIL_CONFIG.baseUrl}/dashboard`,
-    },
-    ['account', 'welcome']
-  );
+  return sendEmail({
+    to: [{ email: params.email, name: params.name }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+    tags: ['subscription', 'canceled'],
+  });
 }
 
 // ============================================================================

@@ -9,7 +9,7 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-import { sendSnapshotReadyEmail, sendAccountWelcomeEmail } from '../lib/email';
+import { sendSnapshotReadyEmail, sendSubscriptionWelcomeEmail } from '../lib/email';
 import { sendEmail } from '../lib/email/brevo-client';
 
 async function testEmailIntegration() {
@@ -76,10 +76,10 @@ Thanks for using Explain My IT.`,
       console.error(`❌ Snapshot email failed: ${snapshotResult.error}`);
     }
     
-    // Test 3: Welcome email
-    console.log('\n📧 Test 3: Account Welcome Email\n');
+    // Test 3: Subscription Welcome Email
+    console.log('\n📧 Test 3: Subscription Welcome Email\n');
     
-    const welcomeResult = await sendAccountWelcomeEmail({
+    const welcomeResult = await sendSubscriptionWelcomeEmail({
       email: testEmail,
       name: 'Test User',
     });

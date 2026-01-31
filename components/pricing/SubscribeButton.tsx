@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/db/supabase-browser';
+import { UmamiEvents } from '@/lib/analytics/umami-events';
 
 interface SubscribeButtonProps {
   priceId: string;
@@ -24,6 +25,9 @@ export default function SubscribeButton({
   const handleSubscribe = async () => {
     try {
       setIsLoading(true);
+
+      // Track checkout initiated
+      UmamiEvents.checkoutInitiated('basic', interval);
 
       // Check if user is authenticated
       const {
@@ -53,11 +57,18 @@ export default function SubscribeButton({
       const { url } = await response.json();
 
       if (url) {
+        // Track redirect
+        UmamiEvents.checkoutRedirecting('basic', interval);
+        
         // Redirect to Stripe Checkout
         window.location.href = url;
       }
     } catch (error: any) {
       console.error('Error creating checkout:', error);
+      
+      // Track failure
+      UmamiEvents.checkoutFailed('basic', error.message);
+      
       alert(error.message || 'Failed to start checkout. Please try again.');
       setIsLoading(false);
     }
