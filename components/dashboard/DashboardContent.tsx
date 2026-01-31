@@ -25,10 +25,31 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'domain'>('date');
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [nextSnapshotDates, setNextSnapshotDates] = useState<Record<string, string>>({});
+  const [periodEnd, setPeriodEnd] = useState<string | null>(null);
 
   // Track dashboard view on mount
   useEffect(() => {
     Analytics.dashboardViewed();
+  }, []);
+
+  // Fetch subscription status
+  useEffect(() => {
+    async function fetchSubscriptionStatus() {
+      try {
+        const res = await fetch('/api/subscription-status');
+        if (res.ok) {
+          const data = await res.json();
+          setSubscriptionStatus(data.subscriptionStatus);
+          setNextSnapshotDates(data.nextSnapshotDates || {});
+          setPeriodEnd(data.periodEnd);
+        }
+      } catch (error) {
+        console.error('Failed to fetch subscription status:', error);
+      }
+    }
+    fetchSubscriptionStatus();
   }, []);
 
   const handleLogout = async () => {
@@ -80,11 +101,95 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
     }
   });
 
+  // Helper to format subscription status
+  const getStatusBadge = (status: string | null) => {
+    if (!status || status === 'free') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-muted/10 text-brand-muted">
+          Free Tier
+        </span>
+      );
+    }
+    
+    const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
+      active: { label: 'Basic - Active', color: 'text-green-700', bg: 'bg-green-100' },
+      trialing: { label: 'Trial Active', color: 'text-blue-700', bg: 'bg-blue-100' },
+      past_due: { label: 'Payment Failed', color: 'text-orange-700', bg: 'bg-orange-100' },
+      canceled: { label: 'Canceled', color: 'text-red-700', bg: 'bg-red-100' },
+      incomplete: { label: 'Setup Incomplete', color: 'text-yellow-700', bg: 'bg-yellow-100' },
+    };
+
+    const config = statusConfig[status] || { label: status, color: 'text-brand-muted', bg: 'bg-brand-muted/10' };
+    
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.color}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  // Helper to calculate next snapshot date
+  const getNextSnapshotInfo = () => {
+    if (!subscriptionStatus || subscriptionStatus === 'free') {
+      return null;
+    }
+
+    if (subscriptionStatus !== 'active' && subscriptionStatus !== 'trialing') {
+      return null;
+    }
+
+    // Get unique domains from snapshots
+    const domains = Array.from(new Set(snapshots.map(s => s.domain)));
+    
+    if (domains.length === 0) {
+      return (
+        <div className="text-sm text-brand-muted">
+          Run your first snapshot to start automatic monthly updates
+        </div>
+      );
+    }
+
+    // Find earliest next snapshot
+    let earliestDate: Date | null = null;
+    let earliestDomain: string | null = null;
+
+    for (const domain of domains) {
+      if (nextSnapshotDates[domain]) {
+        const date = new Date(nextSnapshotDates[domain]);
+        if (!earliestDate || date < earliestDate) {
+          earliestDate = date;
+          earliestDomain = domain;
+        }
+      }
+    }
+
+    if (!earliestDate || !earliestDomain) {
+      return null;
+    }
+
+    const now = new Date();
+    const daysUntil = Math.ceil((earliestDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    return (
+      <div className="text-sm">
+        <span className="text-brand-slate">Next automatic snapshot: </span>
+        <span className="font-medium text-brand-navy">
+          {earliestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+        <span className="text-brand-muted ml-1">
+          ({daysUntil} {daysUntil === 1 ? 'day' : 'days'})
+        </span>
+        <br />
+        <span className="text-brand-muted">for {earliestDomain}</span>
+      </div>
+    );
+  };
+
   return (
     <>
       {/* Account Info */}
       <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-6 mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex-1">
             <h2 className="text-[18px] font-bold text-brand-navy mb-1">
               {user.fullName || 'Your Account'}
@@ -108,6 +213,54 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
             </button>
           </div>
         </div>
+
+        {/* Subscription Status & Next Snapshot */}
+        <div className="flex items-start justify-between pt-4 border-t border-brand-border">
+          <div>
+            <p className="text-sm text-brand-muted mb-2">Subscription Status</p>
+            {getStatusBadge(subscriptionStatus)}
+          </div>
+          {getNextSnapshotInfo() && (
+            <div className="text-right">
+              {getNextSnapshotInfo()}
+            </div>
+          )}
+        </div>
+
+        {/* Payment Warning (if past_due) */}
+        {subscriptionStatus === 'past_due' && (
+          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-[10px]">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-orange-800">Payment failed</p>
+                <p className="text-sm text-orange-700 mt-1">
+                  Please update your payment method to continue receiving automatic snapshots.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cancellation Notice (if canceled) */}
+        {subscriptionStatus === 'canceled' && periodEnd && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-[10px]">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Subscription canceled</p>
+                <p className="text-sm text-red-700 mt-1">
+                  Access ends on {new Date(periodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.
+                  Resubscribe to continue automatic snapshots.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}
