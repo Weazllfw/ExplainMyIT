@@ -60,7 +60,7 @@ export default function PricingPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {/* Free Snapshot */}
               <div className="bg-white rounded-[16px] border-2 border-brand-border p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="mb-6">
+                <div className="mb-6 pt-1">
                   <h2 className="text-[28px] font-bold text-brand-navy mb-2">
                     Free Snapshot
                   </h2>
@@ -83,7 +83,6 @@ export default function PricingPage() {
                   </h3>
                   <ul className="space-y-2.5">
                     {[
-                      'One-time public snapshot (domains, email, website, exposure signals)',
                       'Owner-readable summary',
                       'Assumptions being made',
                       'Questions to ask your IT provider',
@@ -154,15 +153,15 @@ export default function PricingPage() {
                 </Link>
               </div>
 
-              {/* Tier 1 - Recurring */}
+              {/* Basic - Recurring */}
               <div className="bg-gradient-to-br from-brand-cyan/5 to-brand-navy/5 rounded-[16px] border-2 border-brand-cyan p-8 shadow-md hover:shadow-lg transition-shadow relative">
-                <div className="absolute top-4 right-4 bg-brand-cyan text-white text-[12px] font-semibold px-3 py-1 rounded-full">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-brand-cyan text-white text-[12px] font-semibold px-3 py-1 rounded-full">
                   RECOMMENDED
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-6 pt-6">
                   <h2 className="text-[28px] font-bold text-brand-navy mb-2">
-                    Tier 1 — Recurring IT Snapshot
+                    Basic — Recurring IT Snapshot
                   </h2>
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-[48px] font-bold text-brand-navy">
@@ -183,13 +182,8 @@ export default function PricingPage() {
                       2 months free
                     </span>
                   </div>
-                  <p className="text-[16px] text-brand-slate leading-relaxed">
+                  <p className="text-[16px] text-brand-slate leading-relaxed font-medium">
                     Ongoing visibility into how your IT setup appears over time.
-                  </p>
-                  <p className="text-[14px] text-brand-muted leading-relaxed mt-2 italic">
-                    This tier exists for owners who want continuity,
-                    documentation, and awareness — without dashboards, alerts, or
-                    remediation.
                   </p>
                 </div>
 
@@ -199,10 +193,8 @@ export default function PricingPage() {
                   </h3>
                   <ul className="space-y-2.5">
                     {[
-                      'Automatic monthly snapshots',
-                      'Full snapshot history & timeline',
-                      'Owner-readable summaries for each snapshot',
-                      'Explicit assumptions and blind spots',
+                      'Automatic monthly snapshots with full history',
+                      'Owner-readable summaries, assumptions, and blind spots',
                       'Process-focused questions to ask your IT/MSP',
                       'Access to all past reports',
                       'Cancel anytime',
@@ -229,39 +221,6 @@ export default function PricingPage() {
                   </ul>
                 </div>
 
-                <div className="mb-8">
-                  <h3 className="text-[16px] font-semibold text-brand-navy mb-3">
-                    What this gives you:
-                  </h3>
-                  <ul className="space-y-2.5">
-                    {[
-                      'A dated record of your external IT posture',
-                      'Visibility into silent drift over time',
-                      'Governance evidence for insurance, audits, or transitions',
-                      'Clarity without interfering with your IT provider',
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <svg
-                          className="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-[15px] text-brand-slate leading-relaxed">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
                 <div className="space-y-3">
                   <SubscribeButton
                     priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY!}
@@ -275,21 +234,24 @@ export default function PricingPage() {
                     interval="annual"
                     className="block w-full text-center bg-brand-cyan text-white px-8 py-4 rounded-[12px] text-[16px] font-semibold hover:bg-brand-cyan/90 transition-all shadow-sm"
                   >
-                    Subscribe Annually — $199 <span className="text-[14px] opacity-90">(Save $40)</span>
+                    Annual billing — $199 <span className="text-[14px] opacity-90">(2 months free)</span>
                   </SubscribeButton>
                 </div>
-                <p className="text-center text-[13px] text-brand-muted mt-3">
+                <p className="text-center text-[13px] text-brand-muted mt-4">
+                  Most customers use Explain My IT as a background governance record, not a daily tool.
+                </p>
+                <p className="text-center text-[13px] text-brand-muted mt-2">
                   No credit card required for free account. Cancel anytime.
                 </p>
               </div>
 
               {/* Pro - On-Premise (Coming Soon) */}
               <div className="bg-gradient-to-br from-brand-navy/5 to-brand-muted/5 rounded-[16px] border-2 border-brand-border p-8 shadow-sm hover:shadow-md transition-shadow relative">
-                <div className="absolute top-4 right-4 bg-brand-muted text-white text-[12px] font-semibold px-3 py-1 rounded-full">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-brand-muted text-white text-[12px] font-semibold px-3 py-1 rounded-full">
                   COMING SOON
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-6 pt-6">
                   <h2 className="text-[28px] font-bold text-brand-navy mb-2">
                     Pro — On-Premise
                   </h2>
@@ -312,7 +274,7 @@ export default function PricingPage() {
                   </h3>
                   <ul className="space-y-2.5">
                     {[
-                      'Everything in Tier 1',
+                      'Everything in Basic',
                       'Internal network scanning',
                       'Asset discovery and inventory',
                       'Configuration change detection',
@@ -352,7 +314,7 @@ export default function PricingPage() {
                       'Complete internal and external IT visibility',
                       'Real-time change detection across your infrastructure',
                       'Audit trail for compliance and governance',
-                      'Answers the questions Tier 1 cannot',
+                      'Answers the questions Basic cannot',
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <svg
@@ -401,7 +363,7 @@ export default function PricingPage() {
                         Free Snapshot
                       </th>
                       <th className="text-center py-4 px-4 text-[16px] font-semibold text-brand-navy bg-brand-cyan/5">
-                        Tier 1
+                        Basic
                       </th>
                       <th className="text-center py-4 px-4 text-[16px] font-semibold text-brand-muted">
                         Pro

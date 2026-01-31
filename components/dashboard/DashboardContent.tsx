@@ -24,6 +24,7 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'domain'>('date');
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
   // Track dashboard view on mount
   useEffect(() => {
@@ -35,6 +36,28 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
     Analytics.userLoggedOut();
     await logout();
     router.push('/');
+  };
+
+  const handleManageSubscription = async () => {
+    setIsLoadingPortal(true);
+    try {
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ return_url: window.location.href }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create portal session');
+      }
+
+      const { url } = await res.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      alert('Failed to open subscription management. Please try again.');
+      setIsLoadingPortal(false);
+    }
   };
 
   // Calculate stats
@@ -62,19 +85,28 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
       {/* Account Info */}
       <div className="bg-white rounded-[16px] border border-brand-border shadow-brand p-6 mb-8">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1">
             <h2 className="text-[18px] font-bold text-brand-navy mb-1">
               {user.fullName || 'Your Account'}
             </h2>
             <p className="text-brand-muted text-sm">{user.email}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-colors disabled:opacity-50"
-          >
-            {isLoggingOut ? 'Logging out...' : 'Log out'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleManageSubscription}
+              disabled={isLoadingPortal}
+              className="px-4 py-2 text-sm font-medium text-brand-cyan hover:text-brand-navy border border-brand-cyan rounded-[10px] hover:bg-brand-cyan/5 transition-colors disabled:opacity-50"
+            >
+              {isLoadingPortal ? 'Loading...' : 'Manage Subscription'}
+            </button>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-navy border border-brand-border rounded-[10px] hover:bg-brand-bg transition-colors disabled:opacity-50"
+            >
+              {isLoggingOut ? 'Logging out...' : 'Log out'}
+            </button>
+          </div>
         </div>
       </div>
 
