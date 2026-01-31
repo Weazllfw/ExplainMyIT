@@ -22,10 +22,12 @@ import { createSnapshot, updateSnapshot } from '@/lib/db/snapshots';
 import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
 import { generateMagicLink } from '@/lib/auth/magic-link';
-import { sendSnapshotEmail } from '@/lib/email/snapshot-email';
+import { sendSnapshotReadyEmail } from '@/lib/email';
 import { addToWaitlist } from '@/lib/brevo';
 import { getApiUser } from '@/lib/auth/api-auth';
 import { getUserByAuthId } from '@/lib/db/users';
+import { checkSubscriptionAccess } from '@/lib/subscriptions/access-control';
+import { checkFreeTierLimits } from '@/lib/subscriptions/free-tier-limits';
 import type { SnapshotSignals } from '@/types/database';
 
 export async function POST(request: NextRequest) {
@@ -70,7 +72,44 @@ export async function POST(request: NextRequest) {
     // Hash email for storage (privacy) - only for anonymous users
     const emailHash = userId ? undefined : hashIdentifier(email);
 
-    // Check rate limits
+    // Check subscription status and limits
+    let canRunSnapshot = true;
+    let limitReason: string | undefined;
+
+    if (authUser) {
+      // Authenticated user - check subscription
+      const subscriptionAccess = await checkSubscriptionAccess(authUser.id);
+      
+      if (subscriptionAccess.isBasicTier) {
+        // Basic subscribers have unlimited snapshots
+        console.log(`✅ Basic subscriber - unlimited snapshots`);
+        canRunSnapshot = true;
+      } else {
+        // Free tier - check explicit limits
+        console.log(`⏳ Free tier user - checking limits`);
+        const freeTierCheck = await checkFreeTierLimits({
+          userId: userId!,
+          domain,
+        });
+
+        if (!freeTierCheck.allowed) {
+          console.log(`❌ Free tier limit exceeded: ${freeTierCheck.reason}`);
+          return NextResponse.json(
+            {
+              success: false,
+              error: freeTierCheck.reason,
+              upgradeRequired: freeTierCheck.upgradeRequired,
+              limitsUsed: freeTierCheck.limitsUsed,
+            },
+            { status: 429 }
+          );
+        }
+
+        console.log(`✅ Free tier limits OK`, freeTierCheck.limitsUsed);
+      }
+    }
+
+    // Check rate limits (secondary check for abuse prevention)
     const rateLimit = await checkRateLimit({
       domain,
       email,
@@ -195,13 +234,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email via Brevo (with appropriate link based on auth status)
-    const emailResult = await sendSnapshotEmail(
+    const emailResult = await sendSnapshotReadyEmail({
       email,
       domain,
-      report.email_subject,
-      report.email_body,
-      magicLink
-    );
+      subject: report.email_subject,
+      body: report.email_body,
+      magicLink,
+    });
 
     if (!emailResult.success) {
       console.warn(`⚠️  Email sending failed: ${emailResult.error}`);

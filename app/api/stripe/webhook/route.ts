@@ -24,6 +24,11 @@ import {
   extractSubscriptionDetails,
 } from '@/lib/stripe/webhooks';
 import { updateUserSubscription, getUserByStripeCustomerId } from '@/lib/stripe/subscriptions';
+import {
+  sendSubscriptionWelcomeEmail,
+  sendPaymentFailedEmail,
+  sendSubscriptionCanceledEmail,
+} from '@/lib/email';
 
 /**
  * Disable Next.js body parsing - we need the raw body for signature verification
@@ -142,10 +147,13 @@ async function handleSubscriptionChange(event: Stripe.Event) {
     `[Webhook] Updated user ${user.email} subscription: ${details.status}`
   );
 
-  // TODO: Send welcome email for new subscriptions
+  // Send welcome email for new active subscriptions
   if (event.type === 'customer.subscription.created' && details.status === 'active') {
-    console.log(`[Webhook] New active subscription - send welcome email to ${user.email}`);
-    // await sendWelcomeEmail(user.email);
+    console.log(`[Webhook] Sending welcome email to ${user.email}`);
+    await sendSubscriptionWelcomeEmail({
+      email: user.email,
+      name: user.full_name || undefined,
+    });
   }
 }
 
@@ -153,8 +161,8 @@ async function handleSubscriptionChange(event: Stripe.Event) {
  * Handle subscription.deleted (cancellation)
  */
 async function handleSubscriptionDeleted(event: Stripe.Event) {
-  const subscription = event.data.object as Stripe.Subscription;
-  const customerId = subscription.customer as string;
+  const subscriptionData = event.data.object as Stripe.Subscription;
+  const customerId = subscriptionData.customer as string;
 
   console.log(`[Webhook] Subscription deleted: ${customerId}`);
 
@@ -175,8 +183,17 @@ async function handleSubscriptionDeleted(event: Stripe.Event) {
 
   console.log(`[Webhook] User ${user.email} subscription canceled`);
 
-  // TODO: Send cancellation confirmation email
-  // await sendCancellationEmail(user.email);
+  // Send cancellation confirmation email
+  const periodEndTimestamp = (subscriptionData as any).current_period_end;
+  const periodEnd = periodEndTimestamp
+    ? new Date(periodEndTimestamp * 1000)
+    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
+
+  await sendSubscriptionCanceledEmail({
+    email: user.email,
+    periodEnd,
+    name: user.full_name || undefined,
+  });
 }
 
 /**
@@ -227,8 +244,11 @@ async function handlePaymentFailed(event: Stripe.Event) {
   // This will be reflected in the next subscription.updated event
   // We just need to notify the user
 
-  console.log(`[Webhook] Payment failed for ${user.email} - send retry email`);
+  console.log(`[Webhook] Payment failed for ${user.email} - sending retry email`);
 
-  // TODO: Send payment failed email with retry instructions
-  // await sendPaymentFailedEmail(user.email);
+  // Send payment failed email with retry instructions
+  await sendPaymentFailedEmail({
+    email: user.email,
+    name: user.full_name || undefined,
+  });
 }
