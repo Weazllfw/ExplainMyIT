@@ -90,6 +90,9 @@ export async function POST(req: Request) {
       ],
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing`,
+      automatic_tax: {
+        enabled: true,
+      },
       metadata: {
         supabase_user_id: user.id,
       },
