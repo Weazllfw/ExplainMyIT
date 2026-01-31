@@ -13,6 +13,7 @@ import type { Snapshot } from '@/types/database';
 import { logout } from '@/lib/auth/supabase-auth';
 import { useRouter } from 'next/navigation';
 import { Analytics } from '@/lib/analytics';
+import { UmamiEvents } from '@/lib/analytics/umami-events';
 
 interface DashboardContentProps {
   user: AuthUser;
@@ -60,6 +61,9 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
   };
 
   const handleManageSubscription = async () => {
+    // Track event
+    UmamiEvents.manageSubscriptionClicked();
+    
     setIsLoadingPortal(true);
     try {
       const res = await fetch('/api/stripe/portal', {

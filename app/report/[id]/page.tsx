@@ -178,7 +178,11 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-brand-bg">
       {/* Analytics Tracker (invisible) */}
-      <ReportTracker snapshotId={snapshot.id} domain={snapshot.domain} />
+      <ReportTracker 
+        snapshotId={snapshot.id} 
+        domain={snapshot.domain}
+        isAuthenticated={accessMethod === 'user'}
+      />
 
       {/* Header */}
       <ReportHeader domain={snapshot.domain} createdAt={snapshot.created_at} />

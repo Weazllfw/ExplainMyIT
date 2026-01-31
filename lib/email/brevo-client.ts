@@ -48,7 +48,7 @@ export async function sendEmail(
     const payload: any = {
       sender: {
         name: 'Explain My IT',
-        email: 'reports@explainmyit.com',
+        email: 'noreply@explainmyit.com',
       },
       to: options.to,
       subject: options.subject,

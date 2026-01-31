@@ -48,7 +48,7 @@ lib/
 const EMAIL_CONFIG = {
   sender: {
     name: 'Explain My IT',
-    email: 'reports@explainmyit.com',
+    email: 'noreply@explainmyit.com',
   },
   baseUrl: 'https://explainmyit.com',
   brandColor: '#1f3a5f',    // Primary (header, CTAs)
@@ -197,7 +197,7 @@ See `Docs/WorkDone/EMAIL-NOTIFICATIONS-AND-FREE-TIER-LIMITS.md` for full templat
 
 ### **4. Analytics**
 - ✅ **Email tags** (track by type: `snapshot`, `subscription`, `account`)
-- ✅ **Sender consistency** (`reports@explainmyit.com`)
+- ✅ **Sender consistency** (`noreply@explainmyit.com`)
 - ✅ **Template versioning** (easy A/B testing)
 
 ---

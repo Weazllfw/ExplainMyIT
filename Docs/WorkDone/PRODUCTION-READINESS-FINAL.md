@@ -322,7 +322,7 @@ Verify all are set:
 
 ### **Brevo Configuration**
 - [ ] Templates #4, #5, #6, #7 created
-- [ ] Sender email verified (`reports@explainmyit.com`)
+- [ ] Sender email verified (`noreply@explainmyit.com`)
 - [ ] Test emails sent successfully
 
 ---
