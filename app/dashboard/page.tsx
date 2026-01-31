@@ -12,6 +12,10 @@ import DashboardClientWrapper from '@/components/dashboard/DashboardClientWrappe
 export const metadata: Metadata = {
   title: 'Dashboard',
   description: 'View your saved IT snapshots',
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 export default function DashboardPage({

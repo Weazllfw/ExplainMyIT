@@ -14,6 +14,10 @@ import LoginPageTracker from '@/components/auth/LoginPageTracker';
 export const metadata: Metadata = {
   title: 'Log In',
   description: 'Log in to your Explain My IT account',
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 export default function LoginPage() {

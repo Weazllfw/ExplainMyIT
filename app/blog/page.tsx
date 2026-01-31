@@ -7,6 +7,15 @@ import { getAllPosts } from '@/lib/sanity-blog';
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Plain-English explanations of IT concepts for business owners.',
+  alternates: {
+    canonical: 'https://explainmyit.com/blog',
+  },
+  openGraph: {
+    title: 'IT Explained — Explain My IT Blog',
+    description: 'Plain-English explanations of IT concepts for business owners.',
+    url: 'https://explainmyit.com/blog',
+    type: 'website',
+  },
 };
 
 function formatDate(dateString: string): string {

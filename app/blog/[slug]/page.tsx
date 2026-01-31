@@ -25,23 +25,37 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const metaTitle = post.seo?.metaTitle || post.title;
     const metaDescription = post.seo?.metaDescription || post.excerpt;
     const noIndex = post.seo?.noIndex || false;
+    const canonicalUrl = `https://explainmyit.com/blog/${params.slug}`;
     
     return {
       title: metaTitle,
       description: metaDescription,
       keywords: post.seo?.keywords?.join(', '),
       robots: noIndex ? 'noindex, nofollow' : 'index, follow',
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         type: 'article',
+        url: canonicalUrl,
         publishedTime: post.date,
         authors: ['Explain My IT'],
         title: metaTitle,
         description: metaDescription,
+        images: [
+          {
+            url: '/og-image.png',
+            width: 1200,
+            height: 630,
+            alt: metaTitle,
+          },
+        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: metaTitle,
         description: metaDescription,
+        images: ['/og-image.png'],
       },
     };
   } catch {

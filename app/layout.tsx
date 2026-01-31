@@ -42,15 +42,27 @@ export const metadata: Metadata = {
     siteName: 'Explain My IT',
     title: 'Explain My IT: Plain-English IT Reports for Business Owners',
     description: 'Plain-English IT reality reports for business owners. No jargon, no dashboards, no fixes. Just clarity.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Explain My IT - Plain-English IT Reports',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Explain My IT: Plain-English IT Reports for Business Owners',
     description: 'Plain-English IT reality reports for business owners. No jargon, no dashboards, no fixes. Just clarity.',
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: 'https://explainmyit.com',
   },
 };
 
