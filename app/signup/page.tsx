@@ -14,6 +14,10 @@ import SignupPageTracker from '@/components/auth/SignupPageTracker';
 export const metadata: Metadata = {
   title: 'Create Free Account',
   description: 'Create a free account to save snapshots and track your IT over time',
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 export default function SignupPage() {
