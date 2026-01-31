@@ -31,12 +31,14 @@ export function verifyWebhookSignature(
 
 /**
  * Check if webhook event has already been processed (idempotency)
+ * Uses admin client to bypass RLS
  * 
  * @returns true if event is new (should be processed)
  * @returns false if event was already processed (skip)
  */
 export async function isNewWebhookEvent(eventId: string): Promise<boolean> {
-  const supabase = await getSupabaseServerClient();
+  const { getSupabaseAdminClient } = await import('@/lib/db/supabase-admin');
+  const supabase = getSupabaseAdminClient();
 
   const { data } = await supabase
     .from('stripe_events')
@@ -49,9 +51,11 @@ export async function isNewWebhookEvent(eventId: string): Promise<boolean> {
 
 /**
  * Record webhook event as processed
+ * Uses admin client to bypass RLS
  */
 export async function recordWebhookEvent(event: Stripe.Event): Promise<void> {
-  const supabase = await getSupabaseServerClient();
+  const { getSupabaseAdminClient } = await import('@/lib/db/supabase-admin');
+  const supabase = getSupabaseAdminClient();
 
   const { error } = await supabase.from('stripe_events').insert({
     stripe_event_id: event.id,
