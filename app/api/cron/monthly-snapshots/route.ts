@@ -21,8 +21,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getActiveBasicSubscribers } from '@/lib/stripe/subscriptions';
 import { getSupabaseServerClient } from '@/lib/db/supabase-server';
+import { getSupabaseAdminClient } from '@/lib/db/supabase-admin';
 import { collectAllSignals } from '@/lib/signals/orchestrator';
 import { generateReport } from '@/lib/llm/generator';
+import { sendMonthlySnapshotEmail } from '@/lib/email';
 
 const CRON_SECRET = process.env.CRON_SECRET || '';
 const SNAPSHOT_INTERVAL_DAYS = 30;
@@ -198,7 +200,7 @@ async function generateSnapshotForDomain(params: {
 
   // Send email notification
   try {
-    await sendSnapshotCompletedEmail({
+    await sendMonthlySnapshotEmail({
       email: params.userEmail,
       domain: params.domain,
       snapshotId: snapshot.id,
@@ -211,26 +213,4 @@ async function generateSnapshotForDomain(params: {
   }
 
   return snapshot;
-}
-
-/**
- * Helper function to send snapshot completed email
- */
-async function sendSnapshotCompletedEmail(params: {
-  email: string;
-  domain: string;
-  snapshotId: string;
-}) {
-  // This uses the existing Brevo integration
-  // You may want to create a dedicated template for monthly snapshots
-  const reportUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/report/${params.snapshotId}`;
-
-  // For now, use existing snapshot email logic
-  // TODO: Create dedicated "Monthly Snapshot Ready" template in Brevo
-  console.log(
-    `[Cron] Would send email to ${params.email} for domain ${params.domain}: ${reportUrl}`
-  );
-
-  // Actual Brevo email sending would go here
-  // await sendBrevoEmail({ ... });
 }

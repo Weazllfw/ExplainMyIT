@@ -9,7 +9,7 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-import { sendSnapshotEmail, sendWelcomeEmail } from '../lib/email/snapshot-email';
+import { sendSnapshotReadyEmail, sendAccountWelcomeEmail } from '../lib/email';
 import { sendEmail } from '../lib/email/brevo-client';
 
 async function testEmailIntegration() {
@@ -43,11 +43,11 @@ async function testEmailIntegration() {
     // Test 2: Snapshot report email
     console.log('\n📧 Test 2: Snapshot Report Email\n');
     
-    const snapshotResult = await sendSnapshotEmail(
-      testEmail,
-      'example.com',
-      'Your IT Reality Check for example.com',
-      `Hi there,
+    const snapshotResult = await sendSnapshotReadyEmail({
+      email: testEmail,
+      domain: 'example.com',
+      subject: 'Your IT Reality Check for example.com',
+      body: `Hi there,
 
 We've completed a public-signals snapshot of example.com. This is a one-time check based on what's observable from outside your network—think of it as an external perspective on how your IT setup appears to the internet.
 
@@ -67,8 +67,8 @@ https://explainmyit.com/report/test-12345?token=test-token
 If you'd like this kind of clarity on a recurring basis, we offer subscriptions that re-run snapshots automatically and highlight what changed over time.
 
 Thanks for using Explain My IT.`,
-      'https://explainmyit.com/report/test-12345?token=test-token'
-    );
+      magicLink: 'https://explainmyit.com/report/test-12345?token=test-token',
+    });
     
     if (snapshotResult.success) {
       console.log(`✅ Snapshot email sent successfully!`);
@@ -77,9 +77,12 @@ Thanks for using Explain My IT.`,
     }
     
     // Test 3: Welcome email
-    console.log('\n📧 Test 3: Welcome Email\n');
+    console.log('\n📧 Test 3: Account Welcome Email\n');
     
-    const welcomeResult = await sendWelcomeEmail(testEmail, 'Test User');
+    const welcomeResult = await sendAccountWelcomeEmail({
+      email: testEmail,
+      name: 'Test User',
+    });
     
     if (welcomeResult.success) {
       console.log(`✅ Welcome email sent successfully!`);
