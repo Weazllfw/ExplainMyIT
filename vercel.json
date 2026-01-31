@@ -4,5 +4,16 @@
       "path": "/api/cron/monthly-snapshots",
       "schedule": "0 1 * * *"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/stripe/webhook",
+      "headers": [
+        {
+          "key": "x-vercel-skip-protection",
+          "value": "1"
+        }
+      ]
+    }
   ]
 }

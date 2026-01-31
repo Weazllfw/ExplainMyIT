@@ -6,6 +6,7 @@
 
 import { stripe } from './client';
 import { getSupabaseServerClient } from '@/lib/db/supabase-server';
+import { getSupabaseAdminClient } from '@/lib/db/supabase-admin';
 
 export type SubscriptionStatus =
   | 'active'
@@ -26,6 +27,7 @@ export function hasActiveSubscription(status: SubscriptionStatus): boolean {
 
 /**
  * Update user's subscription status in database
+ * Uses admin client to bypass RLS (called from webhooks)
  */
 export async function updateUserSubscription(params: {
   stripeCustomerId: string;
@@ -34,7 +36,7 @@ export async function updateUserSubscription(params: {
   periodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
 }) {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
 
   const { error } = await supabase
     .from('users')
@@ -77,9 +79,10 @@ export async function getUserSubscriptionStatus(
 
 /**
  * Get user by Stripe customer ID
+ * Uses admin client to bypass RLS (called from webhooks)
  */
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('users')
@@ -98,9 +101,10 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 /**
  * Get all users with active Basic subscriptions
  * Used by cron job to determine who needs monthly snapshots
+ * Uses admin client to bypass RLS
  */
 export async function getActiveBasicSubscribers() {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('users')
