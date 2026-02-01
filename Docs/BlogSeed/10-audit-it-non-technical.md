@@ -338,4 +338,13 @@ You don't need to understand how everything works. You need to verify that someo
 
 Start with this audit. You'll be surprised what you find - both good and concerning. But you can't fix what you don't know about.
 
-**Next step:** Get a comprehensive view of your IT setup to audit against. See what you actually have - domain status, email configuration, website security, DNS records - all in one place, explained in plain English. That's your audit baseline.
+**Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
+
+Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Related reading:**
+- [The Business Owner's Quarterly IT Review Checklist](/blog/quarterly-it-review-checklist)
+- [Why You Need a Dated Record of Your IT](/blog/why-dated-it-records-matter)
+- [I Just Inherited My Company's IT Setup](/blog/inherited-company-it-setup)

@@ -328,4 +328,13 @@ Trust your gut. If something feels off in initial conversations, it will likely 
 
 And remember: you're the customer. You're hiring expertise, not abdicating responsibility. A good provider will make you more informed and confident about your IT, not more confused and dependent.
 
-**Next step:** Before hiring any IT provider, get a clear baseline of your current IT setup. Know what you have, how it's configured, and what needs attention. That way, you can evaluate whether potential providers actually understand your situation and make appropriate recommendations.
+**Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
+
+Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Related reading:**
+- [What to Do When Your IT Provider Uses Words You Don't Understand](/blog/when-it-provider-uses-jargon)
+- [How to Audit Your IT When You Don't Know What You're Looking For](/blog/audit-it-non-technical)
+- [What Happens to Your IT When Someone Leaves Your Company](/blog/it-when-someone-leaves)

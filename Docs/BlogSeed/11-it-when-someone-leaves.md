@@ -329,4 +329,12 @@ This applies to all departures - good terms, bad terms, employees, contractors, 
 
 And the time to plan for this is before someone gives notice, not after.
 
-**Next step:** Audit who currently has access to your business systems. Know what you'd need to revoke if someone gave notice tomorrow. Create a documented process so you're prepared when it inevitably happens.
+**Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
+
+Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Related reading:**
+- [How to Audit Your IT When You Don't Know What You're Looking For](/blog/audit-it-non-technical)
+- [Why You Need a Dated Record of Your IT](/blog/why-dated-it-records-matter)

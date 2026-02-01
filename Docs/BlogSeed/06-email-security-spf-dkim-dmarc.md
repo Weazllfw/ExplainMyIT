@@ -284,4 +284,12 @@ You don't need to configure these yourself. But you should:
 
 If you don't see them, you have a conversation to have with your IT provider.
 
-**Next step:** Check your email security configuration right now. See if SPF, DKIM, and DMARC are actually in place and passing - explained in plain English, with clear guidance on what needs fixing if they're not.
+**Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
+
+Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Related reading:**
+- [What is DNS and Why Should Business Owners Care?](/blog/what-is-dns-business-owners)
+- [How to Know If Your IT is Actually Secure](/blog/know-if-it-is-secure)
