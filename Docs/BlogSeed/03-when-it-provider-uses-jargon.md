@@ -215,7 +215,7 @@ But: "Pointed your subdomain to the new server location"
 **What changed** (with before/after if helpful)  
 Screenshots, lists of what's different, what stayed the same.
 
-This documentation isn't just for you - it's for the next IT person who works on your systems and needs to understand what was done and why.
+This documentation isn't just for you - it's for the next IT person who works on your systems and needs to understand what was done and why. [See examples](/examples) of what clear IT documentation should look like.
 
 ## The Conversation Script
 
@@ -260,6 +260,14 @@ The right IT provider will welcome these expectations. They'll see clear communi
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

@@ -182,7 +182,7 @@ These are signs you should dig deeper:
 
 **"Nobody would bother hacking us"** - Small businesses are actually prime targets because they often have weak security.
 
-**"We've never had a problem"** - Yet. Absence of detected problems doesn't mean absence of vulnerabilities.
+**"We've never had a problem"** - Yet. Absence of detected problems doesn't mean absence of vulnerabilities. These issues often surface during [insurance renewals](/use-cases#insurance-renewal) when underwriters ask specific security questions.
 
 **"That's all handled automatically"** - By what? Configured by whom? When was it last verified?
 
@@ -196,7 +196,7 @@ You don't need military-grade security. You need appropriate security for a busi
 
 **Basics are in place**: SSL certificates, email authentication, password policies, backups.
 
-**You can verify it**: You can check that these things are actually configured, not just claimed to be.
+**You can verify it**: You can check that these things are actually configured, not just claimed to be. [See examples](/examples) of what documented, verified security looks like.
 
 **Someone's monitoring**: You'd be alerted if something went wrong.
 
@@ -278,6 +278,14 @@ Security you can't verify is security you don't have.
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

@@ -139,6 +139,8 @@ If your domain or hosting is registered under their name:
 - This can be complex and time-sensitive
 - Don't wait until they're hostile to start this process
 
+This often becomes a critical issue during [MSP transitions](/use-cases#msp-transition) or when taking control from contractors who won't cooperate.
+
 ### Things Only They Know
 - Passwords they never shared
 - Configuration details only in their head
@@ -332,6 +334,14 @@ And the time to plan for this is before someone gives notice, not after.
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

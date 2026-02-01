@@ -149,7 +149,7 @@ These become your priority list.
 
 ## Common Surprises New Owners Find
 
-**The domain is registered under the founder's personal email** - and they've moved on and aren't checking that email anymore.
+**The domain is registered under the founder's personal email** - and they've moved on and aren't checking that email anymore. This often becomes a critical issue during [business acquisitions](/use-cases#business-acquisition) when ownership needs to transfer.
 
 **Email security isn't actually configured** - it's just claimed to be, but nobody ever set up SPF, DKIM, or DMARC.
 
@@ -227,6 +227,7 @@ That baseline gives you:
 - A starting point for understanding your setup
 - A reference for spotting changes
 - Documentation you can show to IT providers
+- Evidence for [insurance renewals](/use-cases#insurance-renewal) or compliance needs
 - Confidence that you know what you're working with
 
 Think of it like a property survey when you buy a building. You need to know what's actually there before you can manage, maintain, or improve it.
@@ -246,6 +247,14 @@ Start with understanding, not fixing. You can't fix what you don't understand, a
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

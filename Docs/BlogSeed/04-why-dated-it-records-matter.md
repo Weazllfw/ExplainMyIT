@@ -219,7 +219,7 @@ You know who has access and can proactively remove access when people leave, ins
 You know when things expire and can renew proactively, instead of reactively fixing outages.
 
 **Prevents configuration drift**  
-You can see when things change from best practices and correct them before they cause issues.
+You can see when things change from best practices and correct them before they cause issues. [This is precisely why monthly snapshots exist](/why-monthly) — to catch silent configuration changes before they become problems.
 
 **Prevents knowledge loss**  
 When the "person who knows how everything works" leaves, their knowledge isn't entirely in their head.
@@ -264,6 +264,14 @@ Because IT changes quietly. And you won't always be told.
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

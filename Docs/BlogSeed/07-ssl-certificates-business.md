@@ -168,7 +168,7 @@ Your site has HTTPS, but it loads some images or scripts over HTTP. Browsers sho
 The certificate is for "www.yourcompany.com" but visitors go to "yourcompany.com" (or vice versa). The domains don't match, so browsers show warnings. Fix: get a certificate that covers both.
 
 **Expired certificate**  
-Auto-renewal failed or nobody noticed the expiration date. Fix: renew immediately and set up proper monitoring.
+Auto-renewal failed or nobody noticed the expiration date. Fix: renew immediately and set up proper monitoring. [Monthly IT monitoring](/why-monthly) catches SSL expiration 30-60 days before browsers show warnings.
 
 **Self-signed certificate**  
 Someone installed a certificate they created themselves instead of getting one from a trusted authority. Browsers don't trust these. Fix: get a proper certificate.
@@ -268,6 +268,14 @@ SSL should be free, automatic, and properly configured. If yours isn't, have a c
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

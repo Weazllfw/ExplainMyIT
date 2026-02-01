@@ -171,7 +171,7 @@ Block 1-2 hours for your quarterly IT review. That's 4-8 hours per year to stay 
 - Is payment information current?
 - Are there any services expiring soon?
 
-**Action:** Mark renewal dates in your calendar. Verify payment methods are current.
+**Action:** Mark renewal dates in your calendar. Verify payment methods are current. This is the kind of proactive tracking [monthly IT reviews](/why-monthly) provide automatically.
 
 **Verify service health**
 - Are all services you're paying for actually working?
@@ -347,6 +347,14 @@ Mark your calendar for quarterly reviews. Use this checklist. Address issues as 
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

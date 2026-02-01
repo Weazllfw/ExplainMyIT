@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import BlogPostTracker from '@/components/BlogPostTracker';
 import PortableTextRenderer from '@/components/PortableTextRenderer';
 import { getPost, getPostSlugs } from '@/lib/sanity-blog';
@@ -109,6 +110,13 @@ export default async function BlogPostPage({ params }: PageProps) {
       <main className="bg-white">
         <article className="container-section">
           <div className="max-w-3xl mx-auto">
+            <Breadcrumbs 
+              items={[
+                { label: 'Home', href: '/' },
+                { label: 'Blog', href: '/blog' },
+                { label: post.title },
+              ]}
+            />
             <header className="mb-12 text-center">
               <h1 className="mb-6 leading-tight">{post.title}</h1>
               <div className="flex items-center justify-center gap-4 text-gray-500">

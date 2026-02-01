@@ -174,7 +174,7 @@ This is normal and safe. But you need:
 - Access to the administrative email address
 - The domain to not be locked or within 60 days of previous transfer
 
-If you don't control the current account, you can't easily transfer it. This is why initial control matters so much.
+If you don't control the current account, you can't easily transfer it. This is why initial control matters so much. This often becomes critical during [business acquisitions](/use-cases#business-acquisition) or [MSP transitions](/use-cases#msp-transition) when you need to take control from a previous owner or contractor.
 
 ## DNS Management vs. Domain Registration
 
@@ -289,6 +289,14 @@ Your domain should be one of the most protected assets in your business. It's yo
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

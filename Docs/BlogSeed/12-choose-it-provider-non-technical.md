@@ -179,7 +179,7 @@ The ultimate question.
 Consider starting with a limited engagement before committing long-term:
 
 **Option 1: Audit project**  
-Hire them to audit your current IT setup. See how they work, how they communicate, what they find, and how they present it.
+Hire them to audit your current IT setup. See how they work, how they communicate, what they find, and how they present it. [See examples](/examples) of what comprehensive IT audits should include.
 
 **Option 2: Specific project**  
 Hire them for a specific, bounded project. Evaluate the experience before committing to ongoing support.
@@ -331,6 +331,14 @@ And remember: you're the customer. You're hiring expertise, not abdicating respo
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

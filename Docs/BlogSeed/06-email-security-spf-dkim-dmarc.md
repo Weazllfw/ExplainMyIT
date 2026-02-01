@@ -191,7 +191,7 @@ DMARC: PASS
 
 If you see "PASS" next to all three, your email security is properly configured.
 
-If you see "FAIL" or "NEUTRAL" or they're missing entirely, your email security has gaps.
+If you see "FAIL" or "NEUTRAL" or they're missing entirely, your email security has gaps. This check becomes especially important during [insurance renewals](/use-cases#insurance-renewal) when providers ask about your email security measures.
 
 This is something you can check yourself, right now, without asking your IT person. It's a quick verification of whether the security you're paying for is actually in place.
 
@@ -287,6 +287,14 @@ If you don't see them, you have a conversation to have with your IT provider.
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

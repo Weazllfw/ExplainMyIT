@@ -35,6 +35,24 @@ export default function Footer() {
                 >
                   Pricing
                 </Link>
+                <Link 
+                  href="/use-cases" 
+                  className="text-brand-cyan hover:text-brand-navy transition-colors text-sm block"
+                >
+                  Use Cases
+                </Link>
+                <Link 
+                  href="/examples" 
+                  className="text-brand-cyan hover:text-brand-navy transition-colors text-sm block"
+                >
+                  Example Reports
+                </Link>
+                <Link 
+                  href="/why-monthly" 
+                  className="text-brand-cyan hover:text-brand-navy transition-colors text-sm block"
+                >
+                  Why Monthly?
+                </Link>
               </div>
             </div>
             <div>

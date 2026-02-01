@@ -37,6 +37,62 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
+  // FAQPage structured data
+  const faqStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'How much does the Basic subscription cost?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'The Basic subscription costs $19.99 per month or $199 per year (saving you 2 months). This includes automatic monthly IT snapshots, full history of all past reports, owner-readable summaries, and the ability to cancel anytime.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Is the free snapshot really free?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes, the free snapshot is completely free with no credit card required. You get a one-time external snapshot of your public IT footprint delivered by email. No hidden costs, no trial period, just a free report.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Can I cancel my subscription anytime?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes, you can cancel your Basic subscription at any time with no penalties or fees. You will retain access to all past reports until the end of your current billing period.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What is the difference between Basic and Pro?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Basic provides external snapshots of your public IT footprint (domains, email security, SSL, DNS) on a monthly basis. Pro (coming soon) includes everything in Basic plus internal network scanning, asset discovery, configuration change detection, and on-premise deployment for comprehensive internal and external IT visibility.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Do I need a credit card for the free snapshot?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'No, the free snapshot requires no credit card. Simply enter your domain and email address, and we will deliver your IT snapshot report by email.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'How often do I get reports with the Basic subscription?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'With the Basic subscription, you receive automatic monthly snapshots of your IT setup. This creates a timeline showing how your configuration changes over time, helping you spot drift and maintain visibility.'
+        }
+      }
+    ]
+  };
+
   return (
     <>
       <PricingPageTracker />
@@ -628,6 +684,10 @@ export default function PricingPage() {
           </div>
         </section>
       </main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
       <Footer />
     </>
   );

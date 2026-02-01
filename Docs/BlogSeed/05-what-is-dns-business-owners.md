@@ -158,7 +158,7 @@ Your DNS controls where people end up when they try to reach your business. That
 - Only one person knows how to access it, and they're leaving
 - You're not sure where it's registered or how to access it
 
-If you can't log in to your domain registrar account and see your DNS records, you don't truly control your domain.
+If you can't log in to your domain registrar account and see your DNS records, you don't truly control your domain. This becomes a critical issue during [business acquisitions](/use-cases#business-acquisition) or when [switching IT providers](/use-cases#msp-transition).
 
 ## When DNS Changes Are Necessary
 
@@ -256,6 +256,14 @@ When DNS works, it's invisible. When it breaks, everything breaks. Understanding
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 

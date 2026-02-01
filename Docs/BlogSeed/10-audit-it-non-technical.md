@@ -176,6 +176,8 @@ Even without technical expertise, these are signs of problems:
 - Former employees might still have access
 - No one knows all the passwords
 
+These issues often surface during [business acquisitions](/use-cases#business-acquisition) when buyers do their IT due diligence, or during [insurance renewals](/use-cases#insurance-renewal) when you can't provide documentation.
+
 ### Security Red Flags
 - No padlock on your website
 - Email security checks failing
@@ -341,6 +343,14 @@ Start with this audit. You'll be surprised what you find - both good and concern
 **Many owners only realize these gaps after something changes** — a vendor leaves, a certificate expires, or an insurance renewal asks unexpected questions.
 
 Explain My IT exists to create a dated, owner-readable record of what's visible from the outside — so you don't have to reconstruct this later.
+
+---
+
+**Ready to see your IT setup?**
+
+🎯 **[Run your free snapshot →](/pricing)** — See your current configuration in 60 seconds
+
+📅 **Want this monthly with full history?** [See Basic subscription →](/pricing) ($15/month)
 
 ---
 
