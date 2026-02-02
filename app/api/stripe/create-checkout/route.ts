@@ -93,6 +93,12 @@ export async function POST(req: Request) {
       automatic_tax: {
         enabled: true,
       },
+      // Automatically save billing address from checkout to customer
+      customer_update: {
+        address: 'auto',
+      },
+      // Collect billing address in checkout form (required for tax calculation)
+      billing_address_collection: 'required',
       metadata: {
         supabase_user_id: user.id,
       },
