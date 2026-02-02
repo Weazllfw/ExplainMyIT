@@ -114,7 +114,7 @@ export default function RootLayout({
             async
             src={umamiSrc}
             data-website-id={umamiWebsiteId}
-            data-domains="explainmyit.com"
+            data-host-url="https://cloud.umami.is"
           />
         )}
       </head>
