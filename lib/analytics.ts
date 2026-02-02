@@ -238,13 +238,13 @@ export const Analytics = {
   },
 
   // Email opt-in events
-  emailOptInChecked: (source: 'snapshot-form' | 'success-state' | 'report-footer') => {
+  emailOptInChecked: (source: 'snapshot-form' | 'success-state' | 'report-footer' | 'signup-form') => {
     trackEvent('email-opt-in-checked', {
       source,
     });
   },
 
-  emailOptInSubmitted: (source: 'snapshot-form' | 'success-state' | 'report-footer', domain?: string) => {
+  emailOptInSubmitted: (source: 'snapshot-form' | 'success-state' | 'report-footer' | 'signup-form', domain?: string) => {
     trackEvent('email-opt-in-submitted', {
       source,
       domain: domain || 'unknown',
