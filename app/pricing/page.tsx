@@ -175,9 +175,9 @@ export default function PricingPage() {
                   </h3>
                   <ul className="space-y-2">
                     {[
-                      'One snapshot per domain',
-                      'No history or timeline',
-                      'No re-runs unless you upgrade',
+                      'One free snapshot per domain',
+                      'No re-runs or updates',
+                      'Must create account for tracking',
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <svg
@@ -299,7 +299,7 @@ export default function PricingPage() {
                   Most customers use Explain My IT as a background governance record, not a daily tool.
                 </p>
                 <p className="text-center text-[13px] text-brand-muted mt-2">
-                  No credit card required for free account. Cancel anytime.
+                  Free account: Up to 3 domains, 1 snapshot each (no updates). No credit card required. Cancel anytime.
                 </p>
               </div>
 

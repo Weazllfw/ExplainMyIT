@@ -12,7 +12,8 @@ export const FREE_TIER_LIMITS = {
   MAX_DOMAINS: 3,
   
   // Cooldown period between snapshots (days)
-  COOLDOWN_DAYS: 30,
+  // Set to 0 = no re-runs allowed (must upgrade to Basic for ongoing tracking)
+  COOLDOWN_DAYS: 0,
 };
 
 /**
@@ -75,36 +76,18 @@ export async function checkFreeTierLimits(params: {
 
   // Check: Exceeded max snapshots per domain?
   if (snapshotsForThisDomain >= FREE_TIER_LIMITS.MAX_SNAPSHOTS_PER_DOMAIN) {
-    // Check if cooldown period has passed
-    if (lastSnapshotForDomain) {
-      const daysSinceLastSnapshot = Math.floor(
-        (Date.now() - lastSnapshotForDomain.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      if (daysSinceLastSnapshot < FREE_TIER_LIMITS.COOLDOWN_DAYS) {
-        return {
-          allowed: false,
-          reason: `Free tier allows 1 snapshot per domain every ${FREE_TIER_LIMITS.COOLDOWN_DAYS} days. Next snapshot available in ${FREE_TIER_LIMITS.COOLDOWN_DAYS - daysSinceLastSnapshot} days.`,
-          upgradeRequired: true,
-          limitsUsed: {
-            snapshotsForDomain: snapshotsForThisDomain,
-            totalDomains: uniqueDomains,
-            lastSnapshotDate: lastSnapshotForDomain,
-          },
-        };
-      }
-    } else {
-      // Shouldn't happen, but block if we can't determine last snapshot
-      return {
-        allowed: false,
-        reason: `Free tier allows 1 snapshot per domain every ${FREE_TIER_LIMITS.COOLDOWN_DAYS} days.`,
-        upgradeRequired: true,
-        limitsUsed: {
-          snapshotsForDomain: snapshotsForThisDomain,
-          totalDomains: uniqueDomains,
-        },
-      };
-    }
+    // No cooldown - permanent limit for free tier
+    // Must upgrade to Basic for re-runs and automatic monthly snapshots
+    return {
+      allowed: false,
+      reason: `Free accounts get 1 snapshot per domain. Upgrade to Basic ($19.99/mo) for automatic monthly snapshots and unlimited re-runs.`,
+      upgradeRequired: true,
+      limitsUsed: {
+        snapshotsForDomain: snapshotsForThisDomain,
+        totalDomains: uniqueDomains,
+        lastSnapshotDate: lastSnapshotForDomain,
+      },
+    };
   }
 
   // Check: Exceeded max unique domains?

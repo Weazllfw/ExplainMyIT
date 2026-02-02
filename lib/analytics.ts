@@ -258,6 +258,14 @@ export const Analytics = {
     });
   },
 
+  // Upgrade prompt events
+  upgradePromptClicked: (action: 'upgrade-to-basic' | 'view-pricing' | 'create-account', reason: string) => {
+    trackEvent('upgrade-prompt-clicked', {
+      action,
+      reason,
+    });
+  },
+
   // Header navigation CTAs
   headerCtaClicked: (ctaType: 'signup' | 'login' | 'dashboard' | 'logout') => {
     trackEvent('header-cta-clicked', {

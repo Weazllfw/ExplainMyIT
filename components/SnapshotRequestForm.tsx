@@ -12,6 +12,7 @@ import { Analytics } from '@/lib/analytics';
 import { getCurrentUser } from '@/lib/auth/supabase-auth';
 import { DomainInput } from './ui/DomainInput';
 import { TrustSignals } from './ui/TrustSignals';
+import { UpgradeModal } from './upsells/UpgradeModal';
 
 const LOADING_STEPS = [
   { text: 'Analyzing DNS records...', duration: 2000 },
@@ -31,6 +32,9 @@ export default function SnapshotRequestForm() {
   const [error, setError] = useState('');
   const [loadingStep, setLoadingStep] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<'domain-limit' | 'snapshot-limit' | 'anonymous-limit'>('snapshot-limit');
+  const [limitInfo, setLimitInfo] = useState<{ currentDomains?: number; maxDomains?: number }>({});
 
   // Check auth status on mount
   useEffect(() => {
@@ -81,11 +85,35 @@ export default function SnapshotRequestForm() {
 
       if (!response.ok) {
         const errorMessage = data.error || 'Failed to request snapshot';
+        
+        // Check if this is a limit error that should show upgrade modal
+        if (data.upgradeRequired) {
+          // Authenticated user hitting free tier limits
+          if (errorMessage.includes('3 domains')) {
+            setUpgradeReason('domain-limit');
+            setLimitInfo({ currentDomains: data.limitsUsed?.totalDomains, maxDomains: 3 });
+          } else {
+            setUpgradeReason('snapshot-limit');
+          }
+          setShowUpgradeModal(true);
+          setError(errorMessage);
+        } else if (errorMessage.includes('already received a free snapshot')) {
+          // Anonymous user trying to run multiple snapshots
+          setUpgradeReason('anonymous-limit');
+          setShowUpgradeModal(true);
+          setError(errorMessage);
+        } else {
+          // Regular error
+          setError(errorMessage);
+        }
+        
         // Track error
         Analytics.snapshotRequestFailed(
-          errorMessage.includes('Rate limit') ? 'rate-limit' : 'api-error'
+          errorMessage.includes('Rate limit') || data.upgradeRequired ? 'rate-limit' : 'api-error'
         );
-        throw new Error(errorMessage);
+        
+        setIsLoading(false);
+        return;
       }
 
       // Success!
@@ -183,6 +211,7 @@ export default function SnapshotRequestForm() {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="email" className="block text-sm font-semibold text-brand-navy mb-2">
@@ -279,5 +308,16 @@ export default function SnapshotRequestForm() {
       {/* Trust signals */}
       <TrustSignals />
     </form>
+
+    {/* Upgrade Modal */}
+    <UpgradeModal
+      isOpen={showUpgradeModal}
+      onClose={() => setShowUpgradeModal(false)}
+      reason={upgradeReason}
+      domain={domain}
+      currentDomains={limitInfo.currentDomains}
+      maxDomains={limitInfo.maxDomains || 3}
+    />
+  </>
   );
 }

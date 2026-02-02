@@ -43,17 +43,40 @@ export async function checkRateLimit(params: {
   const domainHash = hashIdentifier(domain);
   const emailHash = email ? hashIdentifier(email) : null;
   
-  // Query based on user ID or email hash
+  // For anonymous users (no userId), check if domain has EVER been scanned anonymously
+  // This prevents email switching exploit
+  if (!userId) {
+    const { data: anonymousSnapshot, error: anonymousError } = await supabase
+      .from('rate_limits')
+      .select('*')
+      .eq('domain_hash', domainHash)
+      .is('user_id', null)  // Only anonymous snapshots
+      .maybeSingle();
+    
+    if (anonymousError) {
+      return { allowed: false, error: anonymousError.message };
+    }
+    
+    if (anonymousSnapshot) {
+      // Domain already scanned anonymously - block it
+      return {
+        allowed: false,
+        error: 'You\'ve already received a free snapshot for this domain. Create a free account to track changes over time and run snapshots for up to 3 domains.',
+      };
+    }
+    
+    // First anonymous snapshot for this domain - allow it
+    return { allowed: true, error: null };
+  }
+  
+  // For authenticated users, check user-specific rate limit
   let query = supabase
     .from('rate_limits')
     .select('*')
-    .eq('domain_hash', domainHash);
+    .eq('domain_hash', domainHash)
+    .eq('user_id', userId);
   
-  if (userId) {
-    query = query.eq('user_id', userId);
-  } else if (emailHash) {
-    query = query.eq('email_hash', emailHash);
-  } else {
+  if (!userId && !emailHash) {
     return {
       allowed: false,
       error: 'Must provide userId or email',
@@ -110,7 +133,8 @@ export async function recordSnapshotRun(params: {
   const domainHash = hashIdentifier(domain);
   const emailHash = email ? hashIdentifier(email) : null;
   
-  // Check if limit record exists
+  // For anonymous users, record domain-only (no email hash)
+  // For authenticated users, record user_id + domain
   let query = supabase
     .from('rate_limits')
     .select('*')
@@ -118,9 +142,12 @@ export async function recordSnapshotRun(params: {
   
   if (userId) {
     query = query.eq('user_id', userId);
-  } else if (emailHash) {
-    query = query.eq('email_hash', emailHash);
   } else {
+    // Anonymous: check for any anonymous record for this domain
+    query = query.is('user_id', null);
+  }
+  
+  if (!userId && !email) {
     return {
       success: false,
       error: 'Must provide userId or email',
@@ -150,9 +177,11 @@ export async function recordSnapshotRun(params: {
     }
   } else {
     // Create new record
+    // For anonymous users: domain-only (no email_hash to prevent email switching)
+    // For authenticated users: user_id + domain
     const insertData = {
       user_id: userId || null,
-      email_hash: emailHash || null,
+      email_hash: userId ? null : null,  // Never store email_hash (domain-only for anonymous)
       domain_hash: domainHash,
       last_run_at: new Date().toISOString(),
       run_count: 1,
