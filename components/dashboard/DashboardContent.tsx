@@ -85,7 +85,7 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
     }
   };
 
-  // Calculate stats
+  // Calculate stats and limits
   const stats = {
     total: snapshots.length,
     completed: snapshots.filter(s => s.status === 'completed').length,
@@ -95,6 +95,13 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
       return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
     }).length,
   };
+
+  // Calculate domain usage for free tier
+  const uniqueDomains = Array.from(new Set(snapshots.map(s => s.domain)));
+  const domainsUsed = uniqueDomains.length;
+  const maxDomains = 3;
+  const isFree = !subscriptionStatus || subscriptionStatus === 'free';
+  const domainsRemaining = isFree ? Math.max(0, maxDomains - domainsUsed) : null;
 
   // Sort snapshots
   const sortedSnapshots = [...snapshots].sort((a, b) => {
@@ -265,6 +272,65 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
             </div>
           </div>
         )}
+
+        {/* Free Tier Limits Display */}
+        {isFree && snapshots.length > 0 && (
+          <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border border-brand-cyan/30 rounded-[12px]">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-5 h-5 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-semibold text-brand-navy">Free Tier Usage</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="text-brand-slate">Domains:</span>
+                        <span className="font-bold text-brand-navy">
+                          {domainsUsed} / {maxDomains}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white rounded-full h-2 overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all ${
+                            domainsUsed >= maxDomains 
+                              ? 'bg-red-500' 
+                              : domainsUsed >= 2 
+                              ? 'bg-orange-500' 
+                              : 'bg-brand-cyan'
+                          }`}
+                          style={{ width: `${(domainsUsed / maxDomains) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-brand-muted">
+                    {domainsRemaining === 0 ? (
+                      <span className="text-red-600 font-medium">Limit reached - Upgrade for unlimited domains</span>
+                    ) : domainsRemaining === 1 ? (
+                      <span className="text-orange-600 font-medium">1 domain remaining</span>
+                    ) : (
+                      <span>{domainsRemaining} domains remaining • 1 snapshot per domain (no re-runs)</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/pricing"
+                onClick={() => {
+                  Analytics.upgradePromptClicked('upgrade-to-basic', 'dashboard-limits-widget');
+                  UmamiEvents.upgradeToBasicClicked('dashboard');
+                }}
+                className="px-4 py-2 bg-brand-cyan text-white text-sm font-semibold rounded-[10px] hover:bg-brand-cyan/90 transition-all shadow-sm whitespace-nowrap"
+              >
+                Upgrade
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -314,6 +380,68 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
         </div>
       )}
 
+      {/* Upgrade Banner for Free Users Approaching/At Limits */}
+      {isFree && domainsUsed >= 2 && (
+        <div className={`rounded-[16px] p-6 mb-8 shadow-brand ${
+          domainsUsed >= maxDomains 
+            ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200' 
+            : 'bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200'
+        }`}>
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className={`w-6 h-6 ${domainsUsed >= maxDomains ? 'text-red-600' : 'text-orange-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h3 className="text-[20px] font-bold text-brand-navy">
+                  {domainsUsed >= maxDomains ? '🔒 Domain Limit Reached' : '⚠️ Almost at Your Limit'}
+                </h3>
+              </div>
+              <p className="text-brand-slate mb-3">
+                {domainsUsed >= maxDomains ? (
+                  <>You've used all <strong>{maxDomains} domains</strong> on the free tier. Upgrade to Basic for unlimited domains and automatic monthly snapshots.</>
+                ) : (
+                  <>You've used <strong>{domainsUsed} of {maxDomains} domains</strong>. Upgrade to Basic for unlimited domains and automatic monthly tracking.</>
+                )}
+              </p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-brand-slate">Unlimited domains</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-brand-slate">Automatic monthly snapshots</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-brand-slate">Unlimited re-runs</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <Link
+                href="/pricing"
+                onClick={() => {
+                  Analytics.upgradePromptClicked('upgrade-to-basic', 'dashboard-limit-banner');
+                  UmamiEvents.upgradeToBasicClicked('dashboard');
+                }}
+                className="px-6 py-3 bg-brand-cyan text-white font-semibold rounded-[12px] hover:bg-brand-cyan/90 transition-all shadow-lg text-center whitespace-nowrap"
+              >
+                Upgrade to Basic
+              </Link>
+              <p className="text-xs text-brand-muted text-center">$19.99/mo</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* New Snapshot CTA */}
       <div className="bg-gradient-to-br from-brand-navy to-blue-700 rounded-[16px] p-6 mb-8 shadow-brand">
         <div className="flex items-center justify-between">
@@ -322,18 +450,26 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
               Run a New Snapshot
             </h3>
             <p className="text-blue-100 text-sm">
-              Get fresh insights on any domain • Free for every domain every 30 days
+              {isFree ? (
+                <>Get insights on any domain • {domainsRemaining === 0 ? 'Upgrade to add more domains' : `${domainsRemaining} ${domainsRemaining === 1 ? 'domain' : 'domains'} remaining`}</>
+              ) : (
+                <>Get fresh insights on any domain • Unlimited snapshots with Basic</>
+              )}
             </p>
           </div>
           <Link
             href="/"
             onClick={() => Analytics.dashboardCtaClicked('new-snapshot')}
-            className="px-6 py-3 bg-white text-brand-navy font-semibold rounded-[12px] hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2"
+            className={`px-6 py-3 font-semibold rounded-[12px] transition-all shadow-lg flex items-center gap-2 ${
+              isFree && domainsRemaining === 0
+                ? 'bg-white/20 text-white/50 cursor-not-allowed'
+                : 'bg-white text-brand-navy hover:bg-blue-50'
+            }`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            New Snapshot
+            {isFree && domainsRemaining === 0 ? 'Limit Reached' : 'New Snapshot'}
           </Link>
         </div>
       </div>
@@ -390,6 +526,38 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
             <p className="text-brand-muted mb-6 max-w-md mx-auto">
               Run your first IT snapshot to understand your domain's public configuration, security posture, and technical setup
             </p>
+            {isFree && (
+              <div className="bg-blue-50 border border-brand-cyan/30 rounded-[12px] p-4 mb-6 max-w-md mx-auto text-left">
+                <p className="text-sm font-semibold text-brand-navy mb-2">Free Tier Includes:</p>
+                <ul className="space-y-1.5 text-sm text-brand-slate">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Up to 3 domains
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    1 snapshot per domain
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-brand-muted">No re-runs or updates</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/pricing"
+                  onClick={() => Analytics.upgradePromptClicked('view-pricing', 'dashboard-empty-state')}
+                  className="text-sm text-brand-cyan hover:underline font-medium mt-3 inline-block"
+                >
+                  Upgrade to Basic for unlimited →
+                </Link>
+              </div>
+            )}
             <Link
               href="/"
               onClick={() => Analytics.dashboardCtaClicked('new-snapshot')}
@@ -406,7 +574,12 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
         {!error && snapshots.length > 0 && (
           <div className="space-y-3">
             {sortedSnapshots.map((snapshot) => (
-              <SnapshotCard key={snapshot.id} snapshot={snapshot} />
+              <SnapshotCard 
+                key={snapshot.id} 
+                snapshot={snapshot} 
+                isFreeUser={isFree}
+                subscriptionStatus={subscriptionStatus}
+              />
             ))}
           </div>
         )}
@@ -415,7 +588,15 @@ export default function DashboardContent({ user, snapshots, error }: DashboardCo
   );
 }
 
-function SnapshotCard({ snapshot }: { snapshot: Snapshot }) {
+function SnapshotCard({ 
+  snapshot, 
+  isFreeUser,
+  subscriptionStatus 
+}: { 
+  snapshot: Snapshot;
+  isFreeUser: boolean;
+  subscriptionStatus: string | null;
+}) {
   const [showActions, setShowActions] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
 
@@ -506,18 +687,43 @@ function SnapshotCard({ snapshot }: { snapshot: Snapshot }) {
                     </svg>
                     {copyStatus === 'copied' ? 'Copied!' : 'Copy Link'}
                   </button>
-                  <Link
-                    href="/"
-                    onClick={() => Analytics.dashboardCtaClicked('rerun-domain')}
-                    className="block w-full px-4 py-2 text-left text-sm text-brand-slate hover:bg-brand-bg rounded-b-[12px] transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      Re-run Snapshot
+                  {isFreeUser ? (
+                    <div className="w-full px-4 py-2 rounded-b-[12px]">
+                      <div className="flex items-start gap-2">
+                        <svg className="w-4 h-4 text-brand-muted flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-xs text-brand-muted">
+                            <strong className="text-brand-navy">Free tier:</strong> No re-runs
+                          </p>
+                          <Link
+                            href="/pricing"
+                            onClick={() => {
+                              Analytics.upgradePromptClicked('upgrade-to-basic', 'snapshot-card-rerun');
+                              setShowActions(false);
+                            }}
+                            className="text-xs text-brand-cyan hover:underline font-medium"
+                          >
+                            Upgrade for unlimited →
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                  </Link>
+                  ) : (
+                    <Link
+                      href="/"
+                      onClick={() => Analytics.dashboardCtaClicked('rerun-domain')}
+                      className="block w-full px-4 py-2 text-left text-sm text-brand-slate hover:bg-brand-bg rounded-b-[12px] transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Re-run Snapshot
+                      </div>
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
