@@ -38,8 +38,10 @@ export async function addToWaitlist(
 ): Promise<{ success: boolean; error?: string }> {
   const apiKey = process.env.BREVO_API_KEY;
 
+  console.log('[BREVO addToWaitlist] Called with:', { email: data.email, signupSource: data.signupSource });
+
   if (!apiKey) {
-    console.error('BREVO_API_KEY is not configured');
+    console.error('[BREVO addToWaitlist] BREVO_API_KEY is not configured');
     return {
       success: false,
       error: 'Email service is not configured',
@@ -76,6 +78,8 @@ export async function addToWaitlist(
     },
   }
 
+  console.log('[BREVO addToWaitlist] Sending to List 18:', contactData);
+
   try {
     const response = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
@@ -87,30 +91,36 @@ export async function addToWaitlist(
       body: JSON.stringify(contactData),
     });
 
+    console.log('[BREVO addToWaitlist] Response status:', response.status);
+
     // Brevo returns 201 for new contact, 204 for updated contact
     // Both are success cases
     if (response.status === 201 || response.status === 204) {
+      console.log('[BREVO addToWaitlist] ✅ Contact added/updated successfully to List 18');
       return { success: true };
     }
 
     // Handle duplicate email (already exists)
     if (response.status === 400) {
       const errorData = await response.json();
+      console.log('[BREVO addToWaitlist] 400 response:', errorData);
+      
       if (errorData.code === 'duplicate_parameter') {
         // Treat duplicate as success - user is already on the list
+        console.log('[BREVO addToWaitlist] ✅ Contact already exists (treated as success)');
         return { success: true };
       }
     }
 
     // Other errors
     const errorData = await response.json();
-    console.error('Brevo API error:', errorData);
+    console.error('[BREVO addToWaitlist] ❌ API error:', errorData);
     return {
       success: false,
       error: 'Failed to subscribe. Please try again.',
     };
   } catch (error) {
-    console.error('Error connecting to Brevo:', error);
+    console.error('[BREVO addToWaitlist] ❌ Exception:', error);
     return {
       success: false,
       error: 'Failed to subscribe. Please try again.',

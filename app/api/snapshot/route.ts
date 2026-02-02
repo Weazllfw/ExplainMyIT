@@ -215,7 +215,14 @@ export async function POST(request: NextRequest) {
     // If user opted into emails, add them to Brevo mailing list
     if (optIntoEmails && !userId) {
       // Only add if they don't have an account (account users are added on signup)
-      console.log(`📧 Adding ${email} to Brevo mailing list...`);
+      console.log(`📧 [BREVO] Adding ${email} to mailing list (List 18)...`);
+      console.log(`📧 [BREVO] Opt-in data:`, {
+        email,
+        signupSource: 'free-snapshot',
+        signupPage: 'snapshot-form',
+        optIntoEmails,
+      });
+      
       const brevoResult = await addToWaitlist({
         email,
         companySize: 'Not provided',
@@ -226,11 +233,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (brevoResult.success) {
-        console.log(`✅ Successfully added to Brevo mailing list`);
+        console.log(`✅ [BREVO] Successfully added ${email} to List 18`);
       } else {
-        console.warn(`⚠️  Failed to add to Brevo: ${brevoResult.error}`);
+        console.error(`❌ [BREVO] Failed to add to List 18: ${brevoResult.error}`);
         // Don't fail the request if Brevo fails
       }
+    } else if (optIntoEmails && userId) {
+      console.log(`ℹ️  [BREVO] Skipping mailing list for authenticated user (${email})`);
+    } else {
+      console.log(`ℹ️  [BREVO] User did not opt into emails (${email})`);
     }
 
     // Send email via Brevo (with appropriate link based on auth status)

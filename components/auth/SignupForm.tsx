@@ -18,6 +18,7 @@ export default function SignupForm() {
     confirmPassword: '',
     fullName: '',
   });
+  const [optIntoEmails, setOptIntoEmails] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -59,6 +60,36 @@ export default function SignupForm() {
       // Track successful signup
       Analytics.formSubmitted('signup');
       Analytics.userSignedUp();
+
+      // If user opted into emails, add them to Brevo mailing list
+      if (optIntoEmails) {
+        try {
+          const brevoResponse = await fetch('/api/brevo/add-to-waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              listId: 18,
+              attributes: {
+                SIGNUP_SOURCE: 'account-signup',
+                SIGNUP_PAGE: 'signup-form',
+                LEAD_STATUS: 'new',
+              },
+            }),
+          });
+          
+          if (brevoResponse.ok) {
+            console.log('✅ Added to Brevo mailing list (List 18)');
+            Analytics.emailOptInSubmitted('signup-form');
+          } else {
+            const errorData = await brevoResponse.json();
+            console.warn('⚠️ Failed to add to Brevo list:', errorData);
+          }
+        } catch (brevoError) {
+          console.error('Brevo error:', brevoError);
+          // Don't fail signup if Brevo fails
+        }
+      }
 
       // Show success confirmation
       setCreatedEmail(formData.email);
@@ -222,6 +253,26 @@ export default function SignupForm() {
           minLength={8}
           disabled={isLoading}
         />
+      </div>
+
+      {/* Email Opt-in Checkbox */}
+      <div className="flex items-start gap-3 p-3 bg-brand-bg rounded-[10px] border border-brand-border">
+        <input
+          type="checkbox"
+          id="opt-in-emails"
+          checked={optIntoEmails}
+          onChange={(e) => {
+            setOptIntoEmails(e.target.checked);
+            if (e.target.checked) {
+              Analytics.emailOptInChecked('signup-form');
+            }
+          }}
+          disabled={isLoading}
+          className="mt-0.5 w-4 h-4 text-brand-cyan border-brand-border rounded focus:ring-2 focus:ring-brand-cyan/35"
+        />
+        <label htmlFor="opt-in-emails" className="text-sm text-brand-slate leading-relaxed cursor-pointer">
+          Keep me updated about my IT setup and new features (occasional emails, unsubscribe anytime)
+        </label>
       </div>
 
       {/* Error Message */}

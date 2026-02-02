@@ -23,11 +23,15 @@ This directory contains minimal, focused documentation explaining exactly how ea
 - **[Homepage-Architecture.md](./Homepage-Architecture.md)** - Homepage architecture
 
 ### **📊 Analytics & Tracking**
+- **[Umami-Analytics-Setup.md](./Umami-Analytics-Setup.md)** - ⭐ **SOURCE OF TRUTH** - Complete configuration & event tracking
 - **[Umami-Quick-Start-Checklist.md](./Umami-Quick-Start-Checklist.md)** - ⚡ 15 min setup
 - **[Umami-Cloud-Setup-Guide.md](./Umami-Cloud-Setup-Guide.md)** - Complete guide
 
 ### **💳 Subscriptions & Payments**
 - **[Basic-Subscription-Architecture.md](./Basic-Subscription-Architecture.md)** - Stripe integration *(to be created)*
+
+### **📧 Email & Communications**
+- **[Brevo-Mailing-List-Integration.md](./Brevo-Mailing-List-Integration.md)** - ⭐ **SOURCE OF TRUTH** - Mailing list opt-ins & integration
 - **[Email-System-Architecture.md](./Email-System-Architecture.md)** - Email templates & Brevo *(to be created)*
 
 ---
@@ -163,6 +167,7 @@ This directory contains minimal, focused documentation explaining exactly how ea
 
 ### **✅ Current & Accurate**
 - [x] Frontend Visual Language
+- [x] Umami Analytics Setup (SOURCE OF TRUTH)
 - [x] Umami Setup Guides
 - [x] Email Templates Documentation
 - [x] Pre-Launch Status Report
@@ -205,6 +210,12 @@ This directory contains minimal, focused documentation explaining exactly how ea
 
 ## Recent Major Updates
 
+**2026-02-02:**
+- ✅ Umami Analytics fully operational (events tracking fixed)
+- ✅ Complete Umami setup documented as Source of Truth
+- ✅ Dashboard date bug fixed (-1 days ago issue resolved)
+- ✅ Email templates for Supabase auth created (3 templates)
+
 **2026-01-31:**
 - ✅ HTML email templates created (4 templates in code)
 - ✅ Email system standardized (`noreply@explainmyit.com`)
@@ -225,6 +236,7 @@ This directory contains minimal, focused documentation explaining exactly how ea
 
 ---
 
-**Last Updated**: 2026-01-31  
+**Last Updated**: 2026-02-02  
 **Product Status**: Production Ready  
-**Next Milestone**: Launch (30 minutes of pre-launch tasks remaining)
+**Analytics**: ✅ Fully Operational
+**Next Milestone**: Launch (pre-launch tasks remaining)
