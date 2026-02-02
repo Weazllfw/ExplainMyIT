@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Umami Analytics Test</title>
+  
+  <!-- Load Umami Script -->
+  <script 
+    async
+    src="https://cloud.umami.is/script.js"
+    data-website-id="d7524bc6-f274-48a5-a6a9-26174900bab3"
+    data-domains="explainmyit.com"
+  ></script>
+  
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #1f3a5f;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2c5282;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .info { background: #d1ecf1; color: #0c5460; }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Umami Analytics Test Page</h1>
+  
+  <div class="card">
+    <h2>1. Check Umami Status</h2>
+    <button onclick="checkUmami()">Check if Umami is Loaded</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Fire Test Events</h2>
+    <button onclick="fireTestEvent()">Fire Single Test Event</button>
+    <button onclick="fireMultipleEvents()">Fire Multiple Events</button>
+    <button onclick="fireEventWithData()">Fire Event with Data</button>
+    <div id="events-log"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. Simulate User Flow</h2>
+    <button onclick="simulateUserFlow()">Simulate Free User Flow</button>
+    <div id="flow-log"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Instructions</h2>
+    <ol>
+      <li>Click "Check if Umami is Loaded" to verify the script loaded</li>
+      <li>Fire test events using the buttons above</li>
+      <li>Open your Umami dashboard: <a href="https://cloud.umami.is/" target="_blank">cloud.umami.is</a></li>
+      <li>Go to <strong>Realtime</strong> tab (events appear within 5 seconds)</li>
+      <li>Or click <strong>Events</strong> tab to see event list</li>
+    </ol>
+    <p><strong>Note:</strong> Page views are tracked automatically. Custom events require clicking the buttons above.</p>
+  </div>
+
+  <script>
+    // Wait for Umami to load
+    let umamiReady = false;
+    
+    // Check every 100ms for up to 5 seconds
+    const checkInterval = setInterval(() => {
+      if (window.umami || window.umami?.track) {
+        umamiReady = true;
+        clearInterval(checkInterval);
+        console.log('✅ Umami loaded and ready');
+      }
+    }, 100);
+    
+    setTimeout(() => {
+      if (!umamiReady) {
+        console.error('❌ Umami did not load within 5 seconds');
+      }
+      clearInterval(checkInterval);
+    }, 5000);
+
+    function checkUmami() {
+      const statusDiv = document.getElementById('status');
+      let html = '<div class="info">';
+      
+      html += '<strong>Umami Status:</strong><br>';
+      html += `window.umami exists: ${!!window.umami}<br>`;
+      html += `window.umami.track exists: ${!!window.umami?.track}<br>`;
+      html += `typeof window.umami: ${typeof window.umami}<br>`;
+      
+      if (window.umami) {
+        html += '<br><strong>Available methods:</strong><br>';
+        html += `<pre>${JSON.stringify(Object.keys(window.umami), null, 2)}</pre>`;
+      }
+      
+      html += '</div>';
+      statusDiv.innerHTML = html;
+      
+      console.log('Umami object:', window.umami);
+    }
+
+    function fireTestEvent() {
+      const logDiv = document.getElementById('events-log');
+      
+      if (!window.umami?.track) {
+        logDiv.innerHTML = '<div class="error">❌ Umami not loaded! Check console.</div>';
+        return;
+      }
+      
+      try {
+        window.umami.track('test-event-simple');
+        logDiv.innerHTML = '<div class="success">✅ Event fired: test-event-simple<br>Check Umami Realtime dashboard!</div>';
+        console.log('📊 Event fired: test-event-simple');
+      } catch (error) {
+        logDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+        console.error('Error firing event:', error);
+      }
+    }
+
+    function fireMultipleEvents() {
+      const logDiv = document.getElementById('events-log');
+      
+      if (!window.umami?.track) {
+        logDiv.innerHTML = '<div class="error">❌ Umami not loaded!</div>';
+        return;
+      }
+      
+      const events = [
+        'test-event-1',
+        'test-event-2',
+        'test-event-3'
+      ];
+      
+      let html = '<div class="success">';
+      events.forEach((event, i) => {
+        setTimeout(() => {
+          window.umami.track(event);
+          html += `✅ Event ${i+1} fired: ${event}<br>`;
+          if (i === events.length - 1) {
+            html += '<br>Check Umami Realtime dashboard!</div>';
+            logDiv.innerHTML = html;
+          } else {
+            logDiv.innerHTML = html + 'Firing events...</div>';
+          }
+          console.log(`📊 Event fired: ${event}`);
+        }, i * 1000);
+      });
+    }
+
+    function fireEventWithData() {
+      const logDiv = document.getElementById('events-log');
+      
+      if (!window.umami?.track) {
+        logDiv.innerHTML = '<div class="error">❌ Umami not loaded!</div>';
+        return;
+      }
+      
+      try {
+        const eventData = {
+          domain: 'test.com',
+          source: 'test-page',
+          timestamp: Date.now()
+        };
+        
+        window.umami.track('test-event-with-data', eventData);
+        
+        logDiv.innerHTML = `
+          <div class="success">
+            ✅ Event fired: test-event-with-data<br>
+            <strong>Data sent:</strong>
+            <pre>${JSON.stringify(eventData, null, 2)}</pre>
+            Check Umami Realtime dashboard!
+          </div>
+        `;
+        console.log('📊 Event with data fired:', eventData);
+      } catch (error) {
+        logDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+        console.error('Error:', error);
+      }
+    }
+
+    function simulateUserFlow() {
+      const logDiv = document.getElementById('flow-log');
+      
+      if (!window.umami?.track) {
+        logDiv.innerHTML = '<div class="error">❌ Umami not loaded!</div>';
+        return;
+      }
+      
+      logDiv.innerHTML = '<div class="info">🔄 Simulating free user flow...</div>';
+      
+      const flow = [
+        { event: 'snapshot-form-started', data: null, delay: 0 },
+        { event: 'snapshot-requested', data: { domain: 'test.com' }, delay: 2000 },
+        { event: 'snapshot-success-cta-clicked', data: { ctaType: 'create-account' }, delay: 4000 },
+        { event: 'form-started', data: { formName: 'signup' }, delay: 6000 },
+        { event: 'form-submitted', data: { formName: 'signup' }, delay: 8000 },
+        { event: 'user-signed-up', data: null, delay: 8500 }
+      ];
+      
+      let html = '<div class="success">';
+      flow.forEach(({ event, data, delay }, i) => {
+        setTimeout(() => {
+          window.umami.track(event, data);
+          html += `✅ Step ${i+1}: ${event}`;
+          if (data) html += ` (with data)`;
+          html += '<br>';
+          
+          if (i === flow.length - 1) {
+            html += '<br><strong>🎉 Complete! Check Umami dashboard Events tab.</strong></div>';
+          }
+          logDiv.innerHTML = html + '</div>';
+          
+          console.log(`📊 Flow step ${i+1}:`, event, data);
+        }, delay);
+      });
+    }
+  </script>
+</body>
+</html>

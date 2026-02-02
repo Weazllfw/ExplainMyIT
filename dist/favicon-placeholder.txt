@@ -1,0 +1,7 @@
+To add a favicon:
+
+1. Create or obtain a favicon.ico file (32x32px or 16x16px)
+2. Place it in the /app directory as favicon.ico
+3. Next.js will automatically use it
+
+You can create favicons at: https://favicon.io/
