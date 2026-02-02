@@ -111,9 +111,10 @@ export default function RootLayout({
         />
         {umamiSrc && umamiWebsiteId && (
           <script
-            defer
+            async
             src={umamiSrc}
             data-website-id={umamiWebsiteId}
+            data-domains="explainmyit.com"
           />
         )}
       </head>

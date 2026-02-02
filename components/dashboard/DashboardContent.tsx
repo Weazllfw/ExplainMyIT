@@ -428,10 +428,11 @@ function SnapshotCard({ snapshot }: { snapshot: Snapshot }) {
 
   const statusColor = statusColors[snapshot.status as keyof typeof statusColors] || statusColors.pending;
 
-  // Calculate age
+  // Calculate age (handle timezone and ensure non-negative)
   const createdDate = new Date(snapshot.created_at);
   const now = new Date();
-  const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+  const diffMs = now.getTime() - createdDate.getTime();
+  const daysAgo = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
   
   const timeAgoText = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`;
   const ageColor = daysAgo > 14 ? 'text-brand-caution' : 'text-brand-muted';

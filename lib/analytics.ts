@@ -22,11 +22,13 @@ export function trackEvent(eventName: string, eventData?: Record<string, any>): 
   
   if (window.umami) {
     window.umami.track(eventName, eventData);
-  } else {
-    // Log for debugging if Umami isn't loaded
+    // Always log in development for debugging
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Umami Event]', eventName, eventData);
+      console.log('[Umami Event Sent]', eventName, eventData);
     }
+  } else {
+    // Log warning if Umami isn't loaded (in all environments)
+    console.warn('[Umami Not Loaded] Event not sent:', eventName, eventData);
   }
 }
 
