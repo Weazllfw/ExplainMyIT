@@ -10,6 +10,10 @@ declare global {
       track: (eventName: string, eventData?: Record<string, any>) => void;
     };
   }
+  // Also support global umami object (Umami v2 style)
+  const umami: {
+    track: (eventName: string, eventData?: Record<string, any>) => void;
+  };
 }
 
 /**
@@ -20,15 +24,29 @@ declare global {
 export function trackEvent(eventName: string, eventData?: Record<string, any>): void {
   if (typeof window === 'undefined') return;
   
-  if (window.umami) {
-    window.umami.track(eventName, eventData);
-    // Always log in development for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Umami Event Sent]', eventName, eventData);
+  // Try global umami first (Umami v2)
+  if (typeof window !== 'undefined' && (window as any).umami?.track) {
+    try {
+      (window as any).umami.track(eventName, eventData);
+      console.log('📊 [Umami Event]', eventName, eventData);
+    } catch (error) {
+      console.error('[Umami Error]', error, { eventName, eventData });
     }
-  } else {
-    // Log warning if Umami isn't loaded (in all environments)
-    console.warn('[Umami Not Loaded] Event not sent:', eventName, eventData);
+  } 
+  // Fallback to window.umami
+  else if (window.umami?.track) {
+    try {
+      window.umami.track(eventName, eventData);
+      console.log('📊 [Umami Event]', eventName, eventData);
+    } catch (error) {
+      console.error('[Umami Error]', error, { eventName, eventData });
+    }
+  } 
+  // Log warning if Umami isn't loaded
+  else {
+    console.warn('⚠️ [Umami Not Loaded] Event not sent:', eventName, eventData);
+    console.log('Debug: window.umami =', window.umami);
+    console.log('Debug: typeof umami =', typeof (window as any).umami);
   }
 }
 
