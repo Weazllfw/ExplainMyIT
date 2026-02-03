@@ -165,7 +165,7 @@ export const post = {
       subtitle: 'publishedAt',
       media: 'mainImage',
     },
-    prepare(selection) {
+    prepare(selection: { title?: string; subtitle?: string }) {
       const { title, subtitle } = selection;
       return {
         title,

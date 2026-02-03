@@ -31,5 +31,8 @@ export const category = {
       title: 'title',
       subtitle: 'description',
     },
+    prepare(selection: { title?: string; subtitle?: string }) {
+      return selection;
+    },
   },
 };
