@@ -66,10 +66,10 @@ export const post = {
                     name: 'href',
                     type: 'url',
                     title: 'URL',
-                  validation: (Rule: any) =>
-                    Rule.uri({
-                      scheme: ['http', 'https', 'mailto', 'tel'],
-                    }),
+                    validation: (Rule: any) =>
+                      Rule.uri({
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
                   },
                 ],
               },
