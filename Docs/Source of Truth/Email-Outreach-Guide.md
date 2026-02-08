@@ -2,7 +2,7 @@
 
 **Last Updated**: February 4, 2026  
 **Purpose**: Guide for cold outreach and lead nurturing  
-**Audience**: Email marketing freelancers
+**Audience**: Email marketing freelancers,
 
 ---
 
