@@ -30,7 +30,7 @@ export const allPostsQuery = `
     slug,
     excerpt,
     publishedAt,
-    "readingTime": round(length(pt::text(body)) / 5 / 200),
+    "readingTime": round(length(body) / 5 / 200),
     body,
     seo
   }
@@ -44,7 +44,7 @@ export const postBySlugQuery = `
     slug,
     excerpt,
     publishedAt,
-    "readingTime": round(length(pt::text(body)) / 5 / 200),
+    "readingTime": round(length(body) / 5 / 200),
     body,
     seo
   }

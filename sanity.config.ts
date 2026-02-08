@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity';
-import { deskTool } from 'sanity/desk';
+import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemas } from './sanity/schemas';
 
@@ -14,14 +14,11 @@ export default defineConfig({
   dataset,
   
   plugins: [
-    deskTool(),
+    structureTool(),
     visionTool(),
   ],
   
   schema: {
     types: schemas,
   },
-  
-  // Studio settings
-  basePath: '/studio', // Will be available at /studio in your Next.js app
 });

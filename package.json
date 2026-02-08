@@ -13,7 +13,8 @@
     "test-signals": "tsx scripts/test-signals.ts",
     "test-llm": "tsx scripts/test-llm.ts",
     "test-api": "tsx scripts/test-api.ts",
-    "test-email": "tsx scripts/test-email.ts"
+    "test-email": "tsx scripts/test-email.ts",
+    "import-blog": "tsx scripts/import-blog-posts.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
